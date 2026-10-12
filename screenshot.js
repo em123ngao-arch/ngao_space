@@ -8,27 +8,39 @@ const delay = ms => new Promise(r => setTimeout(r, ms));
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
   });
 
-  const page = await browser.newPage();
-  await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
+  // 1. DESKTOP VIEWPORT (1440 x 900)
+  console.log('--- Capturing Desktop Viewports ---');
+  const desktopPage = await browser.newPage();
+  await desktopPage.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
+  await desktopPage.goto('http://localhost:7823/index.html', { waitUntil: 'networkidle0', timeout: 15000 });
 
-  await page.goto('http://localhost:7823/index.html', {
-    waitUntil: 'networkidle0',
-    timeout: 15000
-  });
+  // Wait 2.8s for wave surf to crest, seagulls to fly in, and crabs to scuttle
+  await delay(2800);
+  await desktopPage.screenshot({ path: 'screenshot_schedule.png', fullPage: false });
+  console.log('✓ screenshot_schedule.png (Desktop Schedule)');
 
-  // Wait 2.5 seconds for wave engine to advance and crest with foam
-  await delay(2500);
-
-  await page.screenshot({ path: 'screenshot_schedule.png', fullPage: false });
-  console.log('OK screenshot_schedule.png');
-
-  // Switch to finance tab
-  await page.click('#tab-btn-finance');
+  await desktopPage.click('#tab-btn-finance');
   await delay(800);
+  await desktopPage.screenshot({ path: 'screenshot_finance.png', fullPage: false });
+  console.log('✓ screenshot_finance.png (Desktop Finance)');
+  await desktopPage.close();
 
-  await page.screenshot({ path: 'screenshot_finance.png', fullPage: false });
-  console.log('OK screenshot_finance.png');
+  // 2. MOBILE RESPONSIVE VIEWPORT (iPhone 14/15: 390 x 844, DPR: 2)
+  console.log('--- Capturing Mobile Responsive Viewports ---');
+  const mobilePage = await browser.newPage();
+  await mobilePage.setViewport({ width: 390, height: 844, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+  await mobilePage.goto('http://localhost:7823/index.html', { waitUntil: 'networkidle0', timeout: 15000 });
+
+  await delay(2800);
+  await mobilePage.screenshot({ path: 'screenshot_mobile_schedule.png', fullPage: false });
+  console.log('✓ screenshot_mobile_schedule.png (Mobile Schedule)');
+
+  await mobilePage.click('#tab-btn-finance');
+  await delay(800);
+  await mobilePage.screenshot({ path: 'screenshot_mobile_finance.png', fullPage: false });
+  console.log('✓ screenshot_mobile_finance.png (Mobile Finance)');
+  await mobilePage.close();
 
   await browser.close();
-  console.log('Done.');
+  console.log('All screenshots captured successfully!');
 })().catch(e => { console.error(e); process.exit(1); });
