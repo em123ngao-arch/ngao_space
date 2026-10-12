@@ -177,95 +177,163 @@
     </main>
 
     <!-- ======================================================================
-         TAB 2: QUẢN LÝ TÀI CHÍNH, CHI TIÊU & TIẾT KIỆM (TUẦN / NĂM)
+         TAB 2: QUẢN LÝ TÀI CHÍNH THEO TUẦN, NGÀY & MỤC TIÊU TIẾT KIỆM LỚN
          ====================================================================== -->
     <main class="view-panel" id="view-finance">
 
-      <!-- Week Indicators & Year-End Goal Grid -->
-      <section class="finance-overview-grid">
-
-        <!-- 1. THẺ THEO DÕI TUẦN NÀY -->
-        <div class="finance-card weekly-card">
-          <div class="card-tag-row">
-            <span class="pill-tag pill-blue" id="finance-week-badge">Tuần 41 / 52 Tuần (Năm 2026)</span>
-            <span class="card-hint-text">Cập nhật theo tuần</span>
+      <!-- 1. MỤC TIÊU TIẾT KIỆM LỚN (BIG SAVINGS GOAL) -->
+      <section class="finance-card big-goal-card">
+        <div class="card-tag-row">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="pill-tag pill-emerald">🎯 Mục Tiêu Tiết Kiệm Lớn</span>
+            <span class="goal-custom-title" id="goal-title-text">Quỹ Tích Lũy Lớn Của Ngân</span>
           </div>
-
-          <div class="weekly-stats-hero">
-            <div class="stat-col">
-              <span class="stat-meta">Còn Lại Cho Tuần Này</span>
-              <div class="stat-number-large" id="weekly-remaining-amount">680.000 đ</div>
-            </div>
-            <div class="stat-badge-status" id="weekly-status-pill">
-              An toàn 🌱
-            </div>
-          </div>
-
-          <div class="weekly-meter-section">
-            <div class="meter-labels">
-              <span>Đã chi: <strong id="weekly-spent-text">820.000 đ</strong></span>
-              <span>Hạn mức: <strong id="weekly-budget-text">1.500.000 đ</strong></span>
-            </div>
-            <div class="progress-bar-track">
-              <div class="progress-bar-fill fill-blue" id="weekly-meter-bar" style="width: 55%;"></div>
-            </div>
-          </div>
-
-          <!-- Quick setting for weekly budget -->
-          <div class="budget-setting-row">
-            <span style="font-size: 12px; color: var(--text-muted);">Đổi hạn mức tuần:</span>
-            <div style="display: flex; gap: 6px; align-items: center;">
-              <input type="number" class="form-input form-input-sm" id="input-weekly-budget" placeholder="1500000" style="max-width: 120px;">
-              <button class="btn-secondary btn-sm" id="btn-save-weekly-budget">Lưu</button>
-            </div>
-          </div>
+          <span class="card-hint-text" id="goal-remaining-weeks-text">Còn 11 tuần nữa hết năm 2026</span>
         </div>
 
-        <!-- 2. THẺ MỤC TIÊU TÍCH LŨY CUỐI NĂM -->
-        <div class="finance-card goal-card">
-          <div class="card-tag-row">
-            <span class="pill-tag pill-emerald">🎯 Mục Tiêu Tích Lũy Cuối Năm</span>
-            <span class="card-hint-text" id="goal-remaining-weeks-text">Còn 11 tuần nữa hết năm</span>
-          </div>
-
-          <div class="goal-stats-hero">
-            <div>
-              <span class="stat-meta">Đã Tích Lũy Được</span>
-              <div class="stat-number-large stat-emerald" id="goal-current-amount">16.500.000 đ</div>
-            </div>
-            <div class="goal-percent-badge" id="goal-percent-text">66%</div>
-          </div>
-
-          <div class="goal-meter-section">
-            <div class="meter-labels">
+        <div class="big-goal-hero-grid">
+          <div class="big-goal-main-stat">
+            <span class="stat-meta">ĐÃ TÍCH LŨY ĐƯỢC</span>
+            <div class="stat-number-large stat-emerald" id="goal-current-amount">0 đ</div>
+            <div class="goal-sub-stats">
               <span>Mục tiêu: <strong id="goal-target-amount">25.000.000 đ</strong></span>
-              <span id="goal-needed-weekly-text">Cần ~772.000 đ / tuần</span>
-            </div>
-            <div class="progress-bar-track">
-              <div class="progress-bar-fill fill-emerald" id="goal-meter-bar" style="width: 66%;"></div>
+              <span>Còn thiếu: <strong id="goal-missing-amount" style="color: var(--coral-rose);">25.000.000 đ</strong></span>
             </div>
           </div>
 
-          <!-- Quick Deposit Row -->
-          <div class="goal-deposit-actions">
-            <span class="deposit-label">Nạp tiền vào quỹ tiết kiệm:</span>
-            <div class="deposit-buttons-group">
-              <button class="btn-deposit" data-amount="200000">+ 200.000 đ</button>
-              <button class="btn-deposit" data-amount="500000">+ 500.000 đ</button>
-              <button class="btn-deposit" data-amount="1000000">+ 1.000.000 đ</button>
+          <div class="big-goal-pace-stat">
+            <div class="goal-percent-badge" id="goal-percent-text">0%</div>
+            <div class="goal-needed-pills">
+              <span class="needed-pill" id="goal-needed-weekly-text">Cần ~0 đ / tuần</span>
+              <span class="needed-pill" id="goal-needed-daily-text">~0 đ / ngày</span>
             </div>
           </div>
         </div>
 
+        <!-- Thanh tiến độ lớn với các nấc milestone -->
+        <div class="goal-meter-section">
+          <div class="progress-bar-track progress-bar-large">
+            <div class="progress-bar-fill fill-emerald" id="goal-meter-bar" style="width: 0%;"></div>
+          </div>
+          <div class="goal-milestones">
+            <span>0%</span>
+            <span>25%</span>
+            <span>50%</span>
+            <span>75%</span>
+            <span>100% 🎯</span>
+          </div>
+        </div>
+
+        <!-- Hàng nạp / trích quỹ tiết kiệm nhanh -->
+        <div class="goal-actions-bar">
+          <div class="deposit-buttons-group">
+            <span class="deposit-label">Nạp vào quỹ:</span>
+            <button class="btn-deposit" data-amount="100000">+ 100k</button>
+            <button class="btn-deposit" data-amount="200000">+ 200k</button>
+            <button class="btn-deposit" data-amount="500000">+ 500k</button>
+            <button class="btn-deposit" data-amount="1000000">+ 1 Triệu</button>
+          </div>
+
+          <!-- Nạp tùy chọn & Đổi mục tiêu -->
+          <div class="goal-custom-inputs">
+            <input type="number" class="form-input form-input-sm" id="input-custom-deposit" placeholder="Số tiền khác..." style="max-width: 140px;">
+            <button class="btn-secondary btn-sm" id="btn-custom-deposit">+ Nạp</button>
+            <button class="btn-secondary btn-sm" id="btn-edit-goal-target" title="Đổi số tiền mục tiêu">Đổi Mục Tiêu</button>
+          </div>
+        </div>
       </section>
 
-      <!-- Quick Add Transaction & Ledger Split -->
+      <!-- 2. TỔNG QUAN THEO TUẦN & TỐC ĐỘ SÀI TIỀN (WEEKLY LEVEL) -->
+      <section class="finance-card weekly-card">
+        <div class="card-tag-row">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="pill-tag pill-blue" id="finance-week-badge">Tuần 42 / 52 Tuần</span>
+            <span class="card-hint-text">Quản lý theo chu kỳ tuần</span>
+          </div>
+          <div class="stat-badge-status" id="weekly-status-pill">An toàn 🌱</div>
+        </div>
+
+        <div class="weekly-metrics-grid">
+          <div class="metric-box">
+            <span class="stat-meta">HẠN MỨC TUẦN NÀY</span>
+            <div class="metric-val" id="weekly-budget-text">1.500.000 đ</div>
+            <div class="metric-sub">
+              <span>Đổi:</span>
+              <input type="number" class="form-input form-input-xs" id="input-weekly-budget" placeholder="1500000" style="max-width: 95px;">
+              <button class="btn-secondary btn-xs" id="btn-save-weekly-budget">Lưu</button>
+            </div>
+          </div>
+
+          <div class="metric-box">
+            <span class="stat-meta">ĐÃ CHI TRONG TUẦN</span>
+            <div class="metric-val text-expense" id="weekly-spent-text">0 đ</div>
+            <span class="metric-sub-note" id="weekly-spent-percent">0% hạn mức</span>
+          </div>
+
+          <div class="metric-box">
+            <span class="stat-meta">CÒN LẠI CHO TUẦN</span>
+            <div class="metric-val text-remaining" id="weekly-remaining-amount">1.500.000 đ</div>
+            <span class="metric-sub-note" id="weekly-burn-rate-note">Định mức an toàn: ~214k / ngày</span>
+          </div>
+        </div>
+
+        <div class="weekly-meter-section">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill fill-blue" id="weekly-meter-bar" style="width: 0%;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. BẢNG SO SÁNH 7 NGÀY TRONG TUẦN TRỰC QUAN (DAY-BY-DAY COMPARISON) -->
+      <section class="finance-card daily-breakdown-card">
+        <div class="list-header-row">
+          <div>
+            <h3 class="panel-section-title">📊 So Sánh Mức Độ Sài Tiền Theo Ngày (Thứ 2 ➔ Chủ Nhật)</h3>
+            <p class="panel-section-sub">Bấm vào từng ngày để lọc xem chi tiết các khoản chi của ngày đó</p>
+          </div>
+          <div class="day-filter-badge" id="current-day-filter-label">Đang xem: Cả Tuần</div>
+        </div>
+
+        <div class="days-comparison-grid" id="days-comparison-bars">
+          <!-- Rendered dynamically: 7 Day Columns with Visual Height Bars & Spend Labels -->
+        </div>
+      </section>
+
+      <!-- 4. BẢNG SO SÁNH GIỮA CÁC TUẦN TRỰC QUAN (WEEK-OVER-WEEK COMPARISON) -->
+      <section class="finance-card weeks-comparison-card">
+        <div class="list-header-row">
+          <div>
+            <h3 class="panel-section-title">📈 So Sánh Chi Tiêu Giữa Các Tuần Gần Nhất</h3>
+            <p class="panel-section-sub">Theo dõi xu hướng sài tiền tăng hay giảm qua từng tuần</p>
+          </div>
+          <span class="card-hint-text">Đơn vị: VNĐ</span>
+        </div>
+
+        <div class="weeks-table-wrap">
+          <table class="weeks-compare-table">
+            <thead>
+              <tr>
+                <th>Tuần</th>
+                <th>Tổng Chi</th>
+                <th>Hạn Mức</th>
+                <th>Tiết Kiệm Được</th>
+                <th>Đánh Giá & Xu Hướng</th>
+              </tr>
+            </thead>
+            <tbody id="weeks-compare-tbody">
+              <!-- Rendered dynamically: Week comparison rows -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 5. GHI CHÉP THU/CHI NHANH & SỔ GIAO DỊCH (TRANSACTION LEDGER) -->
       <section class="ledger-container">
 
         <!-- Left: Quick Add Transaction -->
         <div class="finance-card add-trans-card">
-          <h3 class="panel-section-title">✍️ Ghi Chép Thu / Chi Tuần Này</h3>
-          <p class="panel-section-sub">Nhập 1 dòng nhanh chóng để theo dõi chặt chẽ chi tiêu của Ngân</p>
+          <h3 class="panel-section-title">✍️ Ghi Chép Khoản Tiền Mới</h3>
+          <p class="panel-section-sub">Ghi nhận chi tiêu theo ngày chính xác để theo dõi sát sao</p>
 
           <div class="trans-form-stack">
             <div class="form-row-type">
@@ -280,8 +348,13 @@
             </div>
 
             <div class="form-group">
+              <label class="input-label" for="trans-date">Ngày giao dịch</label>
+              <input type="date" class="form-input" id="trans-date">
+            </div>
+
+            <div class="form-group">
               <label class="input-label" for="trans-desc">Nội dung chi tiêu</label>
-              <input type="text" class="form-input" id="trans-desc" placeholder="Ví dụ: Ăn trưa cùng bạn, Mua giáo trình...">
+              <input type="text" class="form-input" id="trans-desc" placeholder="Ví dụ: Ăn trưa, Giáo trình, Đổ xăng...">
             </div>
 
             <div class="form-row-two">
@@ -303,7 +376,7 @@
               </div>
             </div>
 
-            <button class="btn-primary btn-full-width" id="btn-add-trans">+ Lưu Khoản Chi Này</button>
+            <button class="btn-primary btn-full-width" id="btn-add-trans">+ Lưu Khoản Tiền Này</button>
           </div>
         </div>
 
@@ -311,10 +384,13 @@
         <div class="finance-card trans-list-card">
           <div class="list-header-row">
             <div>
-              <h3 class="panel-section-title">📋 Lịch Sử Giao Dịch Tuần</h3>
-              <p class="panel-section-sub" id="trans-count-label">0 giao dịch trong tuần này</p>
+              <h3 class="panel-section-title">📋 Lịch Sử Giao Dịch</h3>
+              <p class="panel-section-sub" id="trans-count-label">0 giao dịch được ghi nhận</p>
             </div>
-            <button class="btn-secondary btn-sm" id="btn-clear-week-trans" title="Xóa lịch sử tuần này">Làm Mới Tuần</button>
+            <div style="display: flex; gap: 6px;">
+              <button class="btn-secondary btn-sm" id="btn-show-all-days" style="display: none;">Xem Cả Tuần</button>
+              <button class="btn-secondary btn-sm" id="btn-clear-week-trans" title="Xóa lịch sử tuần này">Làm Mới</button>
+            </div>
           </div>
 
           <div class="transactions-scroll-list" id="transactions-list">
