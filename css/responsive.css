@@ -1,7 +1,6 @@
-/* ==========================================================================
-   NGAOS — MOBILE-FIRST RESPONSIVE ADAPTATION
-   Pixel-perfect on iPhone, iPad & Desktop screens
-   ========================================================================== */
+/* ===========================================================================
+   NGAOS — MOBILE-FIRST RESPONSIVE DESIGN (COASTAL THEME)
+   =========================================================================== */
 
 /* Tablet (769px to 1024px) */
 @media (max-width: 1024px) {
@@ -28,7 +27,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding-bottom: 12px;
+    padding: 12px 14px;
   }
 
   .header-left {
@@ -40,7 +39,7 @@
   }
 
   .date-badge {
-    display: none; /* Hide in crowded header on small mobile */
+    display: none;
   }
 
   .gentle-love-pill {
@@ -48,7 +47,6 @@
     font-size: 11px;
   }
 
-  /* Segmented control spans full width for easy thumb reach */
   .segmented-control {
     width: 100%;
     order: 3;
@@ -59,13 +57,13 @@
   .seg-btn {
     flex: 1;
     justify-content: center;
-    padding: 8px 12px;
+    padding: 8px 10px;
     font-size: 12px;
   }
 
   /* Schedule Tab on Mobile */
   .schedule-top-bar {
-    padding: 14px 14px;
+    padding: 14px;
     gap: 12px;
   }
 
@@ -94,24 +92,18 @@
     min-width: 0;
   }
 
-  /* Periods Grid: Single Column on Mobile */
   .periods-grid {
     grid-template-columns: 1fr;
     gap: 14px;
   }
 
   .period-card {
-    padding: 16px 14px;
-    gap: 12px;
+    padding: 14px;
   }
 
-  .period-title {
-    font-size: 15px;
-  }
-
-  /* Quick Add Task on Mobile */
+  /* Quick Add Task Form on Mobile */
   .quick-add-task-panel {
-    padding: 16px 14px;
+    padding: 14px;
   }
 
   .quick-add-form {
@@ -133,12 +125,12 @@
   }
 
   .finance-card {
-    padding: 16px 14px;
-    gap: 14px;
+    padding: 14px;
+    gap: 12px;
   }
 
   .stat-number-large {
-    font-size: 26px;
+    font-size: 24px;
   }
 
   .deposit-buttons-group {
@@ -153,7 +145,6 @@
     text-align: center;
   }
 
-  /* Ledger Split on Mobile */
   .ledger-container {
     grid-template-columns: 1fr;
     gap: 14px;
@@ -161,10 +152,9 @@
 
   .form-row-two {
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
   }
 
-  /* Form Elements Touch Target */
   .form-input {
     min-height: 40px;
     font-size: 13.5px;
@@ -174,8 +164,11 @@
     min-height: 40px;
   }
 
-  /* Modals */
   .modal-dialog {
     padding: 24px 18px;
+  }
+
+  .transactions-scroll-list {
+    max-height: 270px;
   }
 }
