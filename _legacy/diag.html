@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ngaan OS — Ocean Life Assistant & Trợ Lý Lập Lịch Bảo</title>
+  <meta name="description" content="Trợ lý cá nhân đại dương sống động của Ngân: Tự động lập lịch nhịp sinh học, chăm sóc sức khỏe và không gian học tập tĩnh lặng cùng Anh Bảo.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Cache Control -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css?v=12">
+  <link rel="stylesheet" href="css/responsive.css?v=12">
+</head>
+<body>
+
+  <!-- Living Ocean Canvas is injected by js/ocean.js -->
+
+  <div class="app-wrapper">
+
+    <!-- Top Editorial Header & Dynamic Gentle Pill -->
+    <header class="top-nav">
+      <div class="top-nav-bar">
+        <div class="brand-section">
+          <div class="brand-mark">🐋</div>
+          <div class="brand-details">
+            <h1>Ngaan OS</h1>
+            <p>Trợ lý của Ngân 🌊</p>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <!-- Theme Mode Switcher (Biển Nắng / Biển Đêm) -->
+          <button class="btn-theme-toggle" id="btn-theme-toggle" title="Chuyển đổi giao diện: Biển Nắng Cát Vàng / Biển Đêm">
+            <span class="theme-icon" id="theme-btn-icon">☀️</span>
+            <span class="btn-text" id="theme-btn-text">Biển Nắng</span>
+          </button>
+
+          <!-- Ocean Ambient Sound Control -->
+          <button class="btn-ocean-sound" id="btn-ocean-sound" title="Bật/Tắt âm thanh sóng biển 432Hz">
+            <span class="sound-wave-icon">🌊</span>
+            <span class="btn-text">Âm thanh</span>
+          </button>
+
+          <!-- Summon Whale Button -->
+          <button class="btn-summon-whale" id="btn-summon-whale" title="Gọi Cá Voi Xanh lướt qua màn hình">
+            <span>🐋</span>
+            <span class="btn-text">Cá Voi</span>
+          </button>
+
+          <button class="btn-care-heart" id="btn-care-heart" title="Tâm sự cùng Anh Bảo">
+            <span>💙</span>
+            <span class="btn-text">Anh Bảo</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Dynamic Gentle Pill (Boyfriend Care Message from Bao) -->
+      <div class="gentle-pill" id="gentle-care-pill" title="Bấm để nhận thêm lời dặn dò từ Anh Bảo">
+        <span class="gentle-dot"></span>
+        <span class="gentle-text">
+          <strong>Lời dặn từ Anh Bảo:</strong> Em học chăm nhưng nhớ uống đủ nước và chớp mắt thư giãn nhé!
+        </span>
+      </div>
+    </header>
+
+    <!-- Hero Date, Life Balance & Hydration Strip -->
+    <section class="hero-date-strip">
+      <div class="hero-date-row">
+        <div class="date-info">
+          <h2 class="date-large" id="hero-realtime-date">Thứ Ba, 06 Tháng 10</h2>
+          <p class="date-subtitle" id="hero-date-subtitle">Buổi sáng rạng rỡ • Kế hoạch của Ngân</p>
+        </div>
+      </div>
+
+      <!-- Interactive Week Ribbon (Thanh 7 ngày trong tuần - 7 cột đều tăm tắp) -->
+      <div class="week-ribbon-container" id="week-ribbon-container">
+        <!-- Injected dynamically by js/app.js -->
+      </div>
+
+      <!-- Daily Functional Summary Bar (1 Dòng siêu gọn gàng) -->
+      <div class="daily-summary-strip">
+        <div class="summary-stat-item stat-plan" id="stat-plan-summary" title="Tiến độ hoàn thành kế hoạch hôm nay">
+          <span class="stat-mini-icon">📋</span>
+          <span class="stat-val" id="daily-plan-progress-text">0/0 việc (0%)</span>
+        </div>
+
+        <div class="summary-stat-item stat-water" id="stat-water-quick" title="Bấm để ghi nhận +250ml nước">
+          <span class="stat-mini-icon">💧</span>
+          <span class="stat-val" id="mini-water-label">1000 / 2000ml</span>
+          <button class="btn-water-quick-add" id="btn-quick-add-water" title="Uống thêm 1 cốc nước (+250ml)">+250ml</button>
+        </div>
+
+        <div class="summary-stat-item stat-balance" id="life-balance-pill" title="Thang đo cân bằng cuộc sống">
+          <span class="stat-mini-icon">🫧</span>
+          <span class="stat-val"><strong id="balance-score-val">88%</strong> Cân bằng</span>
+        </div>
+      </div>
+      <div class="day-progress-track">
+        <div class="day-progress-fill" id="daily-plan-progress-fill" style="width: 0%;"></div>
+      </div>
+
+      <!-- Legacy controls kept for script compatibility -->
+      <div class="hero-wellness-controls" style="display: none;">
+        <button class="btn-ocean-breath" id="btn-open-breath">
+          <span class="breath-icon">🫁</span>
+          <span>Thở Thiền 4-7-8</span>
+        </button>
+        <div class="mini-care-bar">
+          <div class="water-dots-group" id="water-dots-container">
+            <div class="water-dot active" title="250ml"></div>
+            <div class="water-dot active" title="500ml"></div>
+            <div class="water-dot active" title="750ml"></div>
+            <div class="water-dot active" title="1000ml"></div>
+            <div class="water-dot" title="1250ml"></div>
+            <div class="water-dot" title="1500ml"></div>
+            <div class="water-dot" title="1750ml"></div>
+            <div class="water-dot" title="2000ml"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         CORE SCREENS CONTAINER: 4 FUNCTIONAL VIEWS
+         ================================================================== -->
+    <div class="screens-container">
+
+      <!-- SCREEN 1: KẾ HOẠCH & LỊCH TRÌNH (CALENDAR: NGÀY • TUẦN • THÁNG) -->
+      <section class="mobile-screen active" id="screen-timeline" data-screen="timeline">
+        <div class="clean-panel" id="col-timeline">
+          
+          <!-- Master Calendar Mode Bar (Ngày • Tuần • Tháng) -->
+          <div class="calendar-mode-bar">
+            <div class="calendar-mode-title">
+              <span class="cal-title-icon">🗓️</span>
+              <span class="cal-title-text" id="calendar-mode-heading">Lịch Ngày</span>
+            </div>
+            <div class="calendar-mode-segmented">
+              <button class="cal-mode-btn active" id="btn-mode-day" data-cal-mode="day" title="Xem theo Khung Giờ & Danh Sách ngày">
+                <span>📅</span> Ngày
+              </button>
+              <button class="cal-mode-btn" id="btn-mode-week" data-cal-mode="week" title="Xem tổng quan 7 ngày trong tuần">
+                <span>🗓️</span> Tuần
+              </button>
+              <button class="cal-mode-btn" id="btn-mode-month" data-cal-mode="month" title="Xem lịch biểu toàn bộ tháng">
+                <span>📆</span> Tháng
+              </button>
+            </div>
+          </div>
+
+          <!-- ==============================================================
+               1. DAY VIEW CONTAINER (Khung Giờ 24H & Danh Sách Việc)
+               ============================================================== -->
+          <div class="cal-view-container active" id="cal-view-day">
+            
+            <div class="panel-title-bar">
+              <!-- Quick Presets Chips From Anh Bao (One-touch Scheduling) -->
+              <div class="timeline-preset-chips" id="timeline-preset-chips">
+                <span class="preset-chip-hint">⚡ Xếp lịch:</span>
+                <button class="chip-preset-btn" id="chip-btn-deepwork" data-preset="deepwork">
+                  <span>⚡</span> Giờ Vàng
+                </button>
+                <button class="chip-preset-btn" id="chip-btn-wellness" data-preset="wellness">
+                  <span>🌸</span> Cân Bằng
+                </button>
+                <button class="chip-preset-btn" id="chip-btn-sprint" data-preset="sprint">
+                  <span>🎯</span> Ôn Thi
+                </button>
+              </div>
+
+              <!-- Dual View Switcher (Khung Giờ vs Danh Sách) -->
+              <div class="timeline-view-switcher">
+                <button class="view-switch-btn active" id="btn-view-timeline" data-view="timeline">
+                  <span>⏱️</span> Khung Giờ
+                </button>
+                <button class="view-switch-btn" id="btn-view-checklist" data-view="checklist">
+                  <span>📋</span> Danh Sách
+                </button>
+              </div>
+            </div>
+
+            <!-- Now Task Live Focus Bar (Gọn gàng, rõ ràng, không bị ép nghẹt chữ) -->
+            <div class="now-task-bar" id="now-task-card">
+              <div class="now-bar-top">
+                <div class="now-bar-badge-wrap">
+                  <span class="pulsing-radar-dot"></span>
+                  <span class="now-bar-badge" id="now-task-badge-label">10:15 • ĐANG DIỄN RA</span>
+                </div>
+                <div class="now-bar-actions">
+                  <button class="btn-now-check" id="btn-now-toggle-complete" title="Đánh dấu hoàn thành">✓ Xong</button>
+                  <button class="btn-now-focus" id="btn-now-start-focus" title="Mở Pomodoro">🎯 Focus</button>
+                </div>
+              </div>
+              <div class="now-bar-title" id="now-task-title">Đang tải lịch trình...</div>
+              <div style="display:none;" id="now-task-meta"></div>
+            </div>
+
+            <!-- VIEW MODE 1: 24H VERTICAL TIMELINE -->
+            <div class="timeline-viewport" id="timeline-viewport">
+              <div class="now-indicator-line" id="now-indicator">
+                <span class="now-indicator-badge" id="now-indicator-badge">09:15</span>
+              </div>
+              <div id="timeline-slots-container"></div>
+            </div>
+
+            <!-- VIEW MODE 2: GROUPED CHECKLIST (To-Do List by Category & Status) -->
+            <div class="checklist-viewport" id="checklist-viewport" style="display: none;">
+              <div id="checklist-items-container"></div>
+            </div>
+
+            <!-- Quick Add Event Input Bar -->
+            <div class="quick-add-event-bar" id="quick-add-event-bar">
+              <div class="quick-add-row-inputs">
+                <input type="time" class="input-minimal" id="input-event-time" value="15:00" style="max-width: 90px;">
+                <input type="text" class="input-minimal" id="input-event-title" placeholder="Thêm việc cần làm cho ngày này...">
+              </div>
+              <div class="quick-add-row-actions">
+                <select class="input-minimal" id="select-event-cat">
+                  <option value="study">📚 Học tập</option>
+                  <option value="routine">🌿 Lịch ngày</option>
+                  <option value="health">💧 Sức khỏe</option>
+                  <option value="love">💙 Yêu thương</option>
+                </select>
+                <button class="btn-minimal-add" id="btn-quick-add-event">+ Thêm Vào Lịch</button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ==============================================================
+               2. WEEK VIEW CONTAINER (7-DAY MULTI-DAY PLANNER BOARD)
+               ============================================================== -->
+          <div class="cal-view-container" id="cal-view-week" style="display: none;">
+            <div class="cal-nav-bar week-nav-bar">
+              <div class="cal-nav-left">
+                <button class="btn-cal-nav" id="btn-week-prev" title="Tuần trước">◀</button>
+                <span class="cal-nav-title" id="week-nav-title">Tuần 41 (05/10 - 11/10/2026)</span>
+                <button class="btn-cal-nav" id="btn-week-next" title="Tuần sau">▶</button>
+              </div>
+              <button class="btn-cal-today" id="btn-week-today">Hôm Nay</button>
+            </div>
+
+            <div class="week-summary-card" id="week-summary-card">
+              <div class="week-stat-pill">
+                <span class="week-stat-icon">📊</span>
+                <span id="week-stat-text">14 việc tuần này • 5 đã hoàn thành (36%)</span>
+              </div>
+              <div class="week-progress-track">
+                <div class="week-progress-fill" id="week-progress-fill" style="width: 36%;"></div>
+              </div>
+            </div>
+
+            <!-- 7-Day Timetable Matrix Grid (Apple / Amie Calendar standard) -->
+            <div class="week-timetable-wrapper" id="week-timetable-wrapper">
+              <div class="week-timetable-grid" id="week-timetable-grid">
+                <!-- Dynamically generated by timeline.js: Sticky time column + 7 day columns -->
+              </div>
+            </div>
+          </div>
+
+          <!-- ==============================================================
+               3. MONTH VIEW CONTAINER (FULL CALENDAR MATRIX & AGENDA)
+               ============================================================== -->
+          <div class="cal-view-container" id="cal-view-month" style="display: none;">
+            <div class="cal-nav-bar month-nav-bar">
+              <div class="cal-nav-left">
+                <button class="btn-cal-nav" id="btn-month-prev" title="Tháng trước">◀</button>
+                <span class="cal-nav-title" id="month-nav-title">Tháng 10, 2026</span>
+                <button class="btn-cal-nav" id="btn-month-next" title="Tháng sau">▶</button>
+              </div>
+              <button class="btn-cal-today" id="btn-month-today">Hôm Nay</button>
+            </div>
+
+            <!-- Day of Week Headers -->
+            <div class="month-dow-headers">
+              <span>T2</span>
+              <span>T3</span>
+              <span>T4</span>
+              <span>T5</span>
+              <span>T6</span>
+              <span>T7</span>
+              <span>CN</span>
+            </div>
+
+            <!-- 7x5 or 7x6 Calendar Grid -->
+            <div class="month-calendar-grid" id="month-calendar-grid">
+              <!-- Dynamically generated by timeline.js -->
+            </div>
+
+            <!-- Selected Date Agenda Card -->
+            <div class="month-selected-agenda" id="month-selected-agenda">
+              <div class="selected-agenda-header">
+                <div>
+                  <h4 id="month-selected-date-title">Lịch Trình: Thứ Ba, 06 Tháng 10</h4>
+                  <span class="agenda-count-badge" id="month-selected-count-badge">4 việc</span>
+                </div>
+                <button class="btn-jump-to-day" id="btn-jump-to-day" title="Chuyển sang chế độ xem chi tiết 24h">
+                  <span>⏱️</span> Xem Ngày Này
+                </button>
+              </div>
+              <div class="month-selected-events-list" id="month-selected-events-list">
+                <!-- Dynamically generated -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SCREEN 2: TRỢ LÝ LẬP LỊCH BẢO (AI CHRONO-PLANNER) -->
+      <section class="mobile-screen" id="screen-assistant" data-screen="assistant">
+        <div class="assistant-bao-card" id="section-assistant-bao">
+          <div class="assistant-bao-header">
+            <div class="bao-identity">
+              <div class="bao-avatar-wrapper">
+                <span class="bao-avatar-icon">🐋</span>
+                <span class="bao-status-indicator" title="Đang trực tuyến"></span>
+              </div>
+              <div>
+                <div class="bao-title-row">
+                  <h3 class="bao-name">Trợ Lý Bảo (Anh Bảo)</h3>
+                  <span class="bao-badge">Smart Chrono-Planner</span>
+                </div>
+                <p class="bao-greeting" id="bao-greeting-text">Chào Ngân yêu dấu ☀️</p>
+              </div>
+            </div>
+            <div class="bao-biorhythm-hint" id="bao-advice-subtext">
+              Anh Bảo đã sẵn sàng tối ưu lịch trình theo nhịp sinh học ngày mới cho em.
+            </div>
+          </div>
+
+          <!-- Quick Chrono Presets Cards -->
+          <div class="chrono-presets-row">
+            <span class="presets-label">⚡ Lập lịch 1-Chạm theo nhịp sinh học:</span>
+            <div class="presets-pills">
+              <button class="preset-pill-btn" id="preset-btn-deepwork" title="Tối ưu khung giờ vàng não bộ và năng lượng học tập">
+                <span>⚡</span> Siêu Tập Trung (Deep Work)
+              </button>
+              <button class="preset-pill-btn" id="preset-btn-wellness" title="Cân bằng thư thái, tập yoga, đọc sách và ngủ sớm">
+                <span>🌸</span> Cân Bằng Thư Giãn (Wellness)
+              </button>
+              <button class="preset-pill-btn" id="preset-btn-sprint" title="4 chặng ôn thi nước rút kết hợp chống kiệt sức">
+                <span>🎯</span> Nước Rút Thi Cử (Exam Sprint)
+              </button>
+            </div>
+          </div>
+
+          <!-- Natural Language Goal Input Bar -->
+          <div class="bao-input-bar">
+            <div class="bao-input-inner">
+              <span class="input-sparkle-icon">✨</span>
+              <input type="text" class="input-bao-goals" id="input-bao-goals" placeholder="Ngân muốn làm gì hôm nay? (VD: 'Hôm nay học 3h giải tích, tập gym 16h30, đọc sách 30m')...">
+            </div>
+            <button class="btn-bao-schedule" id="btn-bao-auto-schedule">
+              <span>Bảo ơi, xếp lịch giúp em</span> 🌊
+            </button>
+          </div>
+
+          <!-- Chrono Science Explainer for Ngan -->
+          <div class="bao-science-card">
+            <h4>🧠 Khung Giờ Vàng Não Bộ Của Ngân Hôm Nay:</h4>
+            <div class="science-golden-slots">
+              <div class="golden-slot-item">
+                <span class="slot-time">08:30 — 11:30</span>
+                <span class="slot-name">Đỉnh cao tư duy logic & giải quyết vấn đề khó</span>
+              </div>
+              <div class="golden-slot-item">
+                <span class="slot-time">14:00 — 16:30</span>
+                <span class="slot-name">Thực hành, ôn tập bài tập và hệ thống hóa kiến thức</span>
+              </div>
+              <div class="golden-slot-item">
+                <span class="slot-time">20:00 — 21:30</span>
+                <span class="slot-name">Đọc sách bồi dưỡng & ghi nhớ sâu trước khi ngủ</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: KHÔNG GIAN HỌC TẬP (ZEN STUDY HUB) -->
+      <section class="mobile-screen" id="screen-focus" data-screen="focus">
+        <div class="clean-panel" id="col-focus">
+          <div class="panel-title-bar">
+            <div class="panel-title">
+              <span>🎯</span> Không Gian Học Tập
+            </div>
+            <span class="panel-tag">Zen Focus Hub</span>
+          </div>
+
+          <div class="zen-focus-container">
+            <!-- Pomodoro Circular Timer -->
+            <div class="zen-timer-card">
+              <div class="timer-mode-switcher">
+                <button class="timer-pill-btn active" data-mins="25">25 Phút Focus</button>
+                <button class="timer-pill-btn" data-mins="50">50 Phút Deep Work</button>
+                <button class="timer-pill-btn" data-mins="5">5 Phút Nghỉ</button>
+              </div>
+
+              <div class="timer-svg-wrapper">
+                <svg class="timer-svg-circle" width="160" height="160">
+                  <circle class="timer-circle-bg" cx="80" cy="80" r="75"></circle>
+                  <circle class="timer-circle-progress" id="timer-progress-ring" cx="80" cy="80" r="75"></circle>
+                </svg>
+                <div class="timer-center-text">
+                  <div class="timer-large-digits" id="timer-digits">25:00</div>
+                  <span class="timer-status-hint" id="timer-status-label">Sẵn sàng</span>
+                </div>
+              </div>
+
+              <div class="timer-actions-row">
+                <button class="btn-primary-focus" id="btn-timer-toggle">Bắt Đầu</button>
+                <button class="btn-secondary-reset" id="btn-timer-reset">Đặt Lại</button>
+              </div>
+
+              <!-- Ambient Sound Toggle -->
+              <div class="ambient-pill-control" id="btn-toggle-ambient">
+                <span>🌧️</span> Âm thanh mưa & Lofi
+              </div>
+            </div>
+
+            <!-- Subject Goals & Tasks -->
+            <div class="study-subjects-section">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <span style="font-size:13px;font-weight:600;color:var(--text-secondary);">Mục tiêu chuyên môn hôm nay</span>
+                <span style="font-size:11px;color:var(--text-muted);">Tập trung & hoàn thành</span>
+              </div>
+
+              <div id="subject-tasks-container"></div>
+
+              <!-- Quick Add Task -->
+              <div style="display:flex;gap:8px;margin-top:10px;">
+                <select class="input-minimal" id="select-subject-type" style="max-width:130px;">
+                  <option value="chuyen-nganh">Chuyên Ngành</option>
+                  <option value="de-an">Đề Án</option>
+                  <option value="ngoai-ngu">Ngoại Ngữ</option>
+                </select>
+                <input type="text" class="input-minimal" id="input-subject-task-title" placeholder="Thêm bài tập / mục tiêu...">
+                <button class="btn-minimal-add" id="btn-add-subject-task">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: SỨC KHỎE & THƯ GIÃN (WELLNESS HUB) -->
+      <section class="mobile-screen" id="screen-wellness" data-screen="wellness">
+        <div class="clean-panel">
+          <div class="panel-title-bar">
+            <div class="panel-title">
+              <span>🌿</span> Sức Khỏe & Thư Giãn
+            </div>
+            <span class="panel-tag">Ocean Wellness</span>
+          </div>
+
+          <div class="wellness-hub-grid">
+            <!-- Hydration Card -->
+            <div class="wellness-card-glass">
+              <div class="wellness-card-header">
+                <div class="wellness-card-title">
+                  <span class="wellness-icon">💧</span>
+                  <div>
+                    <h4>Theo Dõi Nước Uống</h4>
+                    <p class="wellness-sub">Mục tiêu 2000ml cho làn da sáng và trí não minh mẫn</p>
+                  </div>
+                </div>
+                <button class="btn-water-drink-now" id="btn-wellness-drink-cup">+250ml</button>
+              </div>
+
+              <div class="water-cups-row" id="wellness-water-cups">
+                <!-- 8 cups -->
+              </div>
+              <div class="water-status-text" id="wellness-water-status-text">Đã uống 1000 / 2000ml (4 cốc)</div>
+            </div>
+
+            <!-- Ocean Breath 4-7-8 Card -->
+            <div class="wellness-card-glass">
+              <div class="wellness-card-header">
+                <div class="wellness-card-title">
+                  <span class="wellness-icon">🫁</span>
+                  <div>
+                    <h4>Thở Thiền Bọt Nước 4-7-8</h4>
+                    <p class="wellness-sub">Giúp hạ huyết áp, xoa dịu lo âu và đi vào giấc ngủ dễ dàng</p>
+                  </div>
+                </div>
+                <button class="btn-open-breath-action" id="btn-screen-open-breath">Bắt Đầu Thở</button>
+              </div>
+            </div>
+
+            <!-- Life Balance Breakdown Card -->
+            <div class="wellness-card-glass">
+              <div class="wellness-card-header">
+                <div class="wellness-card-title">
+                  <span class="wellness-icon">🫧</span>
+                  <div>
+                    <h4>Chỉ Số Cân Bằng Cuộc Sống</h4>
+                    <p class="wellness-sub">Đánh giá toàn diện 4 trụ cột ngày sống</p>
+                  </div>
+                </div>
+                <span class="balance-badge-large" id="wellness-balance-total">88%</span>
+              </div>
+              <div class="balance-bars-list">
+                <div class="balance-bar-row">
+                  <span>📚 Học tập chuyên môn</span>
+                  <div class="bar-track"><div class="bar-fill" style="width: 85%;"></div></div>
+                  <span class="bar-percent">85%</span>
+                </div>
+                <div class="balance-bar-row">
+                  <span>🏃‍♀️ Thể chất & Giãn cơ</span>
+                  <div class="bar-track"><div class="bar-fill" style="width: 80%;"></div></div>
+                  <span class="bar-percent">80%</span>
+                </div>
+                <div class="balance-bar-row">
+                  <span>💧 Nước & Dinh dưỡng</span>
+                  <div class="bar-track"><div class="bar-fill" style="width: 90%;"></div></div>
+                  <span class="bar-percent">90%</span>
+                </div>
+                <div class="balance-bar-row">
+                  <span>🌙 Giấc ngủ & Thư giãn</span>
+                  <div class="bar-track"><div class="bar-fill" style="width: 95%;"></div></div>
+                  <span class="bar-percent">95%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reassurance Note from Anh Bao -->
+            <div class="wellness-card-glass love-card">
+              <div class="love-card-inner">
+                <div class="love-card-icon">💙</div>
+                <div>
+                  <h4>Anh Luôn Ở Bên Cạnh Ngân</h4>
+                  <p>Mỗi khi thấy mệt hay áp lực thi cử, em cứ bấm vào đây để lắng nghe biển sâu và nhắn tin cho anh nhé!</p>
+                </div>
+                <button class="btn-love-open-modal" id="btn-wellness-love-talk">Tâm Sự Cùng Anh 🌸</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </div>
+
+  <!-- Reassuring Care Modal -->
+  <div class="modal-backdrop" id="care-reassure-modal">
+    <div class="modal-dialog">
+      <div style="font-size:36px;margin-bottom:12px;">💙</div>
+      <h3>Anh Luôn Ở Bên Cạnh Em</h3>
+      <p>
+        Bé yêu của anh mệt rồi phải không? Hãy thả lỏng bờ vai và hít một hơi thật sâu. Không có bài vở hay áp lực nào quan trọng hơn sức khỏe và nụ cười của em. Bất cứ khi nào cần, anh luôn ở đây bảo bọc em!
+      </p>
+      <button class="btn-modal-dismiss" id="btn-close-care-modal">Em Thấy Bình Yên Hơn Rồi 🌸</button>
+    </div>
+  </div>
+
+  <!-- Ocean Breath Bubble Modal (4-7-8 Guided Breathing) -->
+  <div class="modal-backdrop" id="ocean-breath-modal">
+    <div class="modal-dialog breath-dialog">
+      <div class="breath-header">
+        <span class="breath-title-tag">🫧 THỞ THIỀN ĐẠI DƯƠNG 4-7-8</span>
+        <h3>Xoa Dịu Tâm Trí & Giảm Căng Thẳng</h3>
+      </div>
+
+      <!-- Animated Breathing Sphere -->
+      <div class="breath-bubble-container">
+        <div class="breath-bubble-visual" id="breath-bubble-sphere">
+          <div class="breath-inner-glow"></div>
+          <div class="breath-cycle-label" id="breath-cycle-label">Hít Vào</div>
+          <div class="breath-counter-number" id="breath-countdown-num">4</div>
+        </div>
+      </div>
+
+      <p class="breath-guide-hint" id="breath-guide-hint">
+        Hít vào bằng mũi sâu và chậm rãi theo nhịp mở rộng của bọt biển...
+      </p>
+
+      <div class="breath-controls">
+        <button class="btn-primary-focus" id="btn-toggle-breath-cycle">Bắt Đầu Thở</button>
+        <button class="btn-secondary-reset" id="btn-close-breath-modal">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Event Quick Action Modal (Apple / Amie Style Popover) -->
+  <div class="event-quick-modal" id="event-quick-modal" style="display: none;">
+    <div class="event-quick-backdrop" id="event-quick-backdrop"></div>
+    <div class="event-quick-card" id="event-quick-card">
+      <div class="quick-card-top">
+        <span class="quick-card-badge" id="quick-card-badge">08:30 • Học tập</span>
+        <button class="quick-card-close" id="btn-close-quick-modal" title="Đóng">✕</button>
+      </div>
+      <h3 class="quick-card-title" id="quick-card-title">Tập trung học chuyên môn</h3>
+      <div class="quick-card-date-info" id="quick-card-date-info">Thứ Ba, 06/10/2026</div>
+      <div class="quick-card-actions">
+        <button class="btn-quick-toggle" id="btn-quick-toggle">
+          <span id="quick-toggle-icon">✓</span>
+          <span id="quick-toggle-text">Đánh dấu hoàn thành</span>
+        </button>
+        <button class="btn-quick-jump" id="btn-quick-jump">
+          <span>📅</span> Mở ngày này
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Floating Bottom Bar (App Native Experience) -->
+  <nav class="mobile-bottom-bar" aria-label="Mobile Navigation">
+    <button class="mobile-tab-btn active" data-tab="timeline">
+      <span class="tab-icon">📅</span>
+      <span>Kế Hoạch</span>
+      <span class="tab-badge" id="tab-badge-tasks" style="display: none;">0</span>
+    </button>
+    <button class="mobile-tab-btn" data-tab="assistant">
+      <span class="tab-icon">⚡</span>
+      <span>Trợ Lý Bảo</span>
+    </button>
+    <button class="mobile-tab-btn" data-tab="focus">
+      <span class="tab-icon">🎯</span>
+      <span>Học Tập</span>
+    </button>
+    <button class="mobile-tab-btn" data-tab="wellness">
+      <span class="tab-icon">🌿</span>
+      <span>Sức Khỏe</span>
+    </button>
+  </nav>
+
+  <!-- Modular Scripts -->
+  <script src="js/ocean.js?v=12"></script>
+  <script src="js/ocean-audio.js?v=12"></script>
+  <script src="js/timeline.js?v=12"></script>
+  <script src="js/assistant-bao.js?v=12"></script>
+  <script src="js/study.js?v=12"></script>
+  <script src="js/health.js?v=12"></script>
+  <script src="js/finance.js?v=12"></script>
+  <script src="js/app.js?v=12"></script>
+
+    <script>
+      window.addEventListener('load', () => {
+        const b1 = document.getElementById('btn-theme-toggle');
+        const b2 = document.getElementById('btn-ocean-sound');
+        const b3 = document.getElementById('btn-summon-whale');
+        const b4 = document.getElementById('btn-care-heart');
+        const actions = document.querySelector('.top-actions');
+        const res = {
+          actionsRect: actions.getBoundingClientRect(),
+          b1: b1.getBoundingClientRect(),
+          b2: b2.getBoundingClientRect(),
+          b3: b3.getBoundingClientRect(),
+          b4: b4.getBoundingClientRect(),
+        };
+        console.log('---DIAG---' + JSON.stringify(res) + '---END---');
+      });
+    </script>
+    </body>
+</html>

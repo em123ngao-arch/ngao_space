@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NgaOS — Kế Hoạch Học Tập & Quản Lý Tài Chính</title>
+  <meta name="description" content="Không gian quản lý lịch trình học tập lên sẵn và quản lý tài chính chi tiêu theo tuần tươi sáng, tinh tế dành riêng cho Ngân.">
+
+  <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Cache Control -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css?v=30">
+  <link rel="stylesheet" href="css/responsive.css?v=30">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand-badge">
+          <span class="brand-icon">🌱</span>
+          <div class="brand-text">
+            <h1 class="brand-title">NgaOS</h1>
+            <span class="brand-sub">Không gian của Ngân</span>
+          </div>
+        </div>
+
+        <div class="date-badge" id="header-realtime-date">
+          Thứ Tư, 07 Tháng 10
+        </div>
+      </div>
+
+      <!-- Segmented Tab Switcher (Apple / Linear style) -->
+      <nav class="segmented-control" role="tablist" aria-label="Chuyển chế độ">
+        <button class="seg-btn active" id="tab-btn-schedule" role="tab" aria-selected="true" data-tab="schedule">
+          <span class="seg-icon">📅</span>
+          <span>Lịch Trình Học Tập</span>
+        </button>
+        <button class="seg-btn" id="tab-btn-finance" role="tab" aria-selected="false" data-tab="finance">
+          <span class="seg-icon">💰</span>
+          <span>Quản Lý Tài Chính</span>
+        </button>
+      </nav>
+
+      <!-- Gentle Care Pill -->
+      <div class="header-right">
+        <div class="gentle-love-pill" id="care-note-pill" title="Lời nhắn từ Anh Bảo">
+          <span class="love-dot"></span>
+          <span class="love-text">Hôm nay học tốt nhé em bé 💙</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ======================================================================
+         TAB 1: LỊCH TRÌNH HỌC TẬP & CUỘC SỐNG (LÊN SẴN LỊCH)
+         ====================================================================== -->
+    <main class="view-panel active" id="view-schedule">
+
+      <!-- Preset Selector & Daily Progress Strip -->
+      <section class="schedule-top-bar">
+        <div class="preset-selector-group">
+          <span class="preset-label">Mẫu lịch lên sẵn:</span>
+          <div class="preset-chips">
+            <button class="preset-chip active" data-preset="campus">
+              <span>🏫</span> Ngày Học Trên Trường
+            </button>
+            <button class="preset-chip" data-preset="self-study">
+              <span>💻</span> Ngày Tự Học & Đề Án
+            </button>
+            <button class="preset-chip" data-preset="weekend">
+              <span>🌿</span> Cuối Tuần Hồi Phục
+            </button>
+          </div>
+        </div>
+
+        <!-- Progress Summary -->
+        <div class="daily-progress-card">
+          <div class="progress-text-row">
+            <span class="progress-label">Tiến độ hôm nay</span>
+            <span class="progress-val" id="schedule-progress-text">0/0 việc (0%)</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="schedule-progress-bar" style="width: 0%;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bio-Rhythm 3 Periods Container -->
+      <section class="periods-grid">
+
+        <!-- 1. BUỔI SÁNG -->
+        <div class="period-card period-morning">
+          <div class="period-header">
+            <div class="period-title-wrap">
+              <span class="period-icon">🌅</span>
+              <div>
+                <h3 class="period-title">Buổi Sáng</h3>
+                <span class="period-time-range">06:00 — 11:30 • Khởi đầu nhẹ nhàng & Tập trung cao</span>
+              </div>
+            </div>
+            <span class="period-count-badge" id="count-morning">0 việc</span>
+          </div>
+
+          <div class="tasks-list" id="list-morning">
+            <!-- Dynamic Morning Tasks -->
+          </div>
+        </div>
+
+        <!-- 2. BUỔI CHIỀU -->
+        <div class="period-card period-afternoon">
+          <div class="period-header">
+            <div class="period-title-wrap">
+              <span class="period-icon">☀️</span>
+              <div>
+                <h3 class="period-title">Buổi Chiều</h3>
+                <span class="period-time-range">12:00 — 17:30 • Nạp năng lượng, Đề án & Vận động</span>
+              </div>
+            </div>
+            <span class="period-count-badge" id="count-afternoon">0 việc</span>
+          </div>
+
+          <div class="tasks-list" id="list-afternoon">
+            <!-- Dynamic Afternoon Tasks -->
+          </div>
+        </div>
+
+        <!-- 3. BUỔI TỐI -->
+        <div class="period-card period-evening">
+          <div class="period-header">
+            <div class="period-title-wrap">
+              <span class="period-icon">🌙</span>
+              <div>
+                <h3 class="period-title">Buổi Tối</h3>
+                <span class="period-time-range">18:00 — 23:00 • Ôn bài, Thư giãn & Ngủ ngon</span>
+              </div>
+            </div>
+            <span class="period-count-badge" id="count-evening">0 việc</span>
+          </div>
+
+          <div class="tasks-list" id="list-evening">
+            <!-- Dynamic Evening Tasks -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Quick Add Task Bar -->
+      <section class="quick-add-task-panel">
+        <h4 class="quick-add-title">+ Thêm việc mới vào lịch</h4>
+        <div class="quick-add-form">
+          <select class="form-input" id="new-task-period" style="max-width: 140px;">
+            <option value="morning">🌅 Buổi Sáng</option>
+            <option value="afternoon">☀️ Buổi Chiều</option>
+            <option value="evening">🌙 Buổi Tối</option>
+          </select>
+          <input type="text" class="form-input" id="new-task-time" placeholder="Giờ (vd: 09:00 - 10:30)" style="max-width: 170px;">
+          <input type="text" class="form-input" id="new-task-title" placeholder="Nội dung công việc cần làm...">
+          <select class="form-input" id="new-task-cat" style="max-width: 150px;">
+            <option value="study">📚 Chuyên Môn</option>
+            <option value="project">💻 Đề Án</option>
+            <option value="routine">🌿 Sinh Hoạt</option>
+            <option value="health">💊 Sức Khỏe</option>
+          </select>
+          <button class="btn-primary" id="btn-add-task">+ Thêm Vào Lịch</button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ======================================================================
+         TAB 2: QUẢN LÝ TÀI CHÍNH, CHI TIÊU & TIẾT KIỆM (TUẦN / NĂM)
+         ====================================================================== -->
+    <main class="view-panel" id="view-finance">
+
+      <!-- Week Indicators & Year-End Goal Grid -->
+      <section class="finance-overview-grid">
+
+        <!-- 1. THẺ THEO DÕI TUẦN NÀY -->
+        <div class="finance-card weekly-card">
+          <div class="card-tag-row">
+            <span class="pill-tag pill-blue" id="finance-week-badge">Tuần 41 / 52 Tuần (Năm 2026)</span>
+            <span class="card-hint-text">Cập nhật theo tuần</span>
+          </div>
+
+          <div class="weekly-stats-hero">
+            <div class="stat-col">
+              <span class="stat-meta">Còn Lại Cho Tuần Này</span>
+              <div class="stat-number-large" id="weekly-remaining-amount">680.000 đ</div>
+            </div>
+            <div class="stat-badge-status" id="weekly-status-pill">
+              An toàn 🌱
+            </div>
+          </div>
+
+          <div class="weekly-meter-section">
+            <div class="meter-labels">
+              <span>Đã chi: <strong id="weekly-spent-text">820.000 đ</strong></span>
+              <span>Hạn mức: <strong id="weekly-budget-text">1.500.000 đ</strong></span>
+            </div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill fill-blue" id="weekly-meter-bar" style="width: 55%;"></div>
+            </div>
+          </div>
+
+          <!-- Quick setting for weekly budget -->
+          <div class="budget-setting-row">
+            <span style="font-size: 12px; color: var(--text-muted);">Đổi hạn mức tuần:</span>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <input type="number" class="form-input form-input-sm" id="input-weekly-budget" placeholder="1500000" style="max-width: 120px;">
+              <button class="btn-secondary btn-sm" id="btn-save-weekly-budget">Lưu</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. THẺ MỤC TIÊU TÍCH LŨY CUỐI NĂM -->
+        <div class="finance-card goal-card">
+          <div class="card-tag-row">
+            <span class="pill-tag pill-emerald">🎯 Mục Tiêu Tích Lũy Cuối Năm</span>
+            <span class="card-hint-text" id="goal-remaining-weeks-text">Còn 11 tuần nữa hết năm</span>
+          </div>
+
+          <div class="goal-stats-hero">
+            <div>
+              <span class="stat-meta">Đã Tích Lũy Được</span>
+              <div class="stat-number-large stat-emerald" id="goal-current-amount">16.500.000 đ</div>
+            </div>
+            <div class="goal-percent-badge" id="goal-percent-text">66%</div>
+          </div>
+
+          <div class="goal-meter-section">
+            <div class="meter-labels">
+              <span>Mục tiêu: <strong id="goal-target-amount">25.000.000 đ</strong></span>
+              <span id="goal-needed-weekly-text">Cần ~772.000 đ / tuần</span>
+            </div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill fill-emerald" id="goal-meter-bar" style="width: 66%;"></div>
+            </div>
+          </div>
+
+          <!-- Quick Deposit Row -->
+          <div class="goal-deposit-actions">
+            <span class="deposit-label">Nạp tiền vào quỹ tiết kiệm:</span>
+            <div class="deposit-buttons-group">
+              <button class="btn-deposit" data-amount="200000">+ 200.000 đ</button>
+              <button class="btn-deposit" data-amount="500000">+ 500.000 đ</button>
+              <button class="btn-deposit" data-amount="1000000">+ 1.000.000 đ</button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Quick Add Transaction & Ledger Split -->
+      <section class="ledger-container">
+
+        <!-- Left: Quick Add Transaction -->
+        <div class="finance-card add-trans-card">
+          <h3 class="panel-section-title">✍️ Ghi Chép Thu / Chi Tuần Này</h3>
+          <p class="panel-section-sub">Nhập 1 dòng nhanh chóng để theo dõi chặt chẽ chi tiêu của Ngân</p>
+
+          <div class="trans-form-stack">
+            <div class="form-row-type">
+              <label class="radio-label">
+                <input type="radio" name="trans-type" value="expense" checked>
+                <span>Khoản Chi Tiêu (-)</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="trans-type" value="income">
+                <span>Khoản Thu Vào (+)</span>
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label class="input-label" for="trans-desc">Nội dung chi tiêu</label>
+              <input type="text" class="form-input" id="trans-desc" placeholder="Ví dụ: Ăn trưa cùng bạn, Mua giáo trình...">
+            </div>
+
+            <div class="form-row-two">
+              <div class="form-group">
+                <label class="input-label" for="trans-amount">Số tiền (VNĐ)</label>
+                <input type="number" class="form-input" id="trans-amount" placeholder="Ví dụ: 45000">
+              </div>
+
+              <div class="form-group">
+                <label class="input-label" for="trans-cat">Danh mục</label>
+                <select class="form-input" id="trans-cat">
+                  <option value="food">🍜 Ăn Uống & Cafe</option>
+                  <option value="study">📚 Học Tập & Sách</option>
+                  <option value="shop">🛍️ Mua Sắm & Mỹ Phẩm</option>
+                  <option value="travel">🛵 Di Chuyển & Xăng</option>
+                  <option value="health">💊 Thuốc & Sức Khỏe</option>
+                  <option value="other">✨ Khác</option>
+                </select>
+              </div>
+            </div>
+
+            <button class="btn-primary btn-full-width" id="btn-add-trans">+ Lưu Khoản Chi Này</button>
+          </div>
+        </div>
+
+        <!-- Right: Recent Transactions Ledger -->
+        <div class="finance-card trans-list-card">
+          <div class="list-header-row">
+            <div>
+              <h3 class="panel-section-title">📋 Lịch Sử Giao Dịch Tuần</h3>
+              <p class="panel-section-sub" id="trans-count-label">0 giao dịch trong tuần này</p>
+            </div>
+            <button class="btn-secondary btn-sm" id="btn-clear-week-trans" title="Xóa lịch sử tuần này">Làm Mới Tuần</button>
+          </div>
+
+          <div class="transactions-scroll-list" id="transactions-list">
+            <!-- Dynamic Transaction Items -->
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Application Footer & Data Management Tools -->
+    <footer class="app-footer">
+      <div class="footer-left">
+        <span>🌱 NgaOS • Kế Hoạch & Quản Lý Thực Tế</span>
+      </div>
+      <div class="footer-actions">
+        <button class="btn-tool" id="btn-export-data" title="Tải file sao lưu JSON về máy">
+          <span>💾</span> Sao Lưu Dữ Liệu
+        </button>
+        <button class="btn-tool" id="btn-import-data" title="Nạp file sao lưu từ máy">
+          <span>📂</span> Khôi Phục
+        </button>
+        <button class="btn-tool" id="btn-reset-demo" title="Đặt lại dữ liệu mẫu ban đầu">
+          <span>🔄</span> Dữ Liệu Mẫu
+        </button>
+        <input type="file" id="file-import-json" accept=".json" style="display: none;">
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Reassuring Love Dialog -->
+  <div class="modal-backdrop" id="modal-love">
+    <div class="modal-dialog">
+      <div class="modal-icon">🌸</div>
+      <h3 class="modal-title">Anh Luôn Ở Bên Cạnh Em</h3>
+      <p class="modal-message">
+        Bé yêu của anh mệt rồi phải không? Hãy thả lỏng bờ vai và uống một ngụm nước ấm nhé. Không có áp lực nào quan trọng hơn sức khỏe và nụ cười của em. Bất cứ khi nào cần, anh luôn ở đây bên em!
+      </p>
+      <button class="btn-primary" id="btn-close-modal-love">Em Thấy Đỡ Hơn Rồi 💙</button>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Modular Scripts -->
+  <script src="js/storage.js?v=31"></script>
+  <script src="js/schedule.js?v=31"></script>
+  <script src="js/finance.js?v=31"></script>
+  <script src="js/app.js?v=31"></script>
+
+</body>
+</html>

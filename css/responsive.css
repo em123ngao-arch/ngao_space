@@ -1,0 +1,181 @@
+/* ==========================================================================
+   NGAOS — MOBILE-FIRST RESPONSIVE ADAPTATION
+   Pixel-perfect on iPhone, iPad & Desktop screens
+   ========================================================================== */
+
+/* Tablet (769px to 1024px) */
+@media (max-width: 1024px) {
+  .periods-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ledger-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile Screens (<= 768px) */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 12px 14px 60px;
+    gap: 16px;
+  }
+
+  /* Header on Mobile */
+  .app-header {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 12px;
+  }
+
+  .header-left {
+    gap: 8px;
+  }
+
+  .brand-title {
+    font-size: 18px;
+  }
+
+  .date-badge {
+    display: none; /* Hide in crowded header on small mobile */
+  }
+
+  .gentle-love-pill {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+
+  /* Segmented control spans full width for easy thumb reach */
+  .segmented-control {
+    width: 100%;
+    order: 3;
+    margin-top: 4px;
+    padding: 3px;
+  }
+
+  .seg-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  /* Schedule Tab on Mobile */
+  .schedule-top-bar {
+    padding: 14px 14px;
+    gap: 12px;
+  }
+
+  .preset-selector-group {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .preset-chips {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    flex-wrap: nowrap;
+  }
+
+  .preset-chip {
+    white-space: nowrap;
+    font-size: 11.5px;
+    padding: 5px 12px;
+  }
+
+  .daily-progress-card {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Periods Grid: Single Column on Mobile */
+  .periods-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .period-card {
+    padding: 16px 14px;
+    gap: 12px;
+  }
+
+  .period-title {
+    font-size: 15px;
+  }
+
+  /* Quick Add Task on Mobile */
+  .quick-add-task-panel {
+    padding: 16px 14px;
+  }
+
+  .quick-add-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .quick-add-form .form-input,
+  .quick-add-form select,
+  .quick-add-form button {
+    max-width: 100% !important;
+    width: 100%;
+  }
+
+  /* Finance Tab on Mobile */
+  .finance-overview-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .finance-card {
+    padding: 16px 14px;
+    gap: 14px;
+  }
+
+  .stat-number-large {
+    font-size: 26px;
+  }
+
+  .deposit-buttons-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .btn-deposit {
+    padding: 6px 4px;
+    font-size: 11px;
+    text-align: center;
+  }
+
+  /* Ledger Split on Mobile */
+  .ledger-container {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .form-row-two {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Form Elements Touch Target */
+  .form-input {
+    min-height: 40px;
+    font-size: 13.5px;
+  }
+
+  .btn-primary {
+    min-height: 40px;
+  }
+
+  /* Modals */
+  .modal-dialog {
+    padding: 24px 18px;
+  }
+}
