@@ -42,9 +42,38 @@
     display: none;
   }
 
-  .gentle-love-pill {
-    padding: 4px 10px;
+  .header-right {
+    gap: 6px;
+    align-items: center;
+  }
+
+  .user-profile-btn {
+    padding: 4px 8px;
+  }
+
+  .user-avatar-mark {
+    width: 22px;
+    height: 22px;
+  }
+
+  .user-name {
     font-size: 11px;
+  }
+
+  .user-role {
+    display: none;
+  }
+
+  .gentle-love-pill {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .gentle-love-pill span.love-text {
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .segmented-control {

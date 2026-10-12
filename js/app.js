@@ -1,16 +1,14 @@
 /**
- * NGAOS — MAIN APP CONTROLLER
- * Lightweight, reliable orchestrator:
+ * NGAOS — MAIN APP CONTROLLER (V3)
+ * Lightweight orchestrator:
+ * - 2-User Auth System (Bảo & Ngân)
  * - Realtime Vietnamese Date
- * - Segmented Tab Switching (Schedule <-> Finance)
- * - Modern Toast Notification System
+ * - Segmented Tab Switching
+ * - Clean SVG Toast Notifications (Zero Emojis)
  * - Audio Chime Synthesizer
- * - Data Backup / Restore & Reset Demo
+ * - Data Backup / Restore & Reset
  */
 
-// ----------------------------------------------------------------------------
-// Audio Synthesis (Gentle feedback)
-// ----------------------------------------------------------------------------
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 
@@ -41,13 +39,11 @@ window.playChime = function (freq = 587.33, duration = 0.2) {
 
     osc.start();
     osc.stop(audioCtx.currentTime + duration);
-  } catch (e) {
-    // Audio context may be restricted before first gesture; fail silently
-  }
+  } catch (e) {}
 };
 
 // ----------------------------------------------------------------------------
-// Toast Notification Engine
+// Toast Notification Engine (Vector Icons)
 // ----------------------------------------------------------------------------
 window.showToast = function (message, type = 'info') {
   let container = document.getElementById('toast-container');
@@ -61,20 +57,15 @@ window.showToast = function (message, type = 'info') {
   const pill = document.createElement('div');
   pill.className = `toast-pill toast-${type}`;
 
-  const iconMap = {
-    success: '✓',
-    warning: '⚠️',
-    info: '🌱'
-  };
+  const iconSvg = window.AppIcons ? (type === 'success' ? window.AppIcons.check : window.AppIcons.target) : '•';
 
   pill.innerHTML = `
-    <span>${iconMap[type] || '•'}</span>
+    <span class="toast-icon-wrap">${iconSvg}</span>
     <span>${message}</span>
   `;
 
   container.appendChild(pill);
 
-  // Trigger animation
   requestAnimationFrame(() => {
     pill.classList.add('show');
   });
@@ -88,7 +79,7 @@ window.showToast = function (message, type = 'info') {
 };
 
 // ----------------------------------------------------------------------------
-// Realtime Vietnamese Date
+// Realtime Date
 // ----------------------------------------------------------------------------
 function updateHeaderDate() {
   const dateElem = document.getElementById('header-realtime-date');
@@ -100,11 +91,11 @@ function updateHeaderDate() {
   const dateNum = now.getDate().toString().padStart(2, '0');
   const monthNum = (now.getMonth() + 1).toString().padStart(2, '0');
 
-  dateElem.textContent = `${dayName}, ${dateNum} Tháng ${monthNum}`;
+  dateElem.textContent = `${dayName}, ${dateNum}/${monthNum}`;
 }
 
 // ----------------------------------------------------------------------------
-// Tab Switching (Apple / Linear style Segmented Control)
+// Tab Switching
 // ----------------------------------------------------------------------------
 function setupTabSwitching() {
   const tabBtnSchedule = document.getElementById('tab-btn-schedule');
@@ -138,7 +129,7 @@ function setupTabSwitching() {
 }
 
 // ----------------------------------------------------------------------------
-// Encouragement / Gentle Care Modal
+// Care / Encouragement Modal
 // ----------------------------------------------------------------------------
 function setupCareModal() {
   const pill = document.getElementById('care-note-pill');
@@ -147,25 +138,22 @@ function setupCareModal() {
 
   if (!modal) return;
 
-  const openModal = () => {
+  pill?.addEventListener('click', () => {
     modal.classList.add('active');
     window.playChime(620, 0.2);
-  };
+  });
 
-  const closeModal = () => {
+  btnClose?.addEventListener('click', () => {
     modal.classList.remove('active');
-  };
-
-  pill?.addEventListener('click', openModal);
-  btnClose?.addEventListener('click', closeModal);
+  });
 
   modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
+    if (e.target === modal) modal.classList.remove('active');
   });
 }
 
 // ----------------------------------------------------------------------------
-// Backup, Restore & Reset Demo Data
+// Data Tools
 // ----------------------------------------------------------------------------
 function setupDataTools() {
   const btnExport = document.getElementById('btn-export-data');
@@ -193,6 +181,7 @@ function setupDataTools() {
       if (res.success) {
         ScheduleModule.render();
         FinanceModule.render();
+        AuthModule.render();
         window.showToast('Khôi phục dữ liệu thành công!', 'success');
         window.playChime(750, 0.2);
       } else {
@@ -204,18 +193,19 @@ function setupDataTools() {
   });
 
   btnReset?.addEventListener('click', () => {
-    if (confirm('Bạn có muốn đặt lại toàn bộ dữ liệu mẫu ban đầu không? (Mọi ghi chép hiện tại sẽ được thay bằng mẫu chuẩn)')) {
-      StorageManager.resetToDemo();
+    if (confirm('Bạn có muốn làm mới dữ liệu về trạng thái sạch ban đầu không?')) {
+      StorageManager.resetToClean();
       ScheduleModule.render();
       FinanceModule.render();
-      window.showToast('Đã khôi phục dữ liệu mẫu chuẩn!', 'info');
+      AuthModule.render();
+      window.showToast('Đã đặt lại dữ liệu sạch ban đầu!', 'info');
       window.playChime(600, 0.15);
     }
   });
 }
 
 // ----------------------------------------------------------------------------
-// Application Initialization
+// Initialization
 // ----------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
   updateHeaderDate();
@@ -223,7 +213,8 @@ document.addEventListener('DOMContentLoaded', () => {
   setupCareModal();
   setupDataTools();
 
-  // Initialize Core Functional Modules
-  ScheduleModule.init();
-  FinanceModule.init();
+  // Initialize Modules
+  if (window.AuthModule) AuthModule.init();
+  if (window.ScheduleModule) ScheduleModule.init();
+  if (window.FinanceModule) FinanceModule.init();
 });

@@ -1,14 +1,15 @@
 /**
- * NGAOS — SCHEDULE & TASK MODULE
- * Real, practical daily routine and study planner
+ * NGAOS — SCHEDULE & TASK MODULE (V3)
+ * Practical daily routine and study planner
  * Handles Morning / Afternoon / Evening buckets, preset templates, and live progress
+ * Zero AI emojis — Clean minimalist typography and vector indicators
  */
 
 const CATEGORY_MAP = {
-  study: { label: '📚 Chuyên Môn', class: 'cat-study' },
-  project: { label: '💻 Đề Án', class: 'cat-project' },
-  routine: { label: '🌿 Sinh Hoạt', class: 'cat-routine' },
-  health: { label: '💊 Sức Khỏe', class: 'cat-health' }
+  study:   { label: 'Chuyên Môn', class: 'cat-study' },
+  project: { label: 'Đề Án',     class: 'cat-project' },
+  routine: { label: 'Sinh Hoạt',  class: 'cat-routine' },
+  health:  { label: 'Sức Khỏe',   class: 'cat-health' }
 };
 
 window.ScheduleModule = {
@@ -28,7 +29,6 @@ window.ScheduleModule = {
         const state = StorageManager.getState();
         if (state.schedule.activePreset === presetKey) return;
 
-        // Confirm if there are custom uncompleted tasks
         StorageManager.loadPreset(presetKey);
         this.render();
         if (window.showToast) {
@@ -64,7 +64,6 @@ window.ScheduleModule = {
 
       StorageManager.addTask({ period, time, title, category });
 
-      // Reset form
       if (inputTitle) inputTitle.value = '';
       if (inputTime) inputTime.value = '';
 
@@ -85,7 +84,7 @@ window.ScheduleModule = {
   render() {
     const state = StorageManager.getState();
     const tasks = state.schedule.tasks || [];
-    const activePreset = state.schedule.activePreset || 'campus';
+    const activePreset = state.schedule.activePreset || '';
 
     // Update Preset Chip active status
     document.querySelectorAll('.preset-chip').forEach(chip => {
@@ -98,104 +97,96 @@ window.ScheduleModule = {
     });
 
     // Bucket tasks by periods
-    const periods = {
-      morning: tasks.filter(t => t.period === 'morning'),
-      afternoon: tasks.filter(t => t.period === 'afternoon'),
-      evening: tasks.filter(t => t.period === 'evening')
+    const buckets = {
+      morning: [],
+      afternoon: [],
+      evening: []
     };
 
-    // Render each bucket
-    this.renderPeriodBucket('morning', periods.morning);
-    this.renderPeriodBucket('afternoon', periods.afternoon);
-    this.renderPeriodBucket('evening', periods.evening);
+    tasks.forEach(t => {
+      if (buckets[t.period]) buckets[t.period].push(t);
+      else buckets.morning.push(t);
+    });
 
-    // Compute progress
+    // Render each bucket
+    ['morning', 'afternoon', 'evening'].forEach(period => {
+      const container = document.getElementById(`list-${period}`);
+      const countBadge = document.getElementById(`count-${period}`);
+      const periodTasks = buckets[period];
+
+      if (countBadge) {
+        const completedCount = periodTasks.filter(t => t.completed).length;
+        countBadge.textContent = `${completedCount}/${periodTasks.length} việc`;
+      }
+
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (periodTasks.length === 0) {
+        container.innerHTML = `
+          <div style="padding: 24px 12px; text-align: center; color: var(--text-muted); font-size: 13px;">
+            Chưa có công việc nào trong buổi này.
+          </div>
+        `;
+        return;
+      }
+
+      periodTasks.forEach(task => {
+        const cat = CATEGORY_MAP[task.category] || CATEGORY_MAP.study;
+        const card = document.createElement('div');
+        card.className = `task-item-card ${task.completed ? 'completed' : ''}`;
+        card.id = `card-${task.id}`;
+
+        const creator = StorageManager.USERS.find(u => u.id === task.createdBy);
+        const creatorText = creator ? ` • ${creator.name}` : '';
+
+        card.innerHTML = `
+          <div class="task-item-left">
+            <button class="task-checkbox-btn" aria-label="Hoàn thành công việc" data-id="${task.id}">
+              ${task.completed ? (window.AppIcons ? window.AppIcons.check : '✓') : ''}
+            </button>
+            <div class="task-info-block">
+              <span class="task-time-pill">${task.time ? task.time : 'Trong buổi'}${creatorText}</span>
+              <p class="task-title">${task.title}</p>
+              <span class="task-category-pill ${cat.class}">${cat.label}</span>
+            </div>
+          </div>
+          <button class="task-btn-delete" title="Xóa công việc" data-id="${task.id}">✕</button>
+        `;
+
+        // Checkbox event
+        card.querySelector('.task-checkbox-btn').addEventListener('click', (e) => {
+          e.stopPropagation();
+          StorageManager.toggleTask(task.id);
+          this.render();
+          if (window.playChime) window.playChime(task.completed ? 440 : 660, 0.12);
+        });
+
+        // Delete event
+        card.querySelector('.task-btn-delete').addEventListener('click', (e) => {
+          e.stopPropagation();
+          StorageManager.deleteTask(task.id);
+          this.render();
+          if (window.showToast) window.showToast('Đã xóa công việc.', 'info');
+        });
+
+        container.appendChild(card);
+      });
+    });
+
+    // Update Daily Progress Bar
     const total = tasks.length;
     const completed = tasks.filter(t => t.completed).length;
     const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-    const progressText = document.getElementById('schedule-progress-text');
-    const progressBar = document.getElementById('schedule-progress-bar');
+    const progressFraction = document.getElementById('progress-fraction');
+    const progressBar = document.getElementById('daily-progress-bar');
 
-    if (progressText) {
-      progressText.textContent = `${completed}/${total} việc (${percent}%)`;
+    if (progressFraction) {
+      progressFraction.textContent = `${completed}/${total} việc (${percent}%)`;
     }
     if (progressBar) {
       progressBar.style.width = `${percent}%`;
-      if (percent === 100 && total > 0) {
-        progressBar.style.background = 'linear-gradient(90deg, #059669, #10b981)';
-      } else {
-        progressBar.style.background = '';
-      }
     }
-  },
-
-  renderPeriodBucket(periodName, taskList) {
-    const listElem = document.getElementById(`list-${periodName}`);
-    const countElem = document.getElementById(`count-${periodName}`);
-
-    if (countElem) {
-      const completedCount = taskList.filter(t => t.completed).length;
-      countElem.textContent = `${completedCount}/${taskList.length} việc`;
-    }
-
-    if (!listElem) return;
-    listElem.innerHTML = '';
-
-    if (taskList.length === 0) {
-      const emptyNotice = document.createElement('div');
-      emptyNotice.className = 'empty-period-note';
-      emptyNotice.style.cssText = 'padding: 16px; text-align: center; color: var(--text-muted); font-size: 12.5px; font-style: italic;';
-      emptyNotice.textContent = 'Chưa có công việc nào trong buổi này ✨';
-      listElem.appendChild(emptyNotice);
-      return;
-    }
-
-    taskList.forEach(task => {
-      const catInfo = CATEGORY_MAP[task.category] || CATEGORY_MAP.study;
-      const card = document.createElement('div');
-      card.className = `task-item-card ${task.completed ? 'completed' : ''}`;
-      card.setAttribute('data-id', task.id);
-
-      card.innerHTML = `
-        <div class="task-item-left">
-          <button class="task-checkbox-btn" title="${task.completed ? 'Đánh dấu chưa xong' : 'Đánh dấu hoàn thành'}">
-            ${task.completed ? '✓' : ''}
-          </button>
-          <div class="task-info-block">
-            ${task.time ? `<span class="task-time-pill">⏰ ${task.time}</span>` : ''}
-            <span class="task-title">${escapeHTML(task.title)}</span>
-            <span class="task-category-pill ${catInfo.class}">${catInfo.label}</span>
-          </div>
-        </div>
-        <button class="task-btn-delete" title="Xóa công việc này" aria-label="Xóa">✕</button>
-      `;
-
-      // Checkbox event
-      const checkBtn = card.querySelector('.task-checkbox-btn');
-      checkBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        StorageManager.toggleTask(task.id);
-        this.render();
-        if (window.playChime) window.playChime(task.completed ? 480 : 680, 0.15);
-      });
-
-      // Delete event
-      const delBtn = card.querySelector('.task-btn-delete');
-      delBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        StorageManager.deleteTask(task.id);
-        this.render();
-        if (window.showToast) window.showToast('Đã xóa công việc khỏi lịch', 'info');
-      });
-
-      listElem.appendChild(card);
-    });
   }
 };
-
-function escapeHTML(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}

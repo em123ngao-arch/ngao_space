@@ -1,10 +1,15 @@
 /**
- * NGAOS — STORAGE & STATE ENGINE (V2)
- * Clean slate state management via LocalStorage
- * Safe schema migrations, export/import JSON and preset templates
+ * NGAOS — STORAGE & STATE ENGINE (V3)
+ * Full CRUD for Big Savings Goals, 2-User Auth System (Bảo & Ngân), and Clean SVG Icons
  */
 
-const STORAGE_KEY = 'NGAOS_STATE_V2';
+const STORAGE_KEY = 'NGAOS_STATE_V3';
+const AUTH_KEY = 'NGAOS_AUTH_V3';
+
+const AUTH_USERS = [
+  { id: 'bao', name: 'Bảo', role: 'Người đồng hành', pin: '1234', avatarColor: '#0284c7' },
+  { id: 'ngan', name: 'Ngân', role: 'Chủ nhân không gian', pin: '5678', avatarColor: '#059669' }
+];
 
 const PRESET_TEMPLATES = {
   campus: [
@@ -39,27 +44,74 @@ const PRESET_TEMPLATES = {
 
 function getCleanInitialState() {
   return {
-    version: 2,
+    version: 3,
     schedule: {
       activePreset: '',
-      tasks: [] // Clean slate: Không chứa dữ liệu mẫu giả
+      tasks: [] // Clean slate
     },
     finance: {
       weeklyBudget: 1500000,
-      savingsGoal: {
-        title: 'Mục Tiêu Tiết Kiệm Lớn',
-        targetAmount: 25000000,
-        currentAmount: 0,
-        history: []
-      },
-      transactions: [] // Clean slate: Không chứa giao dịch ảo
+      goals: [
+        {
+          id: 'goal_laptop',
+          title: 'Quỹ Mua Laptop Mới',
+          targetAmount: 25000000,
+          currentAmount: 0,
+          deadline: '2026-12-31',
+          creator: 'ngan',
+          category: 'tech'
+        }
+      ],
+      transactions: [] // Clean slate
     }
   };
 }
 
 const StorageManager = {
   PRESETS: PRESET_TEMPLATES,
+  USERS: AUTH_USERS,
 
+  // --------------------------------------------------------------------------
+  // Authentication (2 Users: Bảo & Ngân)
+  // --------------------------------------------------------------------------
+  getCurrentUser() {
+    try {
+      const saved = localStorage.getItem(AUTH_KEY);
+      if (saved) {
+        const found = AUTH_USERS.find(u => u.id === saved);
+        if (found) return found;
+      }
+      return AUTH_USERS[1]; // Mặc định là Ngân
+    } catch (e) {
+      return AUTH_USERS[1];
+    }
+  },
+
+  setCurrentUser(userId, pin = '') {
+    const user = AUTH_USERS.find(u => u.id === userId);
+    if (!user) return { success: false, message: 'Người dùng không tồn tại' };
+
+    if (pin && pin !== user.pin) {
+      return { success: false, message: 'Mã PIN bảo mật không chính xác' };
+    }
+
+    try {
+      localStorage.setItem(AUTH_KEY, user.id);
+      return { success: true, user };
+    } catch (e) {
+      return { success: false, message: 'Lỗi lưu phiên đăng nhập' };
+    }
+  },
+
+  logoutUser() {
+    try {
+      localStorage.removeItem(AUTH_KEY);
+    } catch (e) {}
+  },
+
+  // --------------------------------------------------------------------------
+  // Core State
+  // --------------------------------------------------------------------------
   getState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -72,9 +124,13 @@ const StorageManager = {
       if (!parsed || !parsed.schedule || !parsed.finance) {
         throw new Error('Invalid state structure');
       }
+      if (!Array.isArray(parsed.finance.goals)) {
+        parsed.finance.goals = getCleanInitialState().finance.goals;
+        this.saveState(parsed);
+      }
       return parsed;
     } catch (e) {
-      console.warn('Lỗi khi đọc LocalStorage, khởi tạo lại state sạch:', e);
+      console.warn('Khởi tạo lại state V3 chuẩn:', e);
       const fallback = getCleanInitialState();
       this.saveState(fallback);
       return fallback;
@@ -105,13 +161,15 @@ const StorageManager = {
 
   addTask({ period, time, title, category }) {
     const state = this.getState();
+    const currentUser = this.getCurrentUser();
     const newTask = {
       id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
       period: period || 'morning',
       time: (time || '').trim(),
       title: title.trim(),
       category: category || 'study',
-      completed: false
+      completed: false,
+      createdBy: currentUser.id
     };
 
     state.schedule.tasks.push(newTask);
@@ -145,7 +203,7 @@ const StorageManager = {
   },
 
   // --------------------------------------------------------------------------
-  // Finance Operations
+  // Finance Operations: Weekly Budget
   // --------------------------------------------------------------------------
   setWeeklyBudget(amount) {
     const state = this.getState();
@@ -154,15 +212,92 @@ const StorageManager = {
     return state;
   },
 
+  // --------------------------------------------------------------------------
+  // Finance Operations: BIG SAVINGS GOALS (FULL CRUD)
+  // --------------------------------------------------------------------------
+  getGoals() {
+    const state = this.getState();
+    return state.finance.goals || [];
+  },
+
+  addGoal({ title, targetAmount, deadline, category }) {
+    const state = this.getState();
+    if (!Array.isArray(state.finance.goals)) state.finance.goals = [];
+
+    const currentUser = this.getCurrentUser();
+    const newGoal = {
+      id: 'goal_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+      title: title.trim(),
+      targetAmount: Math.max(100000, Number(targetAmount) || 1000000),
+      currentAmount: 0,
+      deadline: deadline || '2026-12-31',
+      category: category || 'general',
+      creator: currentUser.id,
+      createdAt: new Date().toISOString()
+    };
+
+    state.finance.goals.unshift(newGoal);
+    this.saveState(state);
+    return { state, newGoal };
+  },
+
+  updateGoal(goalId, { title, targetAmount, deadline, category }) {
+    const state = this.getState();
+    const goal = (state.finance.goals || []).find(g => g.id === goalId);
+    if (!goal) return { success: false, message: 'Không tìm thấy mục tiêu' };
+
+    if (title) goal.title = title.trim();
+    if (targetAmount && targetAmount > 0) goal.targetAmount = Number(targetAmount);
+    if (deadline) goal.deadline = deadline;
+    if (category) goal.category = category;
+
+    this.saveState(state);
+    return { success: true, state, goal };
+  },
+
+  deleteGoal(goalId) {
+    const state = this.getState();
+    state.finance.goals = (state.finance.goals || []).filter(g => g.id !== goalId);
+    this.saveState(state);
+    return state;
+  },
+
+  depositToGoal(goalId, amount) {
+    const state = this.getState();
+    const goal = (state.finance.goals || []).find(g => g.id === goalId);
+    if (!goal) return { success: false, message: 'Không tìm thấy mục tiêu' };
+
+    const depositAmt = Math.max(0, Number(amount) || 0);
+    goal.currentAmount = (goal.currentAmount || 0) + depositAmt;
+    this.saveState(state);
+    return { success: true, state, goal };
+  },
+
+  withdrawFromGoal(goalId, amount) {
+    const state = this.getState();
+    const goal = (state.finance.goals || []).find(g => g.id === goalId);
+    if (!goal) return { success: false, message: 'Không tìm thấy mục tiêu' };
+
+    const withdrawAmt = Math.min(goal.currentAmount || 0, Number(amount) || 0);
+    goal.currentAmount = Math.max(0, (goal.currentAmount || 0) - withdrawAmt);
+    this.saveState(state);
+    return { success: true, state, goal };
+  },
+
+  // --------------------------------------------------------------------------
+  // Finance Operations: Transactions
+  // --------------------------------------------------------------------------
   addTransaction({ type, desc, amount, category, date }) {
     const state = this.getState();
+    const currentUser = this.getCurrentUser();
     const newTx = {
       id: 'tx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
       type: type || 'expense',
       desc: desc.trim(),
       amount: Math.max(0, Number(amount) || 0),
       category: category || 'food',
-      date: date || new Date().toISOString()
+      date: date || new Date().toISOString(),
+      creator: currentUser.id
     };
 
     if (!Array.isArray(state.finance.transactions)) {
@@ -187,52 +322,6 @@ const StorageManager = {
     return state;
   },
 
-  depositSavings(amount) {
-    const state = this.getState();
-    if (!state.finance.savingsGoal) {
-      state.finance.savingsGoal = { title: 'Mục Tiêu Tiết Kiệm Lớn', targetAmount: 25000000, currentAmount: 0, history: [] };
-    }
-    state.finance.savingsGoal.currentAmount = (state.finance.savingsGoal.currentAmount || 0) + Number(amount);
-    if (!Array.isArray(state.finance.savingsGoal.history)) {
-      state.finance.savingsGoal.history = [];
-    }
-    state.finance.savingsGoal.history.unshift({
-      date: new Date().toISOString(),
-      amount: Number(amount),
-      action: 'deposit'
-    });
-    this.saveState(state);
-    return state;
-  },
-
-  withdrawSavings(amount) {
-    const state = this.getState();
-    if (!state.finance.savingsGoal) return state;
-    const withdrawAmt = Math.min(state.finance.savingsGoal.currentAmount || 0, Number(amount));
-    state.finance.savingsGoal.currentAmount = Math.max(0, (state.finance.savingsGoal.currentAmount || 0) - withdrawAmt);
-    if (!Array.isArray(state.finance.savingsGoal.history)) {
-      state.finance.savingsGoal.history = [];
-    }
-    state.finance.savingsGoal.history.unshift({
-      date: new Date().toISOString(),
-      amount: withdrawAmt,
-      action: 'withdraw'
-    });
-    this.saveState(state);
-    return state;
-  },
-
-  updateSavingsGoal({ title, targetAmount }) {
-    const state = this.getState();
-    if (!state.finance.savingsGoal) {
-      state.finance.savingsGoal = { title: 'Mục Tiêu Tiết Kiệm Lớn', targetAmount: 25000000, currentAmount: 0, history: [] };
-    }
-    if (title) state.finance.savingsGoal.title = title.trim();
-    if (targetAmount && targetAmount > 0) state.finance.savingsGoal.targetAmount = Number(targetAmount);
-    this.saveState(state);
-    return state;
-  },
-
   // --------------------------------------------------------------------------
   // Reset & Backup Tools
   // --------------------------------------------------------------------------
@@ -244,7 +333,15 @@ const StorageManager = {
 
   exportJSON() {
     const state = this.getState();
-    return JSON.stringify(state, null, 2);
+    const str = JSON.stringify(state, null, 2);
+    const blob = new Blob([str], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ngaos_backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    return str;
   },
 
   importJSON(jsonString) {

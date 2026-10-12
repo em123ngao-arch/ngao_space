@@ -14,36 +14,35 @@ const delay = ms => new Promise(r => setTimeout(r, ms));
   await desktopPage.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
   await desktopPage.goto('http://localhost:7823/index.html', { waitUntil: 'networkidle0', timeout: 15000 });
 
-  // Clear legacy local storage key to ensure 100% clean state
+  // Clear local storage to start clean
   await desktopPage.evaluate(() => {
-    localStorage.removeItem('NGAOS_STATE_V1');
-    if (window.StorageManager) window.StorageManager.getState();
+    localStorage.clear();
   });
   await desktopPage.reload({ waitUntil: 'networkidle0' });
 
-  // Wait for ocean waves, seagulls, and crabs to animate
+  // Wait for ocean waves, seagulls, crabs
   await delay(2500);
   await desktopPage.screenshot({ path: 'screenshot_schedule.png', fullPage: false });
-  console.log('✓ screenshot_schedule.png (Desktop Schedule - Clean Slate)');
+  console.log('✓ screenshot_schedule.png (Desktop Schedule)');
+
+  // Open Auth Modal to capture 2-user auth modal
+  await desktopPage.click('#btn-switch-user');
+  await delay(600);
+  await desktopPage.screenshot({ path: 'screenshot_auth_modal.png', fullPage: false });
+  console.log('✓ screenshot_auth_modal.png (2-User Switch Dialog)');
+  await desktopPage.click('#btn-close-modal-auth');
+  await delay(400);
 
   // Switch to finance tab
   await desktopPage.click('#tab-btn-finance');
   await delay(600);
 
-  // Add 2 real transactions to demonstrate daily bars and week metrics
-  await desktopPage.type('#trans-desc', 'Ăn trưa & Cafe sáng');
-  await desktopPage.type('#trans-amount', '55000');
-  await desktopPage.click('#btn-add-trans');
-  await delay(400);
-
-  // Deposit 2,000,000 into Big Savings Goal
+  // Deposit 1,000,000 into Big Savings Goal to demonstrate CRUD update
   await desktopPage.click('.btn-deposit[data-amount="1000000"]');
-  await delay(200);
-  await desktopPage.click('.btn-deposit[data-amount="1000000"]');
-  await delay(500);
+  await delay(600);
 
   await desktopPage.screenshot({ path: 'screenshot_finance.png', fullPage: false });
-  console.log('✓ screenshot_finance.png (Desktop Finance - Week & Day Breakdown + Big Goal)');
+  console.log('✓ screenshot_finance.png (Desktop Finance - Big Goals CRUD & Weekly Comparison)');
   await desktopPage.close();
 
   // 2. MOBILE RESPONSIVE VIEWPORT (iPhone 14/15: 390 x 844)

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>NgaOS — Kế Hoạch Học Tập & Quản Lý Tài Chính</title>
-  <meta name="description" content="Không gian quản lý lịch trình học tập lên sẵn và quản lý tài chính chi tiêu theo tuần tươi sáng, tinh tế dành riêng cho Ngân.">
+  <meta name="description" content="Không gian quản lý lịch trình học tập và quản lý tài chính chi tiêu theo tuần dành riêng cho Bảo & Ngân.">
 
   <!-- Google Fonts: Outfit (headings) + Plus Jakarta Sans (body) + JetBrains Mono (data) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,8 +16,8 @@
   <meta http-equiv="Pragma" content="no-cache">
 
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=33">
-  <link rel="stylesheet" href="css/responsive.css?v=33">
+  <link rel="stylesheet" href="css/style.css?v=34">
+  <link rel="stylesheet" href="css/responsive.css?v=34">
 </head>
 <body>
 
@@ -27,41 +27,63 @@
     <header class="app-header">
       <div class="header-left">
         <div class="brand-badge">
-          <span class="brand-icon">🌊</span>
+          <div class="brand-logo-mark">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12c3.5-3 6.5-3 10 0s6.5 3 10 0"></path>
+              <path d="M2 17c3.5-3 6.5-3 10 0s6.5 3 10 0"></path>
+            </svg>
+          </div>
           <div class="brand-text">
             <h1 class="brand-title">NgaOS</h1>
-            <span class="brand-sub">Không gian của Ngân</span>
+            <span class="brand-sub">Không Gian Riêng Tư</span>
           </div>
         </div>
 
         <div class="date-badge" id="header-realtime-date">
-          Thứ Tư, 07 Tháng 10
+          Hôm nay
         </div>
       </div>
 
-      <!-- Segmented Tab Switcher (Apple / Linear style) -->
+      <!-- Segmented Tab Switcher (Minimalist Linear style) -->
       <nav class="segmented-control" role="tablist" aria-label="Chuyển chế độ">
         <button class="seg-btn active" id="tab-btn-schedule" role="tab" aria-selected="true" data-tab="schedule">
-          <span class="seg-icon">📅</span>
+          <span class="seg-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          </span>
           <span>Lịch Trình Học Tập</span>
         </button>
         <button class="seg-btn" id="tab-btn-finance" role="tab" aria-selected="false" data-tab="finance">
-          <span class="seg-icon">💰</span>
+          <span class="seg-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="15" rx="3"></rect><line x1="2" y1="10" x2="22" y2="10"></line><circle cx="17" cy="15" r="1.5" fill="currentColor"></circle></svg>
+          </span>
           <span>Quản Lý Tài Chính</span>
         </button>
       </nav>
 
-      <!-- Gentle Care Pill -->
+      <!-- User Profile & Companion Badge -->
       <div class="header-right">
-        <div class="gentle-love-pill" id="care-note-pill" title="Lời nhắn từ Anh Bảo">
+        <!-- 2-User Switcher Pill -->
+        <button class="user-profile-btn" id="btn-switch-user" title="Bấm để đổi người dùng (Bảo & Ngân)">
+          <span class="user-avatar-mark" id="header-user-avatar">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </span>
+          <div class="user-text-meta">
+            <span class="user-name" id="header-user-name">Ngân</span>
+            <span class="user-role" id="header-user-role">Chủ nhân</span>
+          </div>
+          <span class="switch-chevron">▾</span>
+        </button>
+
+        <!-- Gentle Care Pill -->
+        <div class="gentle-love-pill" id="care-note-pill" title="Thông điệp">
           <span class="love-dot"></span>
-          <span class="love-text">Hôm nay học tốt nhé em bé 💙</span>
+          <span class="love-text" id="care-note-text">Hôm nay học tốt nhé em bé</span>
         </div>
       </div>
     </header>
 
     <!-- ======================================================================
-         TAB 1: LỊCH TRÌNH HỌC TẬP & CUỘC SỐNG (LÊN SẴN LỊCH)
+         TAB 1: LỊCH TRÌNH HỌC TẬP & CUỘC SỐNG
          ====================================================================== -->
     <main class="view-panel active" id="view-schedule">
 
@@ -71,13 +93,13 @@
           <span class="preset-label">Mẫu lịch lên sẵn:</span>
           <div class="preset-chips">
             <button class="preset-chip active" data-preset="campus">
-              <span>🏫</span> Ngày Học Trên Trường
+              Ngày Học Trên Trường
             </button>
             <button class="preset-chip" data-preset="self-study">
-              <span>💻</span> Ngày Tự Học & Đề Án
+              Ngày Tự Học & Đề Án
             </button>
             <button class="preset-chip" data-preset="weekend">
-              <span>🌿</span> Cuối Tuần Hồi Phục
+              Cuối Tuần Hồi Phục
             </button>
           </div>
         </div>
@@ -86,10 +108,10 @@
         <div class="daily-progress-card">
           <div class="progress-text-row">
             <span class="progress-label">Tiến độ hôm nay</span>
-            <span class="progress-val" id="schedule-progress-text">0/0 việc (0%)</span>
+            <span class="progress-val" id="progress-fraction">0/0 việc (0%)</span>
           </div>
           <div class="progress-bar-track">
-            <div class="progress-bar-fill" id="schedule-progress-bar" style="width: 0%;"></div>
+            <div class="progress-bar-fill" id="daily-progress-bar" style="width: 0%;"></div>
           </div>
         </div>
       </section>
@@ -101,54 +123,54 @@
         <div class="period-card period-morning">
           <div class="period-header">
             <div class="period-title-wrap">
-              <span class="period-icon">🌅</span>
+              <span class="period-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>
+              </span>
               <div>
                 <h3 class="period-title">Buổi Sáng</h3>
-                <span class="period-time-range">06:00 — 11:30 • Khởi đầu nhẹ nhàng & Tập trung cao</span>
+                <span class="period-time-range">06:00 — 11:30 • Khởi đầu & Tập trung</span>
               </div>
             </div>
             <span class="period-count-badge" id="count-morning">0 việc</span>
           </div>
 
-          <div class="tasks-list" id="list-morning">
-            <!-- Dynamic Morning Tasks -->
-          </div>
+          <div class="tasks-list" id="list-morning"></div>
         </div>
 
         <!-- 2. BUỔI CHIỀU -->
         <div class="period-card period-afternoon">
           <div class="period-header">
             <div class="period-title-wrap">
-              <span class="period-icon">☀️</span>
+              <span class="period-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path></svg>
+              </span>
               <div>
                 <h3 class="period-title">Buổi Chiều</h3>
-                <span class="period-time-range">12:00 — 17:30 • Nạp năng lượng, Đề án & Vận động</span>
+                <span class="period-time-range">12:00 — 17:30 • Năng lượng & Đề án</span>
               </div>
             </div>
             <span class="period-count-badge" id="count-afternoon">0 việc</span>
           </div>
 
-          <div class="tasks-list" id="list-afternoon">
-            <!-- Dynamic Afternoon Tasks -->
-          </div>
+          <div class="tasks-list" id="list-afternoon"></div>
         </div>
 
         <!-- 3. BUỔI TỐI -->
         <div class="period-card period-evening">
           <div class="period-header">
             <div class="period-title-wrap">
-              <span class="period-icon">🌙</span>
+              <span class="period-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+              </span>
               <div>
                 <h3 class="period-title">Buổi Tối</h3>
-                <span class="period-time-range">18:00 — 23:00 • Ôn bài, Thư giãn & Ngủ ngon</span>
+                <span class="period-time-range">18:00 — 23:00 • Ôn bài & Thư giãn</span>
               </div>
             </div>
             <span class="period-count-badge" id="count-evening">0 việc</span>
           </div>
 
-          <div class="tasks-list" id="list-evening">
-            <!-- Dynamic Evening Tasks -->
-          </div>
+          <div class="tasks-list" id="list-evening"></div>
         </div>
 
       </section>
@@ -158,17 +180,17 @@
         <h4 class="quick-add-title">+ Thêm việc mới vào lịch</h4>
         <div class="quick-add-form">
           <select class="form-input" id="new-task-period" style="max-width: 140px;">
-            <option value="morning">🌅 Buổi Sáng</option>
-            <option value="afternoon">☀️ Buổi Chiều</option>
-            <option value="evening">🌙 Buổi Tối</option>
+            <option value="morning">Buổi Sáng</option>
+            <option value="afternoon">Buổi Chiều</option>
+            <option value="evening">Buổi Tối</option>
           </select>
           <input type="text" class="form-input" id="new-task-time" placeholder="Giờ (vd: 09:00 - 10:30)" style="max-width: 170px;">
           <input type="text" class="form-input" id="new-task-title" placeholder="Nội dung công việc cần làm...">
           <select class="form-input" id="new-task-cat" style="max-width: 150px;">
-            <option value="study">📚 Chuyên Môn</option>
-            <option value="project">💻 Đề Án</option>
-            <option value="routine">🌿 Sinh Hoạt</option>
-            <option value="health">💊 Sức Khỏe</option>
+            <option value="study">Chuyên Môn</option>
+            <option value="project">Đề Án</option>
+            <option value="routine">Sinh Hoạt</option>
+            <option value="health">Sức Khỏe</option>
           </select>
           <button class="btn-primary" id="btn-add-task">+ Thêm Vào Lịch</button>
         </div>
@@ -177,80 +199,40 @@
     </main>
 
     <!-- ======================================================================
-         TAB 2: QUẢN LÝ TÀI CHÍNH THEO TUẦN, NGÀY & MỤC TIÊU TIẾT KIỆM LỚN
+         TAB 2: QUẢN LÝ TÀI CHÍNH (MỤC TIÊU LỚN CRUD, TUẦN, NGÀY & SO SÁNH)
          ====================================================================== -->
     <main class="view-panel" id="view-finance">
 
-      <!-- 1. MỤC TIÊU TIẾT KIỆM LỚN (BIG SAVINGS GOAL) -->
-      <section class="finance-card big-goal-card">
-        <div class="card-tag-row">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="pill-tag pill-emerald">🎯 Mục Tiêu Tiết Kiệm Lớn</span>
-            <span class="goal-custom-title" id="goal-title-text">Quỹ Tích Lũy Lớn Của Ngân</span>
-          </div>
-          <span class="card-hint-text" id="goal-remaining-weeks-text">Còn 11 tuần nữa hết năm 2026</span>
-        </div>
-
-        <div class="big-goal-hero-grid">
-          <div class="big-goal-main-stat">
-            <span class="stat-meta">ĐÃ TÍCH LŨY ĐƯỢC</span>
-            <div class="stat-number-large stat-emerald" id="goal-current-amount">0 đ</div>
-            <div class="goal-sub-stats">
-              <span>Mục tiêu: <strong id="goal-target-amount">25.000.000 đ</strong></span>
-              <span>Còn thiếu: <strong id="goal-missing-amount" style="color: var(--coral-rose);">25.000.000 đ</strong></span>
+      <!-- 1. DANH SÁCH MỤC TIÊU TIẾT KIỆM LỚN (FULL CRUD) -->
+      <section class="finance-card big-goals-section">
+        <div class="goals-section-header">
+          <div class="title-with-icon">
+            <span class="icon-circle emerald">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2" fill="currentColor"></circle></svg>
+            </span>
+            <div>
+              <h3 class="panel-section-title">Mục Tiêu Tiết Kiệm Lớn</h3>
+              <p class="panel-section-sub">Kế hoạch tích lũy dài hạn của Bảo & Ngân</p>
             </div>
           </div>
 
-          <div class="big-goal-pace-stat">
-            <div class="goal-percent-badge" id="goal-percent-text">0%</div>
-            <div class="goal-needed-pills">
-              <span class="needed-pill" id="goal-needed-weekly-text">Cần ~0 đ / tuần</span>
-              <span class="needed-pill" id="goal-needed-daily-text">~0 đ / ngày</span>
-            </div>
-          </div>
+          <button class="btn-primary btn-sm" id="btn-add-new-goal">
+            <span>+ Tạo Mục Tiêu Mới</span>
+          </button>
         </div>
 
-        <!-- Thanh tiến độ lớn với các nấc milestone -->
-        <div class="goal-meter-section">
-          <div class="progress-bar-track progress-bar-large">
-            <div class="progress-bar-fill fill-emerald" id="goal-meter-bar" style="width: 0%;"></div>
-          </div>
-          <div class="goal-milestones">
-            <span>0%</span>
-            <span>25%</span>
-            <span>50%</span>
-            <span>75%</span>
-            <span>100% 🎯</span>
-          </div>
-        </div>
-
-        <!-- Hàng nạp / trích quỹ tiết kiệm nhanh -->
-        <div class="goal-actions-bar">
-          <div class="deposit-buttons-group">
-            <span class="deposit-label">Nạp vào quỹ:</span>
-            <button class="btn-deposit" data-amount="100000">+ 100k</button>
-            <button class="btn-deposit" data-amount="200000">+ 200k</button>
-            <button class="btn-deposit" data-amount="500000">+ 500k</button>
-            <button class="btn-deposit" data-amount="1000000">+ 1 Triệu</button>
-          </div>
-
-          <!-- Nạp tùy chọn & Đổi mục tiêu -->
-          <div class="goal-custom-inputs">
-            <input type="number" class="form-input form-input-sm" id="input-custom-deposit" placeholder="Số tiền khác..." style="max-width: 140px;">
-            <button class="btn-secondary btn-sm" id="btn-custom-deposit">+ Nạp</button>
-            <button class="btn-secondary btn-sm" id="btn-edit-goal-target" title="Đổi số tiền mục tiêu">Đổi Mục Tiêu</button>
-          </div>
-        </div>
+        <!-- Render dynamically all Goals (CRUD cards) -->
+        <div class="big-goals-list" id="big-goals-list"></div>
       </section>
 
-      <!-- 2. TỔNG QUAN THEO TUẦN & TỐC ĐỘ SÀI TIỀN (WEEKLY LEVEL) -->
+      <!-- 2. QUẢN LÝ THEO TUẦN (WEEKLY LEVEL) -->
       <section class="finance-card weekly-card">
         <div class="card-tag-row">
           <div style="display: flex; align-items: center; gap: 8px;">
             <span class="pill-tag pill-blue" id="finance-week-badge">Tuần 42 / 52 Tuần</span>
-            <span class="card-hint-text">Quản lý theo chu kỳ tuần</span>
+            <span class="card-hint-text">Chu kỳ ngân sách tuần</span>
           </div>
-          <div class="stat-badge-status" id="weekly-status-pill">An toàn 🌱</div>
+          <div class="stat-badge-status" id="weekly-status-pill">An toàn</div>
         </div>
 
         <div class="weekly-metrics-grid">
@@ -273,7 +255,7 @@
           <div class="metric-box">
             <span class="stat-meta">CÒN LẠI CHO TUẦN</span>
             <div class="metric-val text-remaining" id="weekly-remaining-amount">1.500.000 đ</div>
-            <span class="metric-sub-note" id="weekly-burn-rate-note">Định mức an toàn: ~214k / ngày</span>
+            <span class="metric-sub-note" id="weekly-burn-rate-note">Định mức: ~214k / ngày</span>
           </div>
         </div>
 
@@ -284,26 +266,24 @@
         </div>
       </section>
 
-      <!-- 3. BẢNG SO SÁNH 7 NGÀY TRONG TUẦN TRỰC QUAN (DAY-BY-DAY COMPARISON) -->
+      <!-- 3. BẢNG SO SÁNH 7 NGÀY TRONG TUẦN TRỰC QUAN -->
       <section class="finance-card daily-breakdown-card">
         <div class="list-header-row">
           <div>
-            <h3 class="panel-section-title">📊 So Sánh Mức Độ Sài Tiền Theo Ngày (Thứ 2 ➔ Chủ Nhật)</h3>
+            <h3 class="panel-section-title">So Sánh Mức Độ Sài Tiền Theo Ngày</h3>
             <p class="panel-section-sub">Bấm vào từng ngày để lọc xem chi tiết các khoản chi của ngày đó</p>
           </div>
           <div class="day-filter-badge" id="current-day-filter-label">Đang xem: Cả Tuần</div>
         </div>
 
-        <div class="days-comparison-grid" id="days-comparison-bars">
-          <!-- Rendered dynamically: 7 Day Columns with Visual Height Bars & Spend Labels -->
-        </div>
+        <div class="days-comparison-grid" id="days-comparison-bars"></div>
       </section>
 
-      <!-- 4. BẢNG SO SÁNH GIỮA CÁC TUẦN TRỰC QUAN (WEEK-OVER-WEEK COMPARISON) -->
+      <!-- 4. BẢNG SO SÁNH GIỮA CÁC TUẦN -->
       <section class="finance-card weeks-comparison-card">
         <div class="list-header-row">
           <div>
-            <h3 class="panel-section-title">📈 So Sánh Chi Tiêu Giữa Các Tuần Gần Nhất</h3>
+            <h3 class="panel-section-title">So Sánh Chi Tiêu Giữa Các Tuần Gần Nhất</h3>
             <p class="panel-section-sub">Theo dõi xu hướng sài tiền tăng hay giảm qua từng tuần</p>
           </div>
           <span class="card-hint-text">Đơn vị: VNĐ</span>
@@ -320,19 +300,17 @@
                 <th>Đánh Giá & Xu Hướng</th>
               </tr>
             </thead>
-            <tbody id="weeks-compare-tbody">
-              <!-- Rendered dynamically: Week comparison rows -->
-            </tbody>
+            <tbody id="weeks-compare-tbody"></tbody>
           </table>
         </div>
       </section>
 
-      <!-- 5. GHI CHÉP THU/CHI NHANH & SỔ GIAO DỊCH (TRANSACTION LEDGER) -->
+      <!-- 5. GHI CHÉP THU/CHI NHANH & SỔ GIAO DỊCH -->
       <section class="ledger-container">
 
         <!-- Left: Quick Add Transaction -->
         <div class="finance-card add-trans-card">
-          <h3 class="panel-section-title">✍️ Ghi Chép Khoản Tiền Mới</h3>
+          <h3 class="panel-section-title">Ghi Chép Khoản Tiền Mới</h3>
           <p class="panel-section-sub">Ghi nhận chi tiêu theo ngày chính xác để theo dõi sát sao</p>
 
           <div class="trans-form-stack">
@@ -366,12 +344,12 @@
               <div class="form-group">
                 <label class="input-label" for="trans-cat">Danh mục</label>
                 <select class="form-input" id="trans-cat">
-                  <option value="food">🍜 Ăn Uống & Cafe</option>
-                  <option value="study">📚 Học Tập & Sách</option>
-                  <option value="shop">🛍️ Mua Sắm & Mỹ Phẩm</option>
-                  <option value="travel">🛵 Di Chuyển & Xăng</option>
-                  <option value="health">💊 Thuốc & Sức Khỏe</option>
-                  <option value="other">✨ Khác</option>
+                  <option value="food">Ăn Uống & Cafe</option>
+                  <option value="study">Học Tập & Sách</option>
+                  <option value="shop">Mua Sắm & Vật Dụng</option>
+                  <option value="travel">Di Chuyển & Xăng</option>
+                  <option value="health">Sức Khỏe & Thuốc</option>
+                  <option value="other">Khoản Khác</option>
                 </select>
               </div>
             </div>
@@ -384,18 +362,16 @@
         <div class="finance-card trans-list-card">
           <div class="list-header-row">
             <div>
-              <h3 class="panel-section-title">📋 Lịch Sử Giao Dịch</h3>
+              <h3 class="panel-section-title">Lịch Sử Giao Dịch</h3>
               <p class="panel-section-sub" id="trans-count-label">0 giao dịch được ghi nhận</p>
             </div>
             <div style="display: flex; gap: 6px;">
               <button class="btn-secondary btn-sm" id="btn-show-all-days" style="display: none;">Xem Cả Tuần</button>
-              <button class="btn-secondary btn-sm" id="btn-clear-week-trans" title="Xóa lịch sử tuần này">Làm Mới</button>
+              <button class="btn-secondary btn-sm" id="btn-clear-week-trans" title="Xóa lịch sử">Làm Mới</button>
             </div>
           </div>
 
-          <div class="transactions-scroll-list" id="transactions-list">
-            <!-- Dynamic Transaction Items -->
-          </div>
+          <div class="transactions-scroll-list" id="transactions-list"></div>
         </div>
 
       </section>
@@ -405,17 +381,20 @@
     <!-- Application Footer & Data Management Tools -->
     <footer class="app-footer">
       <div class="footer-left">
-        <span>🌱 NgaOS • Kế Hoạch & Quản Lý Thực Tế</span>
+        <span>NgaOS • Kế Hoạch & Quản Lý Thực Tế Cho Bảo & Ngân</span>
       </div>
       <div class="footer-actions">
         <button class="btn-tool" id="btn-export-data" title="Tải file sao lưu JSON về máy">
-          <span>💾</span> Sao Lưu Dữ Liệu
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          <span>Sao Lưu</span>
         </button>
         <button class="btn-tool" id="btn-import-data" title="Nạp file sao lưu từ máy">
-          <span>📂</span> Khôi Phục
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          <span>Khôi Phục</span>
         </button>
-        <button class="btn-tool" id="btn-reset-demo" title="Đặt lại dữ liệu mẫu ban đầu">
-          <span>🔄</span> Dữ Liệu Mẫu
+        <button class="btn-tool" id="btn-reset-demo" title="Đặt lại trạng thái ban đầu">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+          <span>Đặt Lại</span>
         </button>
         <input type="file" id="file-import-json" accept=".json" style="display: none;">
       </div>
@@ -426,12 +405,49 @@
   <!-- Reassuring Ocean Relaxation Dialog -->
   <div class="modal-backdrop" id="modal-love">
     <div class="modal-dialog">
-      <div class="modal-icon">🌊</div>
+      <div class="modal-icon-svg">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--ocean-blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c3.5-3 6.5-3 10 0s6.5 3 10 0"></path><path d="M2 17c3.5-3 6.5-3 10 0s6.5 3 10 0"></path></svg>
+      </div>
       <h3 class="modal-title">Biển Bình Yên & Nghỉ Ngơi</h3>
       <p class="modal-message">
-        Hãy thả lỏng đôi vai, uống một ngụm nước ấm và lắng nghe tiếng sóng biển vỗ về. Giữ tâm trí thanh thản và tiếp tục một ngày tràn đầy năng lượng nhé! 💙
+        Hãy thả lỏng đôi vai, uống một ngụm nước ấm và lắng nghe tiếng sóng biển vỗ về. Giữ tâm trí thanh thản và tiếp tục một ngày tràn đầy năng lượng nhé!
       </p>
-      <button class="btn-primary" id="btn-close-modal-love">Em Thấy Dễ Chịu Hơn Rồi 🌊</button>
+      <button class="btn-primary" id="btn-close-modal-love">Dễ Chịu Hơn Rồi</button>
+    </div>
+  </div>
+
+  <!-- 2-User Authentication Modal (Bảo & Ngân) -->
+  <div class="modal-backdrop" id="modal-auth">
+    <div class="modal-dialog">
+      <div class="modal-icon-svg">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--ocean-blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      </div>
+      <h3 class="modal-title">Xác Thực Người Dùng</h3>
+      <p class="modal-message">Chọn tài khoản của bạn để vào không gian riêng tư:</p>
+
+      <div class="auth-users-selection">
+        <div class="auth-user-card" data-user-id="ngan">
+          <div class="auth-avatar ngan-avatar">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </div>
+          <div class="auth-user-info">
+            <strong>Ngân</strong>
+            <span>Chủ nhân không gian</span>
+          </div>
+        </div>
+
+        <div class="auth-user-card" data-user-id="bao">
+          <div class="auth-avatar bao-avatar">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          </div>
+          <div class="auth-user-info">
+            <strong>Bảo</strong>
+            <span>Người đồng hành</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-secondary" id="btn-close-modal-auth" style="margin-top: 6px;">Đóng</button>
     </div>
   </div>
 
@@ -439,11 +455,13 @@
   <div class="toast-container" id="toast-container"></div>
 
   <!-- Modular Scripts -->
-  <script src="js/storage.js?v=33"></script>
-  <script src="js/ocean-waves.js?v=33"></script>
-  <script src="js/schedule.js?v=33"></script>
-  <script src="js/finance.js?v=33"></script>
-  <script src="js/app.js?v=33"></script>
+  <script src="js/icons.js?v=34"></script>
+  <script src="js/storage.js?v=34"></script>
+  <script src="js/auth.js?v=34"></script>
+  <script src="js/ocean-waves.js?v=34"></script>
+  <script src="js/schedule.js?v=34"></script>
+  <script src="js/finance.js?v=34"></script>
+  <script src="js/app.js?v=34"></script>
 
 </body>
 </html>

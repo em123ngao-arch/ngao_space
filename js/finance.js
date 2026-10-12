@@ -1,15 +1,16 @@
 /**
- * NGAOS — ADVANCED PERSONAL FINANCE MODULE (V2)
- * Focused on Weekly & Daily hierarchy, Visual Week/Day comparisons, and Big Savings Goal
+ * NGAOS — ADVANCED PERSONAL FINANCE MODULE (V3)
+ * Full CRUD for Big Savings Goals, Clean SVG Icons (Zero AI Emojis),
+ * Weekly/Daily Hierarchy, and Visual Comparison Engine
  */
 
 const FINANCE_CATEGORIES = {
-  food: { label: 'Ăn Uống & Cafe', icon: '🍜' },
-  study: { label: 'Học Tập & Sách', icon: '📚' },
-  shop: { label: 'Mua Sắm & Mỹ Phẩm', icon: '🛍️' },
-  travel: { label: 'Di Chuyển & Xăng', icon: '🛵' },
-  health: { label: 'Thuốc & Sức Khỏe', icon: '💊' },
-  other: { label: 'Khoản Khác', icon: '✨' }
+  food:   { label: 'Ăn Uống & Cafe',    iconKey: 'food' },
+  study:  { label: 'Học Tập & Sách',    iconKey: 'study' },
+  shop:   { label: 'Mua Sắm & Vật Dụng', iconKey: 'shop' },
+  travel: { label: 'Di Chuyển & Xăng',   iconKey: 'travel' },
+  health: { label: 'Sức Khỏe & Thuốc',   iconKey: 'health' },
+  other:  { label: 'Khoản Khác',        iconKey: 'other' }
 };
 
 function formatVND(num) {
@@ -36,10 +37,9 @@ function getWeekInfo() {
   };
 }
 
-// Get the Monday-to-Sunday date range of the current week
 function getCurrentWeekDates() {
   const now = new Date();
-  const currentDay = now.getDay(); // 0 is Sunday, 1 is Monday...
+  const currentDay = now.getDay();
   const distanceToMonday = currentDay === 0 ? -6 : 1 - currentDay;
 
   const monday = new Date(now);
@@ -92,7 +92,7 @@ function formatReadableDate(isoString) {
 }
 
 window.FinanceModule = {
-  selectedDayFilter: null, // null means whole week
+  selectedDayFilter: null,
 
   init() {
     this.bindEvents();
@@ -103,8 +103,7 @@ window.FinanceModule = {
   setDefaultDateInput() {
     const transDateInput = document.getElementById('trans-date');
     if (transDateInput) {
-      const today = new Date().toISOString().split('T')[0];
-      transDateInput.value = today;
+      transDateInput.value = new Date().toISOString().split('T')[0];
     }
   },
 
@@ -132,62 +131,30 @@ window.FinanceModule = {
       });
     }
 
-    // 2. Deposit into Big Savings Goal Buttons
-    const depositButtons = document.querySelectorAll('.btn-deposit');
-    depositButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const amount = Number(btn.getAttribute('data-amount') || 0);
-        if (amount <= 0) return;
+    // 2. CREATE NEW BIG SAVINGS GOAL (C trong CRUD)
+    const btnAddNewGoal = document.getElementById('btn-add-new-goal');
+    if (btnAddNewGoal) {
+      btnAddNewGoal.addEventListener('click', () => {
+        const title = prompt('Nhập tên mục tiêu lớn mới (ví dụ: Quỹ Học Phí, Quỹ Mua Xe Máy...):');
+        if (!title || !title.trim()) return;
 
-        StorageManager.depositSavings(amount);
-        this.render();
-        if (window.showToast) window.showToast(`Đã tích lũy thêm +${formatVND(amount)} vào mục tiêu lớn! 🎯`, 'success');
-        if (window.playChime) window.playChime(760, 0.2);
-      });
-    });
-
-    // Custom deposit button
-    const btnCustomDeposit = document.getElementById('btn-custom-deposit');
-    const inputCustomDeposit = document.getElementById('input-custom-deposit');
-    if (btnCustomDeposit && inputCustomDeposit) {
-      btnCustomDeposit.addEventListener('click', () => {
-        const amt = Number(inputCustomDeposit.value);
-        if (isNaN(amt) || amt <= 0) {
-          if (window.showToast) window.showToast('Vui lòng nhập số tiền hợp lệ (> 0 đ)!', 'warning');
-          return;
-        }
-        StorageManager.depositSavings(amt);
-        inputCustomDeposit.value = '';
-        this.render();
-        if (window.showToast) window.showToast(`Đã nạp +${formatVND(amt)} vào mục tiêu tiết kiệm lớn! 🎯`, 'success');
-        if (window.playChime) window.playChime(780, 0.2);
-      });
-    }
-
-    // Edit Goal Target
-    const btnEditGoal = document.getElementById('btn-edit-goal-target');
-    if (btnEditGoal) {
-      btnEditGoal.addEventListener('click', () => {
-        const state = StorageManager.getState();
-        const currentTarget = state.finance.savingsGoal?.targetAmount || 25000000;
-        const currentTitle = state.finance.savingsGoal?.title || 'Mục Tiêu Tiết Kiệm Lớn';
-
-        const newTargetStr = prompt('Nhập số tiền mục tiêu tiết kiệm mới (VNĐ):', currentTarget);
-        if (newTargetStr === null) return;
-        const newTarget = Number(newTargetStr);
-        if (isNaN(newTarget) || newTarget <= 0) {
+        const targetStr = prompt(`Nhập số tiền mục tiêu cần tích lũy cho "${title.trim()}" (VNĐ):`, '20000000');
+        if (targetStr === null) return;
+        const targetAmount = Number(targetStr);
+        if (isNaN(targetAmount) || targetAmount <= 0) {
           if (window.showToast) window.showToast('Số tiền mục tiêu không hợp lệ!', 'warning');
           return;
         }
 
-        const newTitle = prompt('Tên mục tiêu tiết kiệm (ví dụ: Mua Laptop Mới, Học Phí...):', currentTitle);
-
-        StorageManager.updateSavingsGoal({
-          title: newTitle || currentTitle,
-          targetAmount: newTarget
+        StorageManager.addGoal({
+          title: title.trim(),
+          targetAmount: targetAmount,
+          deadline: '2026-12-31'
         });
+
         this.render();
-        if (window.showToast) window.showToast(`Đã cập nhật mục tiêu: ${formatVND(newTarget)} 🎯`, 'success');
+        if (window.showToast) window.showToast(`Đã tạo mục tiêu lớn: ${title.trim()} (${formatVND(targetAmount)})`, 'success');
+        if (window.playChime) window.playChime(760, 0.2);
       });
     }
 
@@ -218,7 +185,6 @@ window.FinanceModule = {
       const type = radioType ? radioType.value : 'expense';
       const category = selectCat?.value || 'food';
 
-      // Pick date
       let selectedIso = new Date().toISOString();
       if (inputDate && inputDate.value) {
         const picked = new Date(inputDate.value);
@@ -234,7 +200,6 @@ window.FinanceModule = {
         date: selectedIso
       });
 
-      // Reset form
       if (inputDesc) inputDesc.value = '';
       if (inputAmount) inputAmount.value = '';
 
@@ -291,43 +256,180 @@ window.FinanceModule = {
     const transactions = finance.transactions || [];
 
     // ========================================================================
-    // 1. RENDER BIG SAVINGS GOAL
+    // 1. RENDER BIG SAVINGS GOALS (FULL CRUD LIST)
     // ========================================================================
-    const goal = finance.savingsGoal || { title: 'Mục Tiêu Tiết Kiệm Lớn', targetAmount: 25000000, currentAmount: 0 };
-    const goalTarget = goal.targetAmount || 25000000;
-    const goalCurrent = goal.currentAmount || 0;
-    const goalMissing = Math.max(0, goalTarget - goalCurrent);
-    const goalPercent = Math.min(100, Math.round((goalCurrent / goalTarget) * 100));
+    const goalsListContainer = document.getElementById('big-goals-list');
+    const goals = StorageManager.getGoals();
 
-    const elemGoalTitle = document.getElementById('goal-title-text');
-    if (elemGoalTitle) elemGoalTitle.textContent = goal.title || 'Mục Tiêu Tiết Kiệm Lớn';
+    if (goalsListContainer) {
+      goalsListContainer.innerHTML = '';
 
-    const elemGoalWeeks = document.getElementById('goal-remaining-weeks-text');
-    if (elemGoalWeeks) elemGoalWeeks.textContent = `Còn ${weekInfo.remainingWeeks} tuần nữa hết năm ${weekInfo.year}`;
+      if (goals.length === 0) {
+        goalsListContainer.innerHTML = `
+          <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">
+            Chưa có mục tiêu lớn nào. Bấm nút "+ Thêm Mục Tiêu Lớn" phía trên để bắt đầu kế hoạch tích lũy!
+          </div>
+        `;
+      } else {
+        goals.forEach(goal => {
+          const target = goal.targetAmount || 1000000;
+          const current = goal.currentAmount || 0;
+          const missing = Math.max(0, target - current);
+          const percent = Math.min(100, Math.round((current / target) * 100));
 
-    const elemGoalCurrent = document.getElementById('goal-current-amount');
-    if (elemGoalCurrent) elemGoalCurrent.textContent = formatVND(goalCurrent);
+          const neededWeekly = Math.round(missing / weekInfo.remainingWeeks);
+          const neededDaily = Math.round(neededWeekly / 7);
 
-    const elemGoalTarget = document.getElementById('goal-target-amount');
-    if (elemGoalTarget) elemGoalTarget.textContent = formatVND(goalTarget);
+          const creatorUser = StorageManager.USERS.find(u => u.id === goal.creator) || StorageManager.USERS[1];
 
-    const elemGoalMissing = document.getElementById('goal-missing-amount');
-    if (elemGoalMissing) elemGoalMissing.textContent = formatVND(goalMissing);
+          const card = document.createElement('div');
+          card.className = 'goal-item-card';
+          card.innerHTML = `
+            <div class="goal-item-top">
+              <div class="goal-title-wrap">
+                <span class="goal-badge-icon">${window.AppIcons ? window.AppIcons.target : '•'}</span>
+                <div>
+                  <h4 class="goal-item-title">${goal.title}</h4>
+                  <span class="goal-creator-pill">Tạo bởi: ${creatorUser.name}</span>
+                </div>
+              </div>
 
-    const elemGoalPercent = document.getElementById('goal-percent-text');
-    if (elemGoalPercent) elemGoalPercent.textContent = `${goalPercent}%`;
+              <!-- Action buttons: Edit & Delete (U & D trong CRUD) -->
+              <div class="goal-item-actions">
+                <button class="btn-tool-sm btn-edit-goal" data-id="${goal.id}" title="Sửa mục tiêu">
+                  ${window.AppIcons ? window.AppIcons.edit : 'Sửa'}
+                  <span>Sửa</span>
+                </button>
+                <button class="btn-tool-sm btn-delete-goal text-danger" data-id="${goal.id}" title="Xóa mục tiêu">
+                  ${window.AppIcons ? window.AppIcons.trash : 'Xóa'}
+                  <span>Xóa</span>
+                </button>
+              </div>
+            </div>
 
-    const elemGoalBar = document.getElementById('goal-meter-bar');
-    if (elemGoalBar) elemGoalBar.style.width = `${goalPercent}%`;
+            <div class="big-goal-hero-grid">
+              <div class="big-goal-main-stat">
+                <span class="stat-meta">ĐÃ TÍCH LŨY</span>
+                <div class="stat-number-large stat-emerald">${formatVND(current)}</div>
+                <div class="goal-sub-stats">
+                  <span>Mục tiêu: <strong>${formatVND(target)}</strong></span>
+                  <span>Còn thiếu: <strong style="color: var(--coral-rose);">${formatVND(missing)}</strong></span>
+                </div>
+              </div>
 
-    const neededWeekly = Math.round(goalMissing / weekInfo.remainingWeeks);
-    const neededDaily = Math.round(neededWeekly / 7);
+              <div class="big-goal-pace-stat">
+                <div class="goal-percent-badge">${percent}%</div>
+                <div class="goal-needed-pills">
+                  <span class="needed-pill">Cần ~${formatVND(neededWeekly)} / tuần</span>
+                  <span class="needed-pill">~${formatVND(neededDaily)} / ngày</span>
+                </div>
+              </div>
+            </div>
 
-    const elemGoalWeekly = document.getElementById('goal-needed-weekly-text');
-    if (elemGoalWeekly) elemGoalWeekly.textContent = `Cần ~${formatVND(neededWeekly)} / tuần`;
+            <!-- Progress bar with milestones -->
+            <div class="goal-meter-section">
+              <div class="progress-bar-track progress-bar-large">
+                <div class="progress-bar-fill fill-emerald" style="width: ${percent}%;"></div>
+              </div>
+              <div class="goal-milestones">
+                <span>0%</span>
+                <span>25%</span>
+                <span>50%</span>
+                <span>75%</span>
+                <span>100% Đạt</span>
+              </div>
+            </div>
 
-    const elemGoalDaily = document.getElementById('goal-needed-daily-text');
-    if (elemGoalDaily) elemGoalDaily.textContent = `~${formatVND(neededDaily)} / ngày`;
+            <!-- Deposit Row (U trong CRUD) -->
+            <div class="goal-actions-bar">
+              <div class="deposit-buttons-group">
+                <span class="deposit-label">Nạp nhanh:</span>
+                <button class="btn-deposit" data-id="${goal.id}" data-amount="100000">+ 100k</button>
+                <button class="btn-deposit" data-id="${goal.id}" data-amount="200000">+ 200k</button>
+                <button class="btn-deposit" data-id="${goal.id}" data-amount="500000">+ 500k</button>
+                <button class="btn-deposit" data-id="${goal.id}" data-amount="1000000">+ 1 Triệu</button>
+              </div>
+
+              <div class="goal-custom-inputs">
+                <input type="number" class="form-input form-input-sm input-goal-custom" placeholder="Số tiền..." style="max-width: 120px;">
+                <button class="btn-secondary btn-sm btn-goal-custom-deposit" data-id="${goal.id}">+ Nạp</button>
+                <button class="btn-secondary btn-sm btn-goal-withdraw" data-id="${goal.id}" title="Rút bớt tiền quỹ">- Rút</button>
+              </div>
+            </div>
+          `;
+
+          // Bind deposit buttons
+          card.querySelectorAll('.btn-deposit').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const gid = btn.getAttribute('data-id');
+              const amt = Number(btn.getAttribute('data-amount') || 0);
+              StorageManager.depositToGoal(gid, amt);
+              this.render();
+              if (window.showToast) window.showToast(`Đã nạp +${formatVND(amt)} vào "${goal.title}"`, 'success');
+              if (window.playChime) window.playChime(760, 0.2);
+            });
+          });
+
+          // Custom deposit
+          const customBtn = card.querySelector('.btn-goal-custom-deposit');
+          const customInput = card.querySelector('.input-goal-custom');
+          customBtn?.addEventListener('click', () => {
+            const amt = Number(customInput?.value);
+            if (isNaN(amt) || amt <= 0) {
+              if (window.showToast) window.showToast('Vui lòng nhập số tiền hợp lệ (> 0 đ)!', 'warning');
+              return;
+            }
+            StorageManager.depositToGoal(goal.id, amt);
+            this.render();
+            if (window.showToast) window.showToast(`Đã nạp +${formatVND(amt)} vào "${goal.title}"`, 'success');
+            if (window.playChime) window.playChime(780, 0.2);
+          });
+
+          // Withdraw
+          const withdrawBtn = card.querySelector('.btn-goal-withdraw');
+          withdrawBtn?.addEventListener('click', () => {
+            const amtStr = prompt(`Nhập số tiền muốn rút từ "${goal.title}" (VNĐ):`, '100000');
+            if (amtStr === null) return;
+            const amt = Number(amtStr);
+            if (isNaN(amt) || amt <= 0) return;
+            StorageManager.withdrawFromGoal(goal.id, amt);
+            this.render();
+            if (window.showToast) window.showToast(`Đã rút -${formatVND(amt)} từ "${goal.title}"`, 'info');
+          });
+
+          // Edit Goal (U)
+          const editBtn = card.querySelector('.btn-edit-goal');
+          editBtn?.addEventListener('click', () => {
+            const newTitle = prompt('Nhập tên mới cho mục tiêu:', goal.title);
+            if (!newTitle || !newTitle.trim()) return;
+
+            const newTargetStr = prompt('Nhập số tiền mục tiêu mới (VNĐ):', goal.targetAmount);
+            if (newTargetStr === null) return;
+            const newTarget = Number(newTargetStr);
+            if (isNaN(newTarget) || newTarget <= 0) return;
+
+            StorageManager.updateGoal(goal.id, {
+              title: newTitle.trim(),
+              targetAmount: newTarget
+            });
+            this.render();
+            if (window.showToast) window.showToast(`Đã cập nhật mục tiêu "${newTitle.trim()}"`, 'success');
+          });
+
+          // Delete Goal (D)
+          const deleteBtn = card.querySelector('.btn-delete-goal');
+          deleteBtn?.addEventListener('click', () => {
+            if (confirm(`Bạn có chắc chắn muốn xóa mục tiêu "${goal.title}" không?`)) {
+              StorageManager.deleteGoal(goal.id);
+              this.render();
+              if (window.showToast) window.showToast(`Đã xóa mục tiêu "${goal.title}"`, 'info');
+            }
+          });
+
+          goalsListContainer.appendChild(card);
+        });
+      }
+    }
 
     // ========================================================================
     // 2. RENDER WEEKLY OVERVIEW & METRICS
@@ -341,7 +443,6 @@ window.FinanceModule = {
     const elemBudgetVal = document.getElementById('weekly-budget-text');
     if (elemBudgetVal) elemBudgetVal.textContent = formatVND(budget);
 
-    // Calculate this week's spending
     const mondayDate = weekDays[0].date;
     const sundayDate = new Date(weekDays[6].date);
     sundayDate.setHours(23, 59, 59, 999);
@@ -385,15 +486,15 @@ window.FinanceModule = {
     const statusPill = document.getElementById('weekly-status-pill');
     if (statusPill) {
       if (weekSpent > budget) {
-        statusPill.textContent = 'Bội chi 🚨';
+        statusPill.textContent = 'Bội chi';
         statusPill.style.background = 'var(--coral-rose-soft)';
         statusPill.style.color = 'var(--coral-rose)';
       } else if (spentPercent >= 80) {
-        statusPill.textContent = 'Cảnh báo ⚠️';
+        statusPill.textContent = 'Cảnh báo';
         statusPill.style.background = 'var(--sun-amber-soft)';
         statusPill.style.color = 'var(--sun-amber)';
       } else {
-        statusPill.textContent = 'An toàn 🌱';
+        statusPill.textContent = 'An toàn';
         statusPill.style.background = 'var(--sea-emerald-soft)';
         statusPill.style.color = 'var(--sea-emerald)';
       }
@@ -406,7 +507,6 @@ window.FinanceModule = {
     if (daysContainer) {
       daysContainer.innerHTML = '';
 
-      // Compute daily spend for each of the 7 days
       let maxDaySpend = safeDailyRate * 1.5;
       const dailySpends = weekDays.map(dayInfo => {
         let dayTotal = 0;
@@ -449,7 +549,7 @@ window.FinanceModule = {
 
         col.addEventListener('click', () => {
           if (this.selectedDayFilter === d.dateStr) {
-            this.selectedDayFilter = null; // deselect
+            this.selectedDayFilter = null;
           } else {
             this.selectedDayFilter = d.dateStr;
           }
@@ -460,7 +560,6 @@ window.FinanceModule = {
       });
     }
 
-    // Update filter badge label
     const filterLabel = document.getElementById('current-day-filter-label');
     const btnShowAll = document.getElementById('btn-show-all-days');
     if (filterLabel) {
@@ -481,7 +580,6 @@ window.FinanceModule = {
     if (tbodyWeeks) {
       tbodyWeeks.innerHTML = '';
 
-      // Compute last 4 weeks stats
       const currentWk = weekInfo.week;
       const weeksToCompare = [currentWk - 3, currentWk - 2, currentWk - 1, currentWk].filter(w => w > 0);
 
@@ -505,11 +603,11 @@ window.FinanceModule = {
           const diff = wkSpend - prevWeekSpend;
           const diffPercent = Math.round((Math.abs(diff) / prevWeekSpend) * 100);
           if (diff > 0) {
-            trendHtml = `<span class="badge-expense">▲ Tăng +${diffPercent}%</span>`;
+            trendHtml = `<span class="badge-expense">+${diffPercent}%</span>`;
           } else if (diff < 0) {
-            trendHtml = `<span class="badge-saving">▼ Tiết kiệm -${diffPercent}%</span>`;
+            trendHtml = `<span class="badge-saving">-${diffPercent}%</span>`;
           } else {
-            trendHtml = `<span class="badge-neutral">Bằng tuần trước</span>`;
+            trendHtml = `<span class="badge-neutral">Bằng</span>`;
           }
         } else if (isCurrent) {
           trendHtml = wkSpend > budget ? '<span class="badge-expense">Bội chi</span>' : '<span class="badge-saving">Đang diễn ra</span>';
@@ -540,7 +638,6 @@ window.FinanceModule = {
     if (listContainer) {
       listContainer.innerHTML = '';
 
-      // Filter transactions
       let filteredTx = transactions;
       if (this.selectedDayFilter) {
         filteredTx = transactions.filter(t => {
@@ -556,7 +653,7 @@ window.FinanceModule = {
       if (filteredTx.length === 0) {
         listContainer.innerHTML = `
           <div style="padding: 28px 16px; text-align: center; color: var(--text-muted); font-size: 13px;">
-            🌱 ${this.selectedDayFilter ? 'Chưa có khoản chi nào trong ngày này.' : 'Chưa có giao dịch nào được ghi chép. Hãy nhập khoản chi tiêu đầu tiên phía trên!'}
+            ${this.selectedDayFilter ? 'Chưa có khoản chi nào trong ngày này.' : 'Chưa có giao dịch nào được ghi chép. Hãy nhập khoản chi tiêu đầu tiên phía trên!'}
           </div>
         `;
       } else {
@@ -565,15 +662,18 @@ window.FinanceModule = {
           const isExpense = t.type === 'expense';
           const sign = isExpense ? '-' : '+';
           const amountClass = isExpense ? 'expense' : 'income';
+          const iconSvg = window.AppIcons && window.AppIcons[cat.iconKey] ? window.AppIcons[cat.iconKey] : '•';
+
+          const creatorUser = StorageManager.USERS.find(u => u.id === t.creator) || StorageManager.USERS[1];
 
           const row = document.createElement('div');
           row.className = 'trans-item-row';
           row.innerHTML = `
             <div class="trans-item-left">
-              <div class="trans-cat-icon">${cat.icon}</div>
+              <div class="trans-cat-icon">${iconSvg}</div>
               <div class="trans-text-block">
                 <span class="trans-item-desc">${t.desc}</span>
-                <span class="trans-item-date">${formatReadableDate(t.date)} • ${cat.label}</span>
+                <span class="trans-item-date">${formatReadableDate(t.date)} • ${cat.label} • Bởi ${creatorUser.name}</span>
               </div>
             </div>
             <div class="trans-item-right">
