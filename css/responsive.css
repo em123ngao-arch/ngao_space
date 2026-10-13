@@ -280,19 +280,24 @@
   .floating-chat-btn {
     bottom: 16px;
     right: 14px;
-    padding: 8px 14px;
+    padding: 5px 12px 5px 6px;
     font-size: 12px;
-    gap: 6px;
+    gap: 8px;
+  }
+
+  .chat-btn-avatar-wrap {
+    width: 28px;
+    height: 28px;
   }
 
   .floating-chat-drawer {
     bottom: 68px;
-    right: 10px;
-    left: 10px;
+    right: 8px;
+    left: 8px;
     width: auto;
-    height: calc(100vh - 86px);
-    max-height: 560px;
-    border-radius: var(--radius-md);
+    height: calc(100vh - 82px);
+    max-height: 580px;
+    border-radius: var(--radius-lg);
   }
 
   .chat-msg-row {

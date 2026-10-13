@@ -146,7 +146,10 @@
 
       if (pinUserName) pinUserName.textContent = user.name;
       if (pinUserAvatar) {
-        if (user.id === 'ngan') {
+        if (user.avatarUrl) {
+          pinUserAvatar.className = `auth-avatar-mini ${user.id}-avatar`;
+          pinUserAvatar.innerHTML = `<img src="${user.avatarUrl}" class="auth-avatar-mini-photo" alt="${user.name}">`;
+        } else if (user.id === 'ngan') {
           pinUserAvatar.className = 'auth-avatar-mini ngan-avatar';
           pinUserAvatar.innerHTML = window.AppIcons ? window.AppIcons.user : '';
         } else {
@@ -270,8 +273,12 @@
       const userName = document.getElementById('header-user-name');
       const userRole = document.getElementById('header-user-role');
 
-      if (userAvatar && window.AppIcons) {
-        userAvatar.innerHTML = currentUser.id === 'bao' ? window.AppIcons.shield : window.AppIcons.user;
+      if (userAvatar) {
+        if (currentUser.avatarUrl) {
+          userAvatar.innerHTML = `<img src="${currentUser.avatarUrl}" class="header-avatar-img" alt="${currentUser.name}">`;
+        } else if (window.AppIcons) {
+          userAvatar.innerHTML = currentUser.id === 'bao' ? window.AppIcons.shield : window.AppIcons.user;
+        }
       }
       if (userName) userName.textContent = currentUser.name;
       if (userRole) userRole.textContent = currentUser.role;

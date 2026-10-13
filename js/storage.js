@@ -7,8 +7,8 @@ const STORAGE_KEY = 'NGAOS_STATE_V3';
 const AUTH_KEY = 'NGAOS_AUTH_V3';
 
 const AUTH_USERS = [
-  { id: 'bao', name: 'Bảo', role: 'Người đồng hành', pin: '1234', avatarColor: '#0284c7' },
-  { id: 'ngan', name: 'Ngân', role: 'Chủ nhân không gian', pin: '5678', avatarColor: '#059669' }
+  { id: 'bao', name: 'Bảo', role: 'Người đồng hành', pin: '1234', avatarColor: '#0284c7', avatarUrl: 'assets/avatars/bao.png' },
+  { id: 'ngan', name: 'Ngân', role: 'Chủ nhân không gian', pin: '5678', avatarColor: '#059669', avatarUrl: 'assets/avatars/ngan.png' }
 ];
 
 const PRESET_TEMPLATES = {
@@ -557,11 +557,26 @@ const StorageManager = {
           : 'Đến bữa ăn rồi nè, anh nhớ ăn uống đúng giờ nhé!';
         break;
       case 'cheer':
-      default:
         nudgeTitle = 'Tiếp thêm động lực';
         nudgeText = currentUser.id === 'bao'
           ? 'Em bé của anh học giỏi lắm, anh luôn ở đây đồng hành cùng em. Cố lên nào!'
           : 'Hôm nay em học rất tốt, cảm ơn anh đã luôn ủng hộ em!';
+        break;
+      case 'miss':
+        nudgeTitle = 'Gửi gắm yêu thương';
+        nudgeText = currentUser.id === 'bao'
+          ? 'Đang làm việc mà tự nhiên thấy nhớ cô bé má bánh bao này quá nè! ❤️'
+          : 'Em đang học bài mà tự dưng nhớ anh quá đi! ❤️';
+        break;
+      case 'sleep':
+        nudgeTitle = 'Nhắc ngủ sớm';
+        nudgeText = currentUser.id === 'bao'
+          ? 'Muộn rồi em bé ơi, cất sách vở rồi đi ngủ sớm cho da đẹp và mắt khỏe nha! Chúc em ngủ ngon 🌙'
+          : 'Muộn rồi anh ơi, nghỉ ngơi đi ngủ sớm giữ gìn sức khỏe nha! Chúc anh ngủ ngon 🌙';
+        break;
+      default:
+        nudgeTitle = 'Lời nhắn yêu thương';
+        nudgeText = 'Gửi gắm yêu thương đến bạn!';
         break;
     }
 

@@ -28,38 +28,49 @@
         "type": "text",
         "text": "Chào Ngân! Hôm nay học tập thật tốt nhé em bé, anh luôn ở đây tiếp năng lượng cho em!",
         "time": "08:00",
-        "timestamp": 1791905796558
+        "timestamp": 1791908577065
       },
       {
-        "id": "msg_1791909398337_2m0j",
+        "id": "msg_1791912178981_thnm",
         "sender": "bao",
         "senderName": "Bảo",
         "type": "nudge",
         "text": "Em bé ơi, học chăm chỉ nhưng nhớ uống một cốc nước ấm cho khỏe khoắn nhé!",
-        "time": "23:36",
-        "timestamp": 1791909398337,
+        "time": "00:22",
+        "timestamp": 1791912178981,
         "nudgeType": "water",
         "nudgeTitle": "Nhắc uống nước"
       },
       {
-        "id": "msg_1791909399677_cf7n",
+        "id": "msg_1791912180552_ur7r",
         "sender": "bao",
         "senderName": "Bảo",
         "type": "text",
         "text": "Em bé học chăm chỉ nhưng nhớ uống nước ấm nhé!",
-        "time": "23:36",
-        "timestamp": 1791909399677
+        "time": "00:23",
+        "timestamp": 1791912180553
       },
       {
-        "id": "msg_1791909404464_ucla",
+        "id": "msg_1791912186608_5rai",
         "sender": "ngan",
         "senderName": "Ngân",
         "type": "text",
         "text": "Dạ anh, em vừa uống một cốc nước ấm rồi nè!",
-        "time": "23:36",
-        "timestamp": 1791909404464
+        "time": "00:23",
+        "timestamp": 1791912186609
+      },
+      {
+        "id": "msg_1791912197418_vd6j",
+        "sender": "ngan",
+        "senderName": "Ngân",
+        "type": "nudge",
+        "text": "Đến bữa ăn rồi nè, anh nhớ ăn uống đúng giờ nhé!",
+        "time": "00:23",
+        "timestamp": 1791912197418,
+        "nudgeType": "meal",
+        "nudgeTitle": "Nhắc ăn cơm"
       }
     ]
   },
-  "updatedAt": 1791909404464
+  "updatedAt": 1791912197418
 }

@@ -64,6 +64,12 @@
         });
       });
 
+      // Quick Heart Button
+      const btnHeart = document.getElementById('btn-quick-heart');
+      btnHeart?.addEventListener('click', () => {
+        this.sendNudge('miss');
+      });
+
       // Send Message Form
       formChat?.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -158,16 +164,12 @@
 
       if (!notifyCard) return;
 
-      const sender = StorageManager.USERS.find(u => u.id === msg.sender) || { name: 'Người ấy' };
+      const sender = StorageManager.USERS.find(u => u.id === msg.sender) || { name: 'Người ấy', avatarUrl: `assets/avatars/${msg.sender}.png` };
 
       if (avatarEl) {
-        if (msg.sender === 'bao') {
-          avatarEl.className = 'auth-avatar-mini bao-avatar';
-          avatarEl.innerHTML = window.AppIcons ? window.AppIcons.shield : '';
-        } else {
-          avatarEl.className = 'auth-avatar-mini ngan-avatar';
-          avatarEl.innerHTML = window.AppIcons ? window.AppIcons.user : '';
-        }
+        const avatarUrl = sender.avatarUrl || (msg.sender === 'bao' ? 'assets/avatars/bao.png' : 'assets/avatars/ngan.png');
+        avatarEl.className = `auth-avatar-mini ${msg.sender}-avatar`;
+        avatarEl.innerHTML = `<img src="${avatarUrl}" class="auth-avatar-mini-photo" alt="${sender.name}">`;
       }
 
       if (nameEl) nameEl.textContent = sender.name;
@@ -215,9 +217,45 @@
     },
 
     render() {
+      this.renderHeader();
       this.renderMonitor();
       this.renderMessages();
       this.renderInputPlaceholder();
+      this.updateFloatingBtnUI();
+    },
+
+    renderHeader() {
+      const currentUser = StorageManager.getCurrentUser();
+      const partner = currentUser.id === 'bao' ? StorageManager.USERS[1] : StorageManager.USERS[0];
+
+      const headerPartnerName = document.getElementById('chat-header-partner-name');
+      const headerAvatarImg = document.getElementById('chat-header-avatar-img');
+      const headerSubText = document.getElementById('chat-header-sub-text');
+
+      if (headerPartnerName) headerPartnerName.textContent = partner.name;
+      if (headerAvatarImg) {
+        headerAvatarImg.src = partner.avatarUrl || (partner.id === 'bao' ? 'assets/avatars/bao.png' : 'assets/avatars/ngan.png');
+        headerAvatarImg.alt = partner.name;
+      }
+      if (headerSubText) {
+        headerSubText.textContent = partner.id === 'ngan' ? 'Em bé má bánh bao của anh' : 'Anh người yêu đồng hành của em';
+      }
+    },
+
+    updateFloatingBtnUI() {
+      const currentUser = StorageManager.getCurrentUser();
+      const partner = currentUser.id === 'bao' ? StorageManager.USERS[1] : StorageManager.USERS[0];
+
+      const floatingAvatarImg = document.getElementById('floating-chat-avatar-img');
+      const floatingSub = document.getElementById('floating-chat-btn-sub');
+
+      if (floatingAvatarImg) {
+        floatingAvatarImg.src = partner.avatarUrl || (partner.id === 'bao' ? 'assets/avatars/bao.png' : 'assets/avatars/ngan.png');
+        floatingAvatarImg.alt = partner.name;
+      }
+      if (floatingSub) {
+        floatingSub.textContent = `Với ${partner.name}`;
+      }
     },
 
     // ------------------------------------------------------------------------
@@ -261,7 +299,7 @@
             <div class="monitor-header">
               <div class="monitor-user-info">
                 <div class="auth-avatar-mini ngan-avatar">
-                  ${window.AppIcons ? window.AppIcons.user : ''}
+                  <img src="assets/avatars/ngan.png" class="auth-avatar-mini-photo" alt="Ngân">
                 </div>
                 <div>
                   <h4 class="monitor-title">Tiến Độ Học Tập Của Ngân</h4>
@@ -280,7 +318,7 @@
             <div class="monitor-header">
               <div class="monitor-user-info">
                 <div class="auth-avatar-mini bao-avatar">
-                  ${window.AppIcons ? window.AppIcons.shield : ''}
+                  <img src="assets/avatars/bao.png" class="auth-avatar-mini-photo" alt="Bảo">
                 </div>
                 <div>
                   <h4 class="monitor-title">Bảo Đang Đồng Hành Cùng Bạn</h4>
@@ -308,10 +346,14 @@
       const messages = StorageManager.getChatMessages();
 
       if (messages.length === 0) {
+        const partner = currentUser.id === 'bao' ? StorageManager.USERS[1] : StorageManager.USERS[0];
         messagesList.innerHTML = `
           <div class="chat-empty-state">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            <p>Chưa có tin nhắn nào. Bấm lời nhắc nhanh hoặc nhắn tin bên dưới để bắt đầu nhé!</p>
+            <div class="empty-state-avatar-wrap">
+              <img src="${partner.avatarUrl}" class="empty-state-avatar-img" alt="${partner.name}">
+            </div>
+            <div class="empty-state-title">Chưa có tin nhắn nào với ${partner.name}</div>
+            <p>Bấm một lời nhắc nhanh bên trên hoặc gửi tin nhắn ngọt ngào để bắt đầu nhé!</p>
           </div>
         `;
         return;
@@ -319,19 +361,18 @@
 
       messagesList.innerHTML = messages.map(msg => {
         const isMe = msg.sender === currentUser.id;
-        const senderUser = StorageManager.USERS.find(u => u.id === msg.sender) || { name: msg.senderName || 'Người dùng' };
+        const senderUser = StorageManager.USERS.find(u => u.id === msg.sender) || { 
+          name: msg.senderName || 'Người dùng',
+          avatarUrl: `assets/avatars/${msg.sender}.png`
+        };
         const isNudge = msg.type === 'nudge';
-
-        const avatarSvg = msg.sender === 'bao' 
-          ? (window.AppIcons ? window.AppIcons.shield : 'B')
-          : (window.AppIcons ? window.AppIcons.user : 'N');
-
+        const avatarUrl = senderUser.avatarUrl || `assets/avatars/${msg.sender}.png`;
         const avatarClass = msg.sender === 'bao' ? 'bao-avatar' : 'ngan-avatar';
 
         return `
           <div class="chat-msg-row ${isMe ? 'msg-outgoing' : 'msg-incoming'} ${isNudge ? 'msg-nudge-row' : ''}">
             <div class="msg-avatar ${avatarClass}" title="${senderUser.name}">
-              ${avatarSvg}
+              <img src="${avatarUrl}" class="msg-avatar-photo" alt="${senderUser.name}">
             </div>
             <div class="msg-content-wrap">
               <div class="msg-meta-row">
