@@ -218,4 +218,5 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.AuthModule) AuthModule.init();
   if (window.ScheduleModule) ScheduleModule.init();
   if (window.FinanceModule) FinanceModule.init();
+  if (window.ChatModule) ChatModule.init();
 });

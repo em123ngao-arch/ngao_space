@@ -188,5 +188,10 @@ window.ScheduleModule = {
     if (progressBar) {
       progressBar.style.width = `${percent}%`;
     }
+
+    // Cập nhật thanh theo dõi tiến độ học tập trong khung Chat
+    if (window.ChatModule) {
+      window.ChatModule.renderMonitor();
+    }
   }
 };

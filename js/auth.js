@@ -235,6 +235,7 @@
           this.render();
           if (window.FinanceModule) window.FinanceModule.render();
           if (window.ScheduleModule) window.ScheduleModule.render();
+          if (window.ChatModule) window.ChatModule.render();
 
           if (window.showToast && user) {
             window.showToast(`Chào mừng ${user.name} đã quay trở lại!`, 'success');

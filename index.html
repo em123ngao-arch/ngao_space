@@ -576,6 +576,77 @@
     </div>
   </div>
 
+  <!-- Floating Chat Button (Bảo & Ngân) -->
+  <button class="floating-chat-btn" id="btn-floating-chat" title="Mở không gian trò chuyện & nhắc nhở học tập">
+    <span class="live-dot-pulse"></span>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+    <span class="chat-btn-label">Trò Chuyện & Nhắc Nhở</span>
+    <span class="chat-badge-count" id="chat-badge-count" style="display: none;">0</span>
+  </button>
+
+  <!-- Floating Chat Drawer (Sea-Glass Coastal Style) -->
+  <div class="floating-chat-drawer" id="floating-chat-drawer">
+    <!-- Chat Drawer Header -->
+    <div class="chat-drawer-header">
+      <div class="chat-header-title-wrap">
+        <div class="chat-header-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <div>
+          <h3 class="chat-drawer-title">Trò Chuyện & Nhắc Nhở</h3>
+          <span class="chat-drawer-sub">Không gian riêng tư của Bảo & Ngân</span>
+        </div>
+      </div>
+      <button class="btn-tool-sm btn-close-chat" id="btn-close-chat-drawer" title="Thu nhỏ khung chat">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <!-- Live Study Progress Monitor (Bạn trai giám sát tiến độ học của bạn gái) -->
+    <div class="chat-monitor-section" id="chat-monitor-content"></div>
+
+    <!-- Quick Nudges Bar (Nhắc nhở 1-chạm không emoji) -->
+    <div class="quick-nudges-bar">
+      <span class="nudges-label">Nhắc nhanh:</span>
+      <div class="nudges-scroll-row">
+        <button type="button" class="btn-quick-nudge" data-nudge="water" title="Gửi lời nhắc uống nước">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ocean-blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+          <span>Uống nước</span>
+        </button>
+        <button type="button" class="btn-quick-nudge" data-nudge="rest" title="Gửi lời nhắc nghỉ mắt">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--sun-amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line></svg>
+          <span>Nghỉ mắt</span>
+        </button>
+        <button type="button" class="btn-quick-nudge" data-nudge="meal" title="Gửi lời nhắc ăn cơm">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--sea-emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path></svg>
+          <span>Ăn cơm</span>
+        </button>
+        <button type="button" class="btn-quick-nudge" data-nudge="cheer" title="Gửi lời động viên">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--coral-rose)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+          <span>Cố lên</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Chat Messages Stream -->
+    <div class="chat-messages-stream" id="chat-messages-stream"></div>
+
+    <!-- Chat Input Form -->
+    <form class="chat-input-bar" id="chat-input-form">
+      <input type="text" id="chat-input-text" class="form-input form-input-sm chat-input-field" placeholder="Nhắn tin cho bạn ấy..." autocomplete="off">
+      <button type="submit" class="btn-primary btn-sm btn-chat-send" id="btn-chat-send" title="Gửi tin nhắn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </form>
+  </div>
+
   <!-- Toast Container -->
   <div class="toast-container" id="toast-container"></div>
 
@@ -584,15 +655,16 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <!-- Modular Scripts -->
-  <script src="js/icons.js?v=35"></script>
-  <script src="js/storage.js?v=35"></script>
-  <script src="js/firebase-config.js?v=35"></script>
-  <script src="js/cloud-sync.js?v=35"></script>
-  <script src="js/auth.js?v=35"></script>
-  <script src="js/ocean-waves.js?v=35"></script>
-  <script src="js/schedule.js?v=35"></script>
-  <script src="js/finance.js?v=35"></script>
-  <script src="js/app.js?v=35"></script>
+  <script src="js/icons.js?v=36"></script>
+  <script src="js/storage.js?v=36"></script>
+  <script src="js/firebase-config.js?v=36"></script>
+  <script src="js/cloud-sync.js?v=36"></script>
+  <script src="js/auth.js?v=36"></script>
+  <script src="js/ocean-waves.js?v=36"></script>
+  <script src="js/schedule.js?v=36"></script>
+  <script src="js/finance.js?v=36"></script>
+  <script src="js/chat.js?v=36"></script>
+  <script src="js/app.js?v=36"></script>
 
 </body>
 </html>

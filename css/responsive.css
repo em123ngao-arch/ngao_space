@@ -275,4 +275,33 @@
   .transactions-scroll-list {
     max-height: 270px;
   }
+
+  /* Floating Chat & Live Monitor on Mobile */
+  .floating-chat-btn {
+    bottom: 16px;
+    right: 14px;
+    padding: 8px 14px;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .floating-chat-drawer {
+    bottom: 68px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+    height: calc(100vh - 86px);
+    max-height: 560px;
+    border-radius: var(--radius-md);
+  }
+
+  .chat-msg-row {
+    max-width: 92%;
+  }
+
+  .btn-quick-nudge {
+    padding: 3px 8px;
+    font-size: 10.5px;
+  }
 }
+

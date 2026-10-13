@@ -63,6 +63,19 @@ function getCleanInitialState() {
         }
       ],
       transactions: [] // Clean slate
+    },
+    chat: {
+      messages: [
+        {
+          id: 'msg_initial_1',
+          sender: 'bao',
+          senderName: 'Bảo',
+          type: 'text',
+          text: 'Chào Ngân! Hôm nay học tập thật tốt nhé em bé, anh luôn ở đây tiếp năng lượng cho em!',
+          time: '08:00',
+          timestamp: Date.now() - 3600000
+        }
+      ]
     }
   };
 }
@@ -126,6 +139,10 @@ const StorageManager = {
       }
       if (!Array.isArray(parsed.finance.goals)) {
         parsed.finance.goals = getCleanInitialState().finance.goals;
+        this.saveState(parsed);
+      }
+      if (!parsed.chat || !Array.isArray(parsed.chat.messages)) {
+        parsed.chat = getCleanInitialState().chat;
         this.saveState(parsed);
       }
       return parsed;
@@ -336,6 +353,111 @@ const StorageManager = {
     state.finance.transactions = [];
     this.saveState(state);
     return state;
+  },
+
+  // --------------------------------------------------------------------------
+  // Chat & Study Status Operations
+  // --------------------------------------------------------------------------
+  getChatMessages() {
+    const state = this.getState();
+    return (state.chat && state.chat.messages) || [];
+  },
+
+  addChatMessage(text, type = 'text', meta = {}) {
+    if (!text || !text.trim()) return null;
+    const state = this.getState();
+    const currentUser = this.getCurrentUser();
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    const newMsg = {
+      id: 'msg_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+      sender: currentUser.id,
+      senderName: currentUser.name,
+      type: type, // 'text' | 'nudge'
+      text: text.trim(),
+      time: timeStr,
+      timestamp: Date.now(),
+      ...meta
+    };
+
+    if (!state.chat) state.chat = { messages: [] };
+    state.chat.messages.push(newMsg);
+
+    // Giữ tối đa 100 tin nhắn gần nhất
+    if (state.chat.messages.length > 100) {
+      state.chat.messages = state.chat.messages.slice(-100);
+    }
+
+    this.saveState(state);
+    return newMsg;
+  },
+
+  sendQuickNudge(nudgeType) {
+    const currentUser = this.getCurrentUser();
+    let nudgeText = '';
+    let nudgeTitle = '';
+
+    switch (nudgeType) {
+      case 'water':
+        nudgeTitle = 'Nhắc uống nước';
+        nudgeText = currentUser.id === 'bao' 
+          ? 'Em bé ơi, học chăm chỉ nhưng nhớ uống một cốc nước ấm cho khỏe khoắn nhé!'
+          : 'Anh ơi, làm việc nhớ uống nước đều đặn nha!';
+        break;
+      case 'rest':
+        nudgeTitle = 'Nhắc nghỉ giải lao';
+        nudgeText = currentUser.id === 'bao'
+          ? 'Nhìn màn hình lâu rồi đó em, đứng dậy vươn vai và thả lỏng mắt 5 phút đi nha!'
+          : 'Nghỉ tay xíu đi anh, đừng ngồi một chỗ lâu quá nhé!';
+        break;
+      case 'meal':
+        nudgeTitle = 'Nhắc ăn cơm';
+        nudgeText = currentUser.id === 'bao'
+          ? 'Đến giờ ăn cơm rồi em ơi, đi nạp năng lượng đầy đủ rồi hẵng học tiếp nhé!'
+          : 'Đến bữa ăn rồi nè, anh nhớ ăn uống đúng giờ nhé!';
+        break;
+      case 'cheer':
+      default:
+        nudgeTitle = 'Tiếp thêm động lực';
+        nudgeText = currentUser.id === 'bao'
+          ? 'Em bé của anh học giỏi lắm, anh luôn ở đây đồng hành cùng em. Cố lên nào!'
+          : 'Hôm nay em học rất tốt, cảm ơn anh đã luôn ủng hộ em!';
+        break;
+    }
+
+    return this.addChatMessage(nudgeText, 'nudge', { nudgeType, nudgeTitle });
+  },
+
+  getStudyStatusSummary() {
+    const state = this.getState();
+    const tasks = (state.schedule && state.schedule.tasks) || [];
+    const total = tasks.length;
+    const completed = tasks.filter(t => t.completed).length;
+    const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    const hour = new Date().getHours();
+    let currentPeriod = 'morning';
+    let periodName = 'Buổi Sáng';
+    if (hour >= 12 && hour < 18) {
+      currentPeriod = 'afternoon';
+      periodName = 'Buổi Chiều';
+    } else if (hour >= 18 || hour < 6) {
+      currentPeriod = 'evening';
+      periodName = 'Buổi Tối';
+    }
+
+    const completedTasks = tasks.filter(t => t.completed);
+    const lastCompleted = completedTasks.length > 0 ? completedTasks[completedTasks.length - 1] : null;
+
+    return {
+      total,
+      completed,
+      percent,
+      currentPeriod,
+      periodName,
+      lastCompletedTitle: lastCompleted ? lastCompleted.title : null
+    };
   },
 
   // --------------------------------------------------------------------------
