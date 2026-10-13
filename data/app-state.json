@@ -2,7 +2,55 @@
   "version": 3,
   "schedule": {
     "activePreset": "",
-    "tasks": []
+    "tasks": [
+      {
+        "id": "task_1791913698110_c7if",
+        "period": "morning",
+        "time": "06:00 - 07:00",
+        "title": "Thực hành đề án môn học trên máy tính",
+        "category": "study",
+        "completed": true,
+        "createdBy": "ngan",
+        "date": "2026-10-14"
+      },
+      {
+        "id": "task_1791913698951_mis2",
+        "period": "afternoon",
+        "time": "12:00 - 13:00",
+        "title": "Cơm trưa & chợp mắt nghỉ ngơi",
+        "category": "routine",
+        "completed": false,
+        "createdBy": "ngan",
+        "date": "2026-10-14"
+      }
+    ],
+    "days": {
+      "2026-10-14": {
+        "tasks": [
+          {
+            "id": "task_1791913698110_c7if",
+            "period": "morning",
+            "time": "06:00 - 07:00",
+            "title": "Thực hành đề án môn học trên máy tính",
+            "category": "study",
+            "completed": true,
+            "createdBy": "ngan",
+            "date": "2026-10-14"
+          },
+          {
+            "id": "task_1791913698951_mis2",
+            "period": "afternoon",
+            "time": "12:00 - 13:00",
+            "title": "Cơm trưa & chợp mắt nghỉ ngơi",
+            "category": "routine",
+            "completed": false,
+            "createdBy": "ngan",
+            "date": "2026-10-14"
+          }
+        ],
+        "activePreset": ""
+      }
+    }
   },
   "finance": {
     "weeklyBudget": 1500000,
@@ -28,47 +76,9 @@
         "type": "text",
         "text": "Chào Ngân! Hôm nay học tập thật tốt nhé em bé, anh luôn ở đây tiếp năng lượng cho em!",
         "time": "08:00",
-        "timestamp": 1791909093962
-      },
-      {
-        "id": "msg_1791912695864_8v2g",
-        "sender": "bao",
-        "senderName": "Bảo",
-        "type": "nudge",
-        "text": "Em bé ơi, học chăm chỉ nhưng nhớ uống một cốc nước ấm cho khỏe khoắn nhé!",
-        "time": "00:31",
-        "timestamp": 1791912695864,
-        "nudgeType": "water",
-        "nudgeTitle": "Nhắc uống nước"
-      },
-      {
-        "id": "msg_1791912697281_2qc3",
-        "sender": "bao",
-        "senderName": "Bảo",
-        "type": "text",
-        "text": "Em bé học chăm chỉ nhưng nhớ uống nước ấm nhé!",
-        "time": "00:31",
-        "timestamp": 1791912697281
-      },
-      {
-        "id": "msg_1791912703411_637o",
-        "sender": "ngan",
-        "senderName": "Ngân",
-        "type": "text",
-        "text": "Dạ anh, em vừa uống một cốc nước ấm rồi nè!",
-        "time": "00:31",
-        "timestamp": 1791912703411
-      },
-      {
-        "id": "msg_1791912769012_61rw",
-        "sender": "bao",
-        "senderName": "Bảo",
-        "type": "text",
-        "text": "fff",
-        "time": "00:32",
-        "timestamp": 1791912769012
+        "timestamp": 1791910096648
       }
     ]
   },
-  "updatedAt": 1791912769012
+  "updatedAt": 1791913699643
 }

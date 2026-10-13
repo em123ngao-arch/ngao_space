@@ -318,20 +318,67 @@ const StorageManager = {
   },
 
   // --------------------------------------------------------------------------
-  // Schedule Operations
+  // Schedule Operations (Date-aware: Month / Week / Day)
   // --------------------------------------------------------------------------
-  loadPreset(presetKey) {
+  getTodayDateStr() {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  },
+
+  ensureDaySchedule(state, dateStr) {
+    if (!state.schedule) state.schedule = { activePreset: '', tasks: [], days: {} };
+    if (!state.schedule.days) state.schedule.days = {};
+    if (!state.schedule.days[dateStr]) {
+      // Nếu là ngày hôm nay và state.schedule.tasks đang có việc cũ thì khởi tạo từ đó
+      const todayStr = this.getTodayDateStr();
+      if (dateStr === todayStr && state.schedule.tasks && state.schedule.tasks.length > 0) {
+        state.schedule.days[dateStr] = {
+          tasks: JSON.parse(JSON.stringify(state.schedule.tasks)),
+          activePreset: state.schedule.activePreset || ''
+        };
+      } else {
+        // Ngày mới hoàn toàn độc lập bắt đầu trống
+        state.schedule.days[dateStr] = {
+          tasks: [],
+          activePreset: ''
+        };
+      }
+    }
+    return state.schedule.days[dateStr];
+  },
+
+  getDayTasks(dateStr) {
+    const targetDate = dateStr || this.getTodayDateStr();
+    const state = this.getState();
+    const dayData = this.ensureDaySchedule(state, targetDate);
+    return dayData.tasks || [];
+  },
+
+  loadPreset(presetKey, dateStr) {
+    const targetDate = dateStr || this.getTodayDateStr();
     const state = this.getState();
     const template = PRESET_TEMPLATES[presetKey];
     if (!template) return state;
 
-    state.schedule.activePreset = presetKey;
-    state.schedule.tasks = JSON.parse(JSON.stringify(template));
+    const dayData = this.ensureDaySchedule(state, targetDate);
+    dayData.activePreset = presetKey;
+    dayData.tasks = JSON.parse(JSON.stringify(template));
+
+    // Đồng bộ vào state.schedule.tasks nếu là hôm nay
+    if (targetDate === this.getTodayDateStr()) {
+      state.schedule.activePreset = presetKey;
+      state.schedule.tasks = dayData.tasks;
+    }
+
     this.saveState(state);
     return state;
   },
 
-  addTask({ period, time, title, category }) {
+  addTask({ period, time, title, category, date }) {
+    const targetDate = date || this.getTodayDateStr();
     const state = this.getState();
     const currentUser = this.getCurrentUser();
     const newTask = {
@@ -341,37 +388,79 @@ const StorageManager = {
       title: title.trim(),
       category: category || 'study',
       completed: false,
-      createdBy: currentUser.id
+      createdBy: currentUser.id,
+      date: targetDate
     };
 
-    state.schedule.tasks.push(newTask);
+    const dayData = this.ensureDaySchedule(state, targetDate);
+    dayData.tasks.push(newTask);
+
+    if (targetDate === this.getTodayDateStr()) {
+      state.schedule.tasks = dayData.tasks;
+    }
+
     this.saveState(state);
     return { state, newTask };
   },
 
-  toggleTask(taskId) {
+  toggleTask(taskId, dateStr) {
+    const targetDate = dateStr || this.getTodayDateStr();
     const state = this.getState();
-    const task = state.schedule.tasks.find(t => t.id === taskId);
+    const dayData = this.ensureDaySchedule(state, targetDate);
+    const task = dayData.tasks.find(t => t.id === taskId);
     if (task) {
       task.completed = !task.completed;
+      if (targetDate === this.getTodayDateStr()) {
+        state.schedule.tasks = dayData.tasks;
+      }
       this.saveState(state);
     }
     return state;
   },
 
-  deleteTask(taskId) {
+  deleteTask(taskId, dateStr) {
+    const targetDate = dateStr || this.getTodayDateStr();
     const state = this.getState();
-    state.schedule.tasks = state.schedule.tasks.filter(t => t.id !== taskId);
+    const dayData = this.ensureDaySchedule(state, targetDate);
+    dayData.tasks = dayData.tasks.filter(t => t.id !== taskId);
+    if (targetDate === this.getTodayDateStr()) {
+      state.schedule.tasks = dayData.tasks;
+    }
     this.saveState(state);
     return state;
   },
 
-  clearTasks() {
+  clearTasks(dateStr) {
+    const targetDate = dateStr || this.getTodayDateStr();
     const state = this.getState();
-    state.schedule.tasks = [];
-    state.schedule.activePreset = '';
+    const dayData = this.ensureDaySchedule(state, targetDate);
+    dayData.tasks = [];
+    dayData.activePreset = '';
+    if (targetDate === this.getTodayDateStr()) {
+      state.schedule.tasks = [];
+      state.schedule.activePreset = '';
+    }
     this.saveState(state);
     return state;
+  },
+
+  getMonthStatsSummary(year, month) {
+    const state = this.getState();
+    const days = (state.schedule && state.schedule.days) || {};
+    const prefix = `${year}-${String(month).padStart(2, '0')}`;
+    const result = {};
+
+    Object.keys(days).forEach(dateStr => {
+      if (dateStr.startsWith(prefix)) {
+        const dTasks = days[dateStr].tasks || [];
+        const total = dTasks.length;
+        const completed = dTasks.filter(t => t.completed).length;
+        const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+        result[dateStr] = { total, completed, percent };
+      }
+    });
+
+    return result;
   },
 
   // --------------------------------------------------------------------------
@@ -583,9 +672,9 @@ const StorageManager = {
     return this.addChatMessage(nudgeText, 'nudge', { nudgeType, nudgeTitle });
   },
 
-  getStudyStatusSummary() {
-    const state = this.getState();
-    const tasks = (state.schedule && state.schedule.tasks) || [];
+  getStudyStatusSummary(dateStr) {
+    const targetDate = dateStr || this.getTodayDateStr();
+    const tasks = this.getDayTasks(targetDate);
     const total = tasks.length;
     const completed = tasks.filter(t => t.completed).length;
     const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
