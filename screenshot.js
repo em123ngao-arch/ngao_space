@@ -20,55 +20,47 @@ const delay = ms => new Promise(r => setTimeout(r, ms));
   await desktopPage.reload({ waitUntil: 'networkidle0' });
   await delay(1500);
 
-  // 1. Open Auth Modal (Step 1: Choose User)
-  await desktopPage.click('#btn-switch-user');
-  await delay(500);
-  await desktopPage.screenshot({ path: 'screenshot_auth_modal.png', fullPage: false });
-  console.log('✓ screenshot_auth_modal.png (Step 1: Chọn tài khoản Bảo / Ngân)');
+  // 1. Screenshot Desktop Header with Cloud Sync status pill
+  await desktopPage.screenshot({ path: 'screenshot_cloud_header.png', fullPage: false });
+  console.log('✓ screenshot_cloud_header.png (Desktop Header với nút Cloud Sync)');
 
-  // 2. Click user "Bảo" -> Opens Modern PIN Pad
+  // 2. Click Cloud Sync button -> Opens Cloud Sync Modal
+  await desktopPage.click('#btn-cloud-status');
+  await delay(500);
+  await desktopPage.screenshot({ path: 'screenshot_cloud_modal.png', fullPage: false });
+  console.log('✓ screenshot_cloud_modal.png (Modal Cài Đặt Đồng Bộ Đám Mây Firebase)');
+  await desktopPage.click('#btn-close-modal-cloud');
+  await delay(300);
+
+  // 3. Open Auth Modal & test modern PIN pad
+  await desktopPage.click('#btn-switch-user');
+  await delay(400);
   await desktopPage.click('.auth-user-card[data-user-id="bao"]');
   await delay(400);
-  await desktopPage.screenshot({ path: 'screenshot_pin_pad.png', fullPage: false });
-  console.log('✓ screenshot_pin_pad.png (Step 2: Bàn phím PIN pad hiện đại)');
-
-  // 3. Click digits: 1, 2, 3
   await desktopPage.click('.keypad-btn[data-key="1"]');
-  await delay(150);
+  await delay(100);
   await desktopPage.click('.keypad-btn[data-key="2"]');
-  await delay(150);
+  await delay(100);
   await desktopPage.click('.keypad-btn[data-key="3"]');
-  await delay(300);
-  await desktopPage.screenshot({ path: 'screenshot_pin_entering.png', fullPage: false });
-  console.log('✓ screenshot_pin_entering.png (Nhập 3 chấm đèn phát sáng)');
-
-  // 4. Enter 4th digit: 4 (completes PIN 1234) -> auto verifies and switches to Bảo
+  await delay(100);
   await desktopPage.click('.keypad-btn[data-key="4"]');
-  await delay(800);
-  await desktopPage.screenshot({ path: 'screenshot_user_switched.png', fullPage: false });
-  console.log('✓ screenshot_user_switched.png (Đăng nhập thành công chuyển sang Bảo)');
+  await delay(600);
 
   await desktopPage.close();
 
-  // 5. Mobile Responsive Viewport (390 x 844)
-  console.log('--- Capturing Mobile Responsive PIN Pad ---');
+  // 4. Mobile Viewport (390 x 844)
+  console.log('--- Capturing Mobile Responsive Viewports ---');
   const mobilePage = await browser.newPage();
   await mobilePage.setViewport({ width: 390, height: 844, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
   await mobilePage.goto('http://localhost:7823/index.html', { waitUntil: 'networkidle0', timeout: 15000 });
-  await delay(1200);
+  await delay(1500);
 
-  await mobilePage.click('#btn-switch-user');
-  await delay(400);
-  await mobilePage.click('.auth-user-card[data-user-id="ngan"]');
-  await delay(400);
-  await mobilePage.click('.keypad-btn[data-key="5"]');
-  await delay(150);
-  await mobilePage.click('.keypad-btn[data-key="6"]');
-  await delay(300);
-  await mobilePage.screenshot({ path: 'screenshot_mobile_pin_pad.png', fullPage: false });
-  console.log('✓ screenshot_mobile_pin_pad.png (Mobile PIN Pad cho Ngân)');
+  await mobilePage.click('#btn-cloud-status');
+  await delay(500);
+  await mobilePage.screenshot({ path: 'screenshot_mobile_cloud_modal.png', fullPage: false });
+  console.log('✓ screenshot_mobile_cloud_modal.png (Mobile Cloud Modal)');
 
   await mobilePage.close();
   await browser.close();
-  console.log('All modern PIN screenshots captured successfully!');
+  console.log('All verification screenshots captured successfully!');
 })().catch(e => { console.error(e); process.exit(1); });

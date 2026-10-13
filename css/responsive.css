@@ -64,6 +64,15 @@
     display: none;
   }
 
+  .cloud-status-pill {
+    padding: 4px 7px;
+    font-size: 11px;
+  }
+
+  .cloud-status-pill .cloud-pill-text {
+    display: none;
+  }
+
   .gentle-love-pill {
     padding: 4px 8px;
     font-size: 11px;
@@ -245,6 +254,11 @@
 
   .auth-modal-dialog {
     max-width: 330px;
+    padding: 20px 16px;
+  }
+
+  .cloud-modal-dialog {
+    max-width: 340px;
     padding: 20px 16px;
   }
 

@@ -74,6 +74,15 @@
           <span class="switch-chevron">▾</span>
         </button>
 
+        <!-- Cloud Sync Status Pill (Firebase Firestore) -->
+        <button class="cloud-status-pill" id="btn-cloud-status" title="Trạng thái lưu trữ đám mây (Google Firebase Firestore)">
+          <span class="status-dot dot-amber"></span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
+          </svg>
+          <span class="cloud-pill-text">Lưu trữ máy</span>
+        </button>
+
         <!-- Gentle Care Pill -->
         <div class="gentle-love-pill" id="care-note-pill" title="Thông điệp">
           <span class="love-dot"></span>
@@ -512,12 +521,73 @@
     </div>
   </div>
 
+  <!-- Cloud Sync Settings Modal (Google Firebase Firestore) -->
+  <div class="modal-backdrop" id="modal-cloud-sync">
+    <div class="modal-dialog cloud-modal-dialog">
+      <div class="modal-icon-svg">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--ocean-blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
+        </svg>
+      </div>
+      <h3 class="modal-title">Đồng Bộ Đám Mây Vĩnh Viễn</h3>
+      <p class="modal-message">Lưu trữ đám mây Google Firebase Firestore miễn phí 100% & đồng bộ thời gian thực giữa Bảo & Ngân.</p>
+
+      <div class="cloud-status-indicator-box">
+        <span class="status-label">Trạng thái hiện tại:</span>
+        <div id="modal-cloud-status-badge" class="cloud-status-pill status-local">
+          <span class="status-dot dot-amber"></span> Bộ nhớ máy (Offline LocalStorage)
+        </div>
+      </div>
+
+      <!-- Form nhập cấu hình Firebase -->
+      <div class="cloud-config-form">
+        <div class="form-group-cloud">
+          <label for="cfg-project-id">Firebase Project ID *</label>
+          <input type="text" id="cfg-project-id" class="form-input form-input-sm" placeholder="vd: ngaos-space">
+        </div>
+
+        <div class="form-group-cloud">
+          <label for="cfg-api-key">API Key (Web API Key) *</label>
+          <input type="text" id="cfg-api-key" class="form-input form-input-sm" placeholder="AIzaSy...">
+        </div>
+
+        <div class="form-group-cloud">
+          <label for="cfg-auth-domain">Auth Domain (Tùy chọn)</label>
+          <input type="text" id="cfg-auth-domain" class="form-input form-input-sm" placeholder="ngaos-space.firebaseapp.com">
+        </div>
+      </div>
+
+      <!-- Hướng dẫn 3 bước nhanh -->
+      <div class="cloud-guide-card">
+        <div class="guide-title">Cách lấy mã miễn phí trong 2 phút:</div>
+        <ol class="guide-steps">
+          <li>Vào <a href="https://console.firebase.google.com" target="_blank" rel="noopener">console.firebase.google.com</a> bằng Gmail.</li>
+          <li>Bấm <strong>Tạo dự án mới</strong> (gói Spark free vĩnh viễn).</li>
+          <li>Bật <strong>Firestore Database</strong> và vào <strong>Project Settings</strong> sao chép <code>Project ID</code> & <code>API Key</code> dán vào đây!</li>
+        </ol>
+      </div>
+
+      <div class="modal-action-row" style="width: 100%; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+        <button class="btn-primary" id="btn-save-cloud-config">Lưu & Kết Nối Đám Mây</button>
+        <button class="btn-secondary" id="btn-manual-sync-now" style="display: none;">Đồng Bộ Thử Ngay</button>
+        <button class="btn-secondary btn-disconnect-cloud" id="btn-disconnect-cloud" style="display: none; color: var(--coral-rose);">Ngắt Kết Nối</button>
+        <button class="btn-secondary" id="btn-close-modal-cloud">Đóng</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Container -->
   <div class="toast-container" id="toast-container"></div>
+
+  <!-- Google Firebase SDK (Compat v10) for Vanilla JS Real-time Firestore -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <!-- Modular Scripts -->
   <script src="js/icons.js?v=35"></script>
   <script src="js/storage.js?v=35"></script>
+  <script src="js/firebase-config.js?v=35"></script>
+  <script src="js/cloud-sync.js?v=35"></script>
   <script src="js/auth.js?v=35"></script>
   <script src="js/ocean-waves.js?v=35"></script>
   <script src="js/schedule.js?v=35"></script>

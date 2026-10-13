@@ -139,9 +139,25 @@ const StorageManager = {
 
   saveState(state) {
     try {
+      if (state && typeof state === 'object') {
+        state.updatedAt = Date.now();
+      }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      // Tự động đẩy dữ liệu lên Firebase Firestore nếu đã kết nối
+      if (window.CloudSync && typeof window.CloudSync.pushUpdate === 'function') {
+        window.CloudSync.pushUpdate(state);
+      }
     } catch (e) {
       console.error('Không thể lưu vào LocalStorage:', e);
+    }
+  },
+
+  setState(newState) {
+    try {
+      if (!newState || !newState.schedule || !newState.finance) return;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+    } catch (e) {
+      console.error('Không thể cập nhật state từ đám mây:', e);
     }
   },
 

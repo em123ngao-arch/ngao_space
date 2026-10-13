@@ -260,6 +260,54 @@ body {
   margin-left: 2px;
 }
 
+/* Cloud Sync Status Pill */
+.cloud-status-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid var(--card-border-subtle);
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--text-sub);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-main);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cloud-status-pill:hover {
+  background: var(--ocean-blue-soft);
+  border-color: rgba(2, 132, 199, 0.4);
+  color: var(--ocean-blue);
+  transform: translateY(-1px);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot-emerald {
+  background: var(--sea-emerald);
+  box-shadow: 0 0 6px rgba(5, 150, 105, 0.6);
+}
+
+.dot-amber {
+  background: var(--sun-amber);
+  box-shadow: 0 0 6px rgba(217, 119, 6, 0.5);
+}
+
+.dot-rose {
+  background: var(--coral-rose);
+  box-shadow: 0 0 6px rgba(225, 29, 72, 0.5);
+}
+
 .gentle-love-pill {
   display: flex;
   align-items: center;
@@ -1877,3 +1925,87 @@ body {
 .toast-pill.toast-success { border-left: 4px solid var(--sea-emerald); }
 .toast-pill.toast-warning { border-left: 4px solid var(--sun-amber); }
 .toast-pill.toast-info    { border-left: 4px solid var(--ocean-blue); }
+
+/* Cloud Sync Modal Dialog */
+.cloud-modal-dialog {
+  max-width: 440px;
+  padding: 26px 22px;
+  text-align: left;
+  align-items: stretch;
+}
+
+.cloud-status-indicator-box {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--card-subtle);
+  border: 1px solid var(--card-border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin: 4px 0 10px;
+}
+
+.cloud-status-indicator-box .status-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.cloud-config-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.form-group-cloud {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-group-cloud label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-sub);
+}
+
+.cloud-guide-card {
+  width: 100%;
+  background: var(--ocean-blue-soft);
+  border: 1px solid rgba(2, 132, 199, 0.2);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font-size: 12px;
+  color: var(--text-sub);
+  margin: 6px 0 10px;
+}
+
+.guide-title {
+  font-weight: 700;
+  color: var(--ocean-blue);
+  margin-bottom: 6px;
+}
+
+.guide-steps {
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  line-height: 1.4;
+}
+
+.guide-steps a {
+  color: var(--ocean-blue);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.guide-steps code {
+  font-family: var(--font-mono);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-size: 11px;
+}

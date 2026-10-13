@@ -214,6 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupDataTools();
 
   // Initialize Modules
+  if (window.CloudSync) CloudSync.init();
   if (window.AuthModule) AuthModule.init();
   if (window.ScheduleModule) ScheduleModule.init();
   if (window.FinanceModule) FinanceModule.init();
