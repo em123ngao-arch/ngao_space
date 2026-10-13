@@ -28,49 +28,47 @@
         "type": "text",
         "text": "Chào Ngân! Hôm nay học tập thật tốt nhé em bé, anh luôn ở đây tiếp năng lượng cho em!",
         "time": "08:00",
-        "timestamp": 1791908577065
+        "timestamp": 1791909093962
       },
       {
-        "id": "msg_1791912178981_thnm",
+        "id": "msg_1791912695864_8v2g",
         "sender": "bao",
         "senderName": "Bảo",
         "type": "nudge",
         "text": "Em bé ơi, học chăm chỉ nhưng nhớ uống một cốc nước ấm cho khỏe khoắn nhé!",
-        "time": "00:22",
-        "timestamp": 1791912178981,
+        "time": "00:31",
+        "timestamp": 1791912695864,
         "nudgeType": "water",
         "nudgeTitle": "Nhắc uống nước"
       },
       {
-        "id": "msg_1791912180552_ur7r",
+        "id": "msg_1791912697281_2qc3",
         "sender": "bao",
         "senderName": "Bảo",
         "type": "text",
         "text": "Em bé học chăm chỉ nhưng nhớ uống nước ấm nhé!",
-        "time": "00:23",
-        "timestamp": 1791912180553
+        "time": "00:31",
+        "timestamp": 1791912697281
       },
       {
-        "id": "msg_1791912186608_5rai",
+        "id": "msg_1791912703411_637o",
         "sender": "ngan",
         "senderName": "Ngân",
         "type": "text",
         "text": "Dạ anh, em vừa uống một cốc nước ấm rồi nè!",
-        "time": "00:23",
-        "timestamp": 1791912186609
+        "time": "00:31",
+        "timestamp": 1791912703411
       },
       {
-        "id": "msg_1791912197418_vd6j",
-        "sender": "ngan",
-        "senderName": "Ngân",
-        "type": "nudge",
-        "text": "Đến bữa ăn rồi nè, anh nhớ ăn uống đúng giờ nhé!",
-        "time": "00:23",
-        "timestamp": 1791912197418,
-        "nudgeType": "meal",
-        "nudgeTitle": "Nhắc ăn cơm"
+        "id": "msg_1791912769012_61rw",
+        "sender": "bao",
+        "senderName": "Bảo",
+        "type": "text",
+        "text": "fff",
+        "time": "00:32",
+        "timestamp": 1791912769012
       }
     ]
   },
-  "updatedAt": 1791912197418
+  "updatedAt": 1791912769012
 }
