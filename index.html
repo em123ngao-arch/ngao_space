@@ -16,8 +16,8 @@
   <meta http-equiv="Pragma" content="no-cache">
 
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=34">
-  <link rel="stylesheet" href="css/responsive.css?v=34">
+  <link rel="stylesheet" href="css/style.css?v=35">
+  <link rel="stylesheet" href="css/responsive.css?v=35">
 </head>
 <body>
 
@@ -418,36 +418,97 @@
 
   <!-- 2-User Authentication Modal (Bảo & Ngân) -->
   <div class="modal-backdrop" id="modal-auth">
-    <div class="modal-dialog">
-      <div class="modal-icon-svg">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--ocean-blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-      </div>
-      <h3 class="modal-title">Xác Thực Người Dùng</h3>
-      <p class="modal-message">Chọn tài khoản của bạn để vào không gian riêng tư:</p>
+    <div class="modal-dialog auth-modal-dialog">
 
-      <div class="auth-users-selection">
-        <div class="auth-user-card" data-user-id="ngan">
-          <div class="auth-avatar ngan-avatar">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <!-- STEP 1: CHỌN NGƯỜI DÙNG -->
+      <div class="auth-step-wrapper" id="auth-step-select">
+        <div class="modal-icon-svg">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--ocean-blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        </div>
+        <h3 class="modal-title">Xác Thực Người Dùng</h3>
+        <p class="modal-message">Chọn tài khoản của bạn để vào không gian riêng tư:</p>
+
+        <div class="auth-users-selection">
+          <div class="auth-user-card" data-user-id="ngan">
+            <div class="auth-avatar ngan-avatar">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>
+            <div class="auth-user-info">
+              <strong>Ngân</strong>
+              <span>Chủ nhân không gian</span>
+            </div>
           </div>
-          <div class="auth-user-info">
-            <strong>Ngân</strong>
-            <span>Chủ nhân không gian</span>
+
+          <div class="auth-user-card" data-user-id="bao">
+            <div class="auth-avatar bao-avatar">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <div class="auth-user-info">
+              <strong>Bảo</strong>
+              <span>Người đồng hành</span>
+            </div>
           </div>
         </div>
 
-        <div class="auth-user-card" data-user-id="bao">
-          <div class="auth-avatar bao-avatar">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-          </div>
-          <div class="auth-user-info">
-            <strong>Bảo</strong>
-            <span>Người đồng hành</span>
-          </div>
-        </div>
+        <button class="btn-secondary" id="btn-close-modal-auth" style="margin-top: 6px;">Đóng</button>
       </div>
 
-      <button class="btn-secondary" id="btn-close-modal-auth" style="margin-top: 6px;">Đóng</button>
+      <!-- STEP 2: NHẬP MÃ PIN HIỆN ĐẠI (OTP / BANKING STYLE PIN PAD) -->
+      <div class="auth-step-wrapper" id="auth-step-pin" style="display: none;">
+        <div class="auth-pin-top-bar">
+          <button class="btn-back-auth" id="btn-back-to-users" title="Quay lại chọn người dùng">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="auth-pin-user-preview">
+            <div class="auth-avatar-mini" id="pin-user-avatar"></div>
+            <div>
+              <span class="pin-user-name" id="pin-user-name">Người dùng</span>
+            </div>
+          </div>
+          <button class="btn-back-auth" id="btn-close-pin-modal" title="Đóng">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <div class="pin-entry-heading">
+          <h3 class="pin-entry-title">Nhập Mã PIN</h3>
+          <p class="pin-entry-sub">Mã bảo mật gồm 4 chữ số</p>
+        </div>
+
+        <!-- Hidden input hỗ trợ gõ phím vật lý & bàn phím di động -->
+        <input type="password" id="auth-pin-input-field" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off" class="auth-pin-hidden-input">
+
+        <!-- 4 Ô Chấm Đèn PIN Hiện Đại -->
+        <div class="pin-dots-container" id="pin-dots-wrapper" title="Bấm vào đây để gõ phím">
+          <div class="pin-dot" data-index="0"></div>
+          <div class="pin-dot" data-index="1"></div>
+          <div class="pin-dot" data-index="2"></div>
+          <div class="pin-dot" data-index="3"></div>
+        </div>
+
+        <!-- Thông báo phản hồi động -->
+        <div class="pin-feedback-msg" id="pin-feedback-msg"></div>
+
+        <!-- Bàn Phím Số Cảm Ứng Tinh Tế (1 - 9, Hủy, 0, Xóa) -->
+        <div class="pin-keypad-grid">
+          <button type="button" class="keypad-btn" data-key="1">1</button>
+          <button type="button" class="keypad-btn" data-key="2">2</button>
+          <button type="button" class="keypad-btn" data-key="3">3</button>
+          <button type="button" class="keypad-btn" data-key="4">4</button>
+          <button type="button" class="keypad-btn" data-key="5">5</button>
+          <button type="button" class="keypad-btn" data-key="6">6</button>
+          <button type="button" class="keypad-btn" data-key="7">7</button>
+          <button type="button" class="keypad-btn" data-key="8">8</button>
+          <button type="button" class="keypad-btn" data-key="9">9</button>
+          <button type="button" class="keypad-btn keypad-btn-ghost" id="btn-pin-cancel">Hủy</button>
+          <button type="button" class="keypad-btn" data-key="0">0</button>
+          <button type="button" class="keypad-btn keypad-btn-ghost" data-key="backspace" title="Xóa lùi">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><line x1="18" y1="9" x2="12" y2="15"></line><line x1="12" y1="9" x2="18" y2="15"></line></svg>
+          </button>
+        </div>
+
+      </div>
+
     </div>
   </div>
 
@@ -455,13 +516,13 @@
   <div class="toast-container" id="toast-container"></div>
 
   <!-- Modular Scripts -->
-  <script src="js/icons.js?v=34"></script>
-  <script src="js/storage.js?v=34"></script>
-  <script src="js/auth.js?v=34"></script>
-  <script src="js/ocean-waves.js?v=34"></script>
-  <script src="js/schedule.js?v=34"></script>
-  <script src="js/finance.js?v=34"></script>
-  <script src="js/app.js?v=34"></script>
+  <script src="js/icons.js?v=35"></script>
+  <script src="js/storage.js?v=35"></script>
+  <script src="js/auth.js?v=35"></script>
+  <script src="js/ocean-waves.js?v=35"></script>
+  <script src="js/schedule.js?v=35"></script>
+  <script src="js/finance.js?v=35"></script>
+  <script src="js/app.js?v=35"></script>
 
 </body>
 </html>

@@ -243,6 +243,21 @@
     padding: 24px 18px;
   }
 
+  .auth-modal-dialog {
+    max-width: 330px;
+    padding: 20px 16px;
+  }
+
+  .pin-keypad-grid {
+    gap: 8px;
+    max-width: 240px;
+  }
+
+  .keypad-btn {
+    height: 46px;
+    font-size: 19px;
+  }
+
   .transactions-scroll-list {
     max-height: 270px;
   }
