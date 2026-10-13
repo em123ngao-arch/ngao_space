@@ -204,6 +204,38 @@ function setupDataTools() {
   });
 }
 
+window.playMessengerChime = function () {
+  try {
+    initAudio();
+    if (!audioCtx) return;
+    const now = audioCtx.currentTime;
+
+    // Tone 1: High crisp G5 (784Hz)
+    const osc1 = audioCtx.createOscillator();
+    const gain1 = audioCtx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(784, now);
+    gain1.gain.setValueAtTime(0.08, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+    osc1.connect(gain1);
+    gain1.connect(audioCtx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.16);
+
+    // Tone 2: Harmonic higher C6 (1046.5Hz)
+    const osc2 = audioCtx.createOscillator();
+    const gain2 = audioCtx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(1046.5, now + 0.08);
+    gain2.gain.setValueAtTime(0.09, now + 0.08);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+    osc2.connect(gain2);
+    gain2.connect(audioCtx.destination);
+    osc2.start(now + 0.08);
+    osc2.stop(now + 0.28);
+  } catch (e) {}
+};
+
 // ----------------------------------------------------------------------------
 // Initialization
 // ----------------------------------------------------------------------------
@@ -212,6 +244,11 @@ document.addEventListener('DOMContentLoaded', () => {
   setupTabSwitching();
   setupCareModal();
   setupDataTools();
+
+  // Initialize Storage Sync (Edge <-> Chrome & multi-tab)
+  if (window.StorageManager && typeof StorageManager.init === 'function') {
+    StorageManager.init();
+  }
 
   // Initialize Modules
   if (window.CloudSync) CloudSync.init();

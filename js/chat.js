@@ -13,8 +13,11 @@
   window.ChatModule = {
     isOpen: false,
     unreadCount: 0,
+    notifyTimer: null,
+    originalDocTitle: '',
 
     init() {
+      this.originalDocTitle = document.title;
       this.bindEvents();
       this.render();
     },
@@ -24,6 +27,8 @@
       const btnClose = document.getElementById('btn-close-chat-drawer');
       const formChat = document.getElementById('chat-input-form');
       const inputChat = document.getElementById('chat-input-text');
+      const notifyCard = document.getElementById('messenger-notify-card');
+      const btnDismissNotify = document.getElementById('btn-dismiss-notify');
 
       btnToggle?.addEventListener('click', () => {
         this.toggleChat();
@@ -31,6 +36,21 @@
 
       btnClose?.addEventListener('click', () => {
         this.closeChat();
+      });
+
+      // Click on Messenger notification card opens chat drawer
+      notifyCard?.addEventListener('click', (e) => {
+        if (e.target.closest('#btn-dismiss-notify')) {
+          e.stopPropagation();
+          this.hideMessengerNotification();
+          return;
+        }
+        this.openChat();
+      });
+
+      btnDismissNotify?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.hideMessengerNotification();
       });
 
       // Quick Nudge Buttons
@@ -72,8 +92,15 @@
         drawer.classList.add('active');
         document.body.classList.add('chat-open');
         this.isOpen = true;
+
+        // Reset Messenger notifications when chat is opened
         this.unreadCount = 0;
         this.updateBadge();
+        this.hideMessengerNotification();
+        if (this.originalDocTitle) {
+          document.title = this.originalDocTitle;
+        }
+
         this.render();
         this.scrollToBottom();
         if (window.playChime) window.playChime(560, 0.12);
@@ -91,6 +118,87 @@
         drawer.classList.remove('active');
         document.body.classList.remove('chat-open');
         this.isOpen = false;
+      }
+    },
+
+    // ------------------------------------------------------------------------
+    // Messenger-Style Incoming Notifications (Messenger Pop-up & Unread Badge)
+    // ------------------------------------------------------------------------
+    handleIncomingMessage(msg) {
+      if (this.isOpen) {
+        // Đang mở chat -> Tự động nạp tin nhắn mới và cuộn xuống
+        this.renderMessages();
+        this.scrollToBottom();
+        if (window.playChime) window.playChime(640, 0.12);
+      } else {
+        // Đang đóng chat -> Tăng số đếm chưa đọc & hiện Messenger Notification Pop-up
+        this.unreadCount++;
+        this.updateBadge();
+        this.showMessengerNotification(msg);
+
+        // Chuông báo Messenger ngọt ngào
+        if (window.playMessengerChime) {
+          window.playMessengerChime();
+        } else if (window.playChime) {
+          window.playChime(784, 0.15);
+        }
+
+        // Nhấp nháy tiêu đề tab trình duyệt
+        const sender = StorageManager.USERS.find(u => u.id === msg.sender) || { name: 'Người ấy' };
+        document.title = `(${this.unreadCount}) ${sender.name} vừa nhắn! • NgaOS`;
+      }
+    },
+
+    showMessengerNotification(msg) {
+      const notifyCard = document.getElementById('messenger-notify-card');
+      const avatarEl = document.getElementById('notify-avatar');
+      const nameEl = document.getElementById('notify-sender-name');
+      const snippetEl = document.getElementById('notify-message-snippet');
+      const timeEl = document.getElementById('notify-time-label');
+
+      if (!notifyCard) return;
+
+      const sender = StorageManager.USERS.find(u => u.id === msg.sender) || { name: 'Người ấy' };
+
+      if (avatarEl) {
+        if (msg.sender === 'bao') {
+          avatarEl.className = 'auth-avatar-mini bao-avatar';
+          avatarEl.innerHTML = window.AppIcons ? window.AppIcons.shield : '';
+        } else {
+          avatarEl.className = 'auth-avatar-mini ngan-avatar';
+          avatarEl.innerHTML = window.AppIcons ? window.AppIcons.user : '';
+        }
+      }
+
+      if (nameEl) nameEl.textContent = sender.name;
+      if (timeEl) timeEl.textContent = msg.time || 'vừa xong';
+
+      if (snippetEl) {
+        if (msg.type === 'nudge' && msg.nudgeTitle) {
+          snippetEl.innerHTML = `<strong style="color: var(--ocean-blue);">[${msg.nudgeTitle}]</strong> ${this.escapeHTML(msg.text)}`;
+        } else {
+          snippetEl.textContent = msg.text || '';
+        }
+      }
+
+      // Kích hoạt hiển thị nổi
+      notifyCard.classList.add('show');
+
+      // Tự động ẩn sau 7 giây
+      if (this.notifyTimer) clearTimeout(this.notifyTimer);
+      this.notifyTimer = setTimeout(() => {
+        this.hideMessengerNotification();
+      }, 7000);
+    },
+
+    hideMessengerNotification() {
+      const notifyCard = document.getElementById('messenger-notify-card');
+      if (notifyCard) {
+        notifyCard.classList.remove('show');
+      }
+      if (this.notifyTimer) {
+        clearTimeout(this.notifyTimer);
+        this.notifyTimer = null;
       }
     },
 

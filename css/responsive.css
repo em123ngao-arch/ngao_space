@@ -303,5 +303,14 @@
     padding: 3px 8px;
     font-size: 10.5px;
   }
+
+  .messenger-notify-card {
+    bottom: 68px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: none;
+    border-radius: var(--radius-md);
+  }
 }
 

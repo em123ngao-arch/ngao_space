@@ -154,13 +154,152 @@ const StorageManager = {
     }
   },
 
-  saveState(state) {
+  broadcastChannel: null,
+  sseSource: null,
+
+  // --------------------------------------------------------------------------
+  // Real-Time Multi-Browser & Multi-Tab Synchronization (Edge <-> Chrome)
+  // --------------------------------------------------------------------------
+  init() {
+    this.initSyncChannels();
+    this.fetchServerState();
+  },
+
+  initSyncChannels() {
+    // 1. BroadcastChannel: Đồng bộ tức thì 0ms giữa các tab cùng trình duyệt
+    if (typeof BroadcastChannel !== 'undefined') {
+      try {
+        this.broadcastChannel = new BroadcastChannel('ngaos_sync_channel');
+        this.broadcastChannel.onmessage = (event) => {
+          if (event.data && event.data.state) {
+            this.handleRemoteState(event.data.state, event.data.sender, event.data.meta);
+          }
+        };
+      } catch (e) {
+        console.warn('BroadcastChannel fallback:', e);
+      }
+    }
+
+    // 2. Storage Event fallback
+    window.addEventListener('storage', (event) => {
+      if (event.key === STORAGE_KEY && event.newValue) {
+        try {
+          const parsed = JSON.parse(event.newValue);
+          this.handleRemoteState(parsed, null, { source: 'localStorage' });
+        } catch (e) {}
+      }
+    });
+
+    // 3. Server-Sent Events (SSE): Đồng bộ thời gian thực giữa 2 TRÌNH DUYỆT KHÁC NHAU (Edge <-> Chrome)
+    if (typeof EventSource !== 'undefined') {
+      try {
+        this.sseSource = new EventSource('/api/events');
+        this.sseSource.addEventListener('sync', (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data && data.state) {
+              this.handleRemoteState(data.state, data.sender, data);
+            }
+          } catch (e) {
+            console.error('Lỗi nhận SSE sync:', e);
+          }
+        });
+      } catch (e) {
+        console.warn('Không thể kết nối SSE server:', e);
+      }
+    }
+  },
+
+  fetchServerState() {
+    fetch('/api/state')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.state) {
+          const local = this.getState();
+          // Nếu server đã có dữ liệu và mới hơn hoặc local chưa có
+          if (!local.updatedAt || (data.state.updatedAt && data.state.updatedAt > local.updatedAt)) {
+            this.handleRemoteState(data.state, null, { source: 'init_fetch' });
+          } else if (local.updatedAt && (!data.state.updatedAt || local.updatedAt > data.state.updatedAt)) {
+            // Đẩy local lên server đồng bộ
+            this.pushStateToServer(local);
+          }
+        }
+      })
+      .catch(() => {});
+  },
+
+  handleRemoteState(remoteState, sender, meta = {}) {
+    if (!remoteState || !remoteState.schedule || !remoteState.finance) return;
+
+    const currentState = this.getState();
+    const currentUser = this.getCurrentUser();
+
+    // Phát hiện tin nhắn mới từ đối phương
+    if (remoteState.chat && Array.isArray(remoteState.chat.messages)) {
+      const currentMessages = (currentState.chat && currentState.chat.messages) || [];
+      const currentIds = new Set(currentMessages.map(m => m.id));
+
+      const newPartnerMessages = remoteState.chat.messages.filter(m => 
+        !currentIds.has(m.id) && m.sender !== currentUser.id
+      );
+
+      if (newPartnerMessages.length > 0 && window.ChatModule) {
+        newPartnerMessages.forEach(msg => {
+          window.ChatModule.handleIncomingMessage(msg);
+        });
+      }
+    }
+
+    // Cập nhật localStorage
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(remoteState));
+    } catch (e) {}
+
+    // Cập nhật giao diện tự động
+    if (window.ScheduleModule) window.ScheduleModule.render();
+    if (window.FinanceModule) window.FinanceModule.render();
+    if (window.ChatModule) {
+      window.ChatModule.renderMonitor();
+      window.ChatModule.renderMessages();
+    }
+  },
+
+  pushStateToServer(state, meta = {}) {
+    const currentUser = this.getCurrentUser();
+    fetch('/api/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        state,
+        sender: currentUser.id,
+        meta
+      })
+    }).catch(() => {});
+  },
+
+  saveState(state, meta = {}) {
     try {
       if (state && typeof state === 'object') {
         state.updatedAt = Date.now();
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      // Tự động đẩy dữ liệu lên Firebase Firestore nếu đã kết nối
+
+      // 1. Gửi đồng bộ sang Server để phát qua SSE tới các trình duyệt khác (Edge <-> Chrome)
+      this.pushStateToServer(state, meta);
+
+      // 2. Gửi qua BroadcastChannel tới các tab cùng trình duyệt
+      const currentUser = this.getCurrentUser();
+      if (this.broadcastChannel) {
+        try {
+          this.broadcastChannel.postMessage({
+            state,
+            sender: currentUser.id,
+            meta
+          });
+        } catch (e) {}
+      }
+
+      // 3. Tự động đẩy dữ liệu lên Firebase Firestore nếu đã kết nối
       if (window.CloudSync && typeof window.CloudSync.pushUpdate === 'function') {
         window.CloudSync.pushUpdate(state);
       }
