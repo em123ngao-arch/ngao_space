@@ -1,0 +1,9 @@
+local-dev-server.js
+server.js
+package.json
+package-lock.json
+screenshot.js
+test_two_browsers.js
+data/backups
+.agents
+.claude
