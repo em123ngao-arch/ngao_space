@@ -6,6 +6,14 @@
   <title>NgaOS — Kế Hoạch Học Tập & Quản Lý Tài Chính</title>
   <meta name="description" content="Không gian quản lý lịch trình học tập và quản lý tài chính chi tiêu theo tuần dành riêng cho Bảo & Ngân.">
 
+  <!-- Mobile App / PWA Enhancements -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#f0f7fc" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#07111e" media="(prefers-color-scheme: dark)">
+  <link rel="apple-touch-icon" href="assets/avatars/ngan.png">
+
   <!-- Google Fonts: Outfit (headings) + Plus Jakarta Sans (body) + JetBrains Mono (data) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,8 +24,8 @@
   <meta http-equiv="Pragma" content="no-cache">
 
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=35">
-  <link rel="stylesheet" href="css/responsive.css?v=35">
+  <link rel="stylesheet" href="css/style.css?v=36">
+  <link rel="stylesheet" href="css/responsive.css?v=36">
 </head>
 <body>
 
@@ -74,20 +82,53 @@
           <span class="switch-chevron">▾</span>
         </button>
 
-        <!-- Cloud Sync Status Pill (Firebase Firestore) -->
-        <button class="cloud-status-pill" id="btn-cloud-status" title="Trạng thái lưu trữ đám mây (Google Firebase Firestore)">
+        <!-- Ocean Day/Night Theme Toggle (Biển Ngày ☀️ / Biển Đêm 🌙) -->
+        <button class="ocean-theme-toggle-btn" id="btn-theme-toggle" title="Chuyển chế độ: Biển Ngày ☀️ / Biển Đêm 🌙">
+          <span class="theme-icon-slot" id="theme-toggle-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-sun">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          </span>
+          <span class="theme-toggle-text" id="theme-toggle-label">Biển Ngày</span>
+        </button>
+
+        <!-- Ambient Ocean Waves Relaxation Sound Toggle -->
+        <button class="ocean-sound-toggle-btn" id="btn-sound-toggle" title="Bật/Tắt âm thanh sóng biển thư giãn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-sound-waves">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <span class="sound-toggle-text" id="sound-toggle-label">Sóng Biển</span>
+        </button>
+
+        <!-- Quick User Guide / Help Button (?) -->
+        <button class="ocean-help-btn" id="btn-open-guide" title="Xem hướng dẫn sử dụng nhanh NgaOS (Nhấn phím ?)" aria-label="Hướng dẫn sử dụng">
+          <span class="help-btn-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </span>
+          <span class="help-btn-text">Hướng Dẫn</span>
+        </button>
+
+        <!-- Cloud Sync Status Pill -->
+        <button class="cloud-status-pill" id="btn-cloud-status" title="Cài đặt đồng bộ đám mây Google Firebase Firestore">
           <span class="status-dot dot-amber"></span>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
           </svg>
-          <span class="cloud-pill-text">Lưu trữ máy</span>
+          <span class="cloud-pill-text">Đám Mây</span>
         </button>
-
-        <!-- Gentle Care Pill -->
-        <div class="gentle-love-pill" id="care-note-pill" title="Thông điệp">
-          <span class="love-dot"></span>
-          <span class="love-text" id="care-note-text">Hôm nay học tốt nhé em bé</span>
-        </div>
       </div>
     </header>
 
@@ -101,18 +142,24 @@
         <div class="calendar-nav-top">
           <div class="month-selector-wrap">
             <button class="btn-cal-nav" id="btn-prev-month" title="Tháng trước">◀</button>
-            <div class="month-title-wrap">
-              <span class="icon-circle small blue">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <button class="month-title-wrap month-title-btn" id="btn-open-month-modal" title="Bấm để mở lịch 30 ngày toàn cảnh & tỷ lệ xanh/đỏ">
+              <span class="icon-circle small blue month-cal-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
               </span>
               <h3 class="month-current-title" id="current-month-label">Tháng 10 / 2026</h3>
-            </div>
+              <span class="month-dropdown-chevron">▾</span>
+            </button>
             <button class="btn-cal-nav" id="btn-next-month" title="Tháng sau">▶</button>
+            <span class="week-year-badge" id="schedule-week-of-year-badge">Tuần 42</span>
             <button class="btn-today-pill" id="btn-today-pill" title="Trở về hôm nay">Hôm nay</button>
           </div>
 
           <div class="selected-day-banner">
-            <span class="day-banner-label">Đang xem:</span>
             <strong class="day-banner-title" id="selected-day-title">Hôm nay, Thứ Tư (14/10)</strong>
             <span class="day-banner-status" id="selected-day-status-pill">0% hoàn thành</span>
           </div>
@@ -171,31 +218,29 @@
 
           <div class="tasks-list" id="list-morning"></div>
 
-          <!-- Thêm việc trực tiếp trong Buổi Sáng -->
+          <!-- Thêm việc trực tiếp trong Buổi Sáng (Tối ưu 2 tầng gọn gàng, không co ép) -->
           <div class="incard-add-block" data-period="morning">
-            <div class="incard-quick-presets">
-              <span class="presets-hint">Mẫu nhanh:</span>
-              <button type="button" class="btn-incard-preset" data-period="morning" data-time="06:30 - 07:15" data-title="Ăn sáng &amp; nạp năng lượng" data-cat="routine">Ăn sáng</button>
-              <button type="button" class="btn-incard-preset" data-period="morning" data-time="07:30 - 11:30" data-title="Học bài ca sáng / Lên giảng đường" data-cat="study">Học sáng</button>
-              <button type="button" class="btn-incard-preset" data-period="morning" data-time="11:30 - 12:00" data-title="Nghỉ giải lao &amp; uống nước" data-cat="health">Nghỉ ngơi</button>
+            <div class="incard-input-row">
+              <input type="text" class="form-input form-input-sm incard-task-title" id="incard-title-morning" placeholder="Thêm việc buổi sáng (nhấn Enter để lưu)...">
+              <button type="button" class="btn-primary btn-sm btn-incard-add" data-period="morning">+ Thêm</button>
             </div>
-            <div class="incard-form-row">
-              <select class="form-input form-input-sm incard-time-select" id="incard-time-morning">
-                <option value="06:00 - 07:00">06:00 - 07:00</option>
-                <option value="07:00 - 08:30">07:00 - 08:30</option>
-                <option value="08:30 - 10:00">08:30 - 10:00</option>
-                <option value="10:00 - 11:30">10:00 - 11:30</option>
-                <option value="11:30 - 12:00">11:30 - 12:00</option>
-                <option value="06:00 - 12:00">Cả buổi sáng</option>
-              </select>
-              <input type="text" class="form-input form-input-sm incard-task-title" id="incard-title-morning" placeholder="Nội dung việc buổi sáng...">
-              <select class="form-input form-input-sm incard-cat-select" id="incard-cat-morning">
+            <div class="incard-meta-row">
+              <div class="incard-time-range-picker" title="Khoảng thời gian thực hiện">
+                <select class="form-input form-input-sm incard-time-start" id="incard-start-morning" title="Giờ bắt đầu"></select>
+                <span class="time-sep">→</span>
+                <select class="form-input form-input-sm incard-time-end" id="incard-end-morning" title="Giờ kết thúc"></select>
+              </div>
+              <select class="form-input form-input-sm incard-cat-select" id="incard-cat-morning" title="Chọn phân loại">
                 <option value="study">Chuyên Môn</option>
                 <option value="project">Đề Án</option>
                 <option value="routine">Sinh Hoạt</option>
                 <option value="health">Sức Khỏe</option>
               </select>
-              <button type="button" class="btn-primary btn-sm btn-incard-add" data-period="morning">+ Thêm</button>
+              <div class="incard-quick-presets">
+                <button type="button" class="btn-incard-preset" data-period="morning" data-time="06:30 - 07:15" data-title="Ăn sáng &amp; nạp năng lượng" data-cat="routine">Ăn sáng</button>
+                <button type="button" class="btn-incard-preset" data-period="morning" data-time="07:30 - 11:30" data-title="Học bài ca sáng / Lên giảng đường" data-cat="study">Học sáng</button>
+                <button type="button" class="btn-incard-preset" data-period="morning" data-time="11:30 - 12:00" data-title="Nghỉ giải lao &amp; uống nước" data-cat="health">Nghỉ ngơi</button>
+              </div>
             </div>
           </div>
         </div>
@@ -219,28 +264,27 @@
 
           <!-- Thêm việc trực tiếp trong Buổi Chiều -->
           <div class="incard-add-block" data-period="afternoon">
-            <div class="incard-quick-presets">
-              <span class="presets-hint">Mẫu nhanh:</span>
-              <button type="button" class="btn-incard-preset" data-period="afternoon" data-time="12:00 - 13:00" data-title="Cơm trưa &amp; chợp mắt nghỉ ngơi" data-cat="routine">Ăn trưa</button>
-              <button type="button" class="btn-incard-preset" data-period="afternoon" data-time="13:30 - 16:30" data-title="Học bài ca chiều / Thảo luận đề án" data-cat="project">Học chiều</button>
-              <button type="button" class="btn-incard-preset" data-period="afternoon" data-time="17:00 - 18:00" data-title="Tập thể dục, đi dạo thả lỏng" data-cat="health">Nghỉ ngơi</button>
+            <div class="incard-input-row">
+              <input type="text" class="form-input form-input-sm incard-task-title" id="incard-title-afternoon" placeholder="Thêm việc buổi chiều (nhấn Enter để lưu)...">
+              <button type="button" class="btn-primary btn-sm btn-incard-add" data-period="afternoon">+ Thêm</button>
             </div>
-            <div class="incard-form-row">
-              <select class="form-input form-input-sm incard-time-select" id="incard-time-afternoon">
-                <option value="12:00 - 13:00">12:00 - 13:00</option>
-                <option value="13:00 - 14:30">13:00 - 14:30</option>
-                <option value="14:30 - 16:30">14:30 - 16:30</option>
-                <option value="16:30 - 18:00">16:30 - 18:00</option>
-                <option value="12:00 - 18:00">Cả buổi chiều</option>
-              </select>
-              <input type="text" class="form-input form-input-sm incard-task-title" id="incard-title-afternoon" placeholder="Nội dung việc buổi chiều...">
-              <select class="form-input form-input-sm incard-cat-select" id="incard-cat-afternoon">
+            <div class="incard-meta-row">
+              <div class="incard-time-range-picker" title="Khoảng thời gian thực hiện">
+                <select class="form-input form-input-sm incard-time-start" id="incard-start-afternoon" title="Giờ bắt đầu"></select>
+                <span class="time-sep">→</span>
+                <select class="form-input form-input-sm incard-time-end" id="incard-end-afternoon" title="Giờ kết thúc"></select>
+              </div>
+              <select class="form-input form-input-sm incard-cat-select" id="incard-cat-afternoon" title="Chọn phân loại">
                 <option value="study">Chuyên Môn</option>
                 <option value="project">Đề Án</option>
                 <option value="routine">Sinh Hoạt</option>
                 <option value="health">Sức Khỏe</option>
               </select>
-              <button type="button" class="btn-primary btn-sm btn-incard-add" data-period="afternoon">+ Thêm</button>
+              <div class="incard-quick-presets">
+                <button type="button" class="btn-incard-preset" data-period="afternoon" data-time="12:00 - 13:00" data-title="Cơm trưa &amp; chợp mắt nghỉ ngơi" data-cat="routine">Ăn trưa</button>
+                <button type="button" class="btn-incard-preset" data-period="afternoon" data-time="13:30 - 16:30" data-title="Học bài ca chiều / Thảo luận đề án" data-cat="project">Học chiều</button>
+                <button type="button" class="btn-incard-preset" data-period="afternoon" data-time="17:00 - 18:00" data-title="Tập thể dục, đi dạo thả lỏng" data-cat="health">Nghỉ ngơi</button>
+              </div>
             </div>
           </div>
         </div>
@@ -264,32 +308,209 @@
 
           <!-- Thêm việc trực tiếp trong Buổi Tối -->
           <div class="incard-add-block" data-period="evening">
-            <div class="incard-quick-presets">
-              <span class="presets-hint">Mẫu nhanh:</span>
-              <button type="button" class="btn-incard-preset" data-period="evening" data-time="18:30 - 19:30" data-title="Cơm tối gia đình &amp; trò chuyện" data-cat="routine">Ăn tối</button>
-              <button type="button" class="btn-incard-preset" data-period="evening" data-time="20:00 - 22:00" data-title="Ôn tập bài học &amp; chuẩn bị bài mới" data-cat="study">Ôn bài tối</button>
-              <button type="button" class="btn-incard-preset" data-period="evening" data-time="22:30 - 23:30" data-title="Skincare, nghe nhạc &amp; ngủ sớm" data-cat="health">Nghỉ ngơi</button>
+            <div class="incard-input-row">
+              <input type="text" class="form-input form-input-sm incard-task-title" id="incard-title-evening" placeholder="Thêm việc buổi tối (nhấn Enter để lưu)...">
+              <button type="button" class="btn-primary btn-sm btn-incard-add" data-period="evening">+ Thêm</button>
             </div>
-            <div class="incard-form-row">
-              <select class="form-input form-input-sm incard-time-select" id="incard-time-evening">
-                <option value="18:00 - 19:30">18:00 - 19:30</option>
-                <option value="19:30 - 21:00">19:30 - 21:00</option>
-                <option value="21:00 - 22:30">21:00 - 22:30</option>
-                <option value="22:30 - 23:30">22:30 - 23:30</option>
-                <option value="18:00 - 24:00">Cả buổi tối</option>
-              </select>
-              <input type="text" class="form-input form-input-sm incard-task-title" id="incard-title-evening" placeholder="Nội dung việc buổi tối...">
-              <select class="form-input form-input-sm incard-cat-select" id="incard-cat-evening">
+            <div class="incard-meta-row">
+              <div class="incard-time-range-picker" title="Khoảng thời gian thực hiện">
+                <select class="form-input form-input-sm incard-time-start" id="incard-start-evening" title="Giờ bắt đầu"></select>
+                <span class="time-sep">→</span>
+                <select class="form-input form-input-sm incard-time-end" id="incard-end-evening" title="Giờ kết thúc"></select>
+              </div>
+              <select class="form-input form-input-sm incard-cat-select" id="incard-cat-evening" title="Chọn phân loại">
                 <option value="study">Chuyên Môn</option>
                 <option value="project">Đề Án</option>
                 <option value="routine">Sinh Hoạt</option>
                 <option value="health">Sức Khỏe</option>
               </select>
-              <button type="button" class="btn-primary btn-sm btn-incard-add" data-period="evening">+ Thêm</button>
+              <div class="incard-quick-presets">
+                <button type="button" class="btn-incard-preset" data-period="evening" data-time="18:30 - 19:30" data-title="Cơm tối gia đình &amp; trò chuyện" data-cat="routine">Ăn tối</button>
+                <button type="button" class="btn-incard-preset" data-period="evening" data-time="20:00 - 22:00" data-title="Ôn tập bài học &amp; chuẩn bị bài mới" data-cat="study">Ôn bài tối</button>
+                <button type="button" class="btn-incard-preset" data-period="evening" data-time="22:30 - 23:30" data-title="Skincare, nghe nhạc &amp; ngủ sớm" data-cat="health">Nghỉ ngơi</button>
+              </div>
             </div>
           </div>
         </div>
 
+      </section>
+
+      <!-- ======================================================================
+           KHỐI TỔNG KẾT & NHẬT KÝ TRƯỞNG THÀNH CUỐI NGÀY (GROWTH JOURNAL)
+           Sống theo ước mơ: Đúc kết 3 đột phá, bài học và giá trị sự nghiệp
+           ====================================================================== -->
+      <section class="growth-journal-section" id="section-growth-journal">
+        <div class="journal-header">
+          <div class="journal-title-wrap">
+            <span class="icon-circle small gold">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+              </svg>
+            </span>
+            <div>
+              <div class="journal-title-row">
+                <h3 class="journal-heading">Nhật Ký Trưởng Thành Cuối Ngày</h3>
+                <span class="journal-date-tag" id="journal-current-date-tag">Hôm nay</span>
+              </div>
+              <p class="journal-sub">Đúc kết giá trị thực tế sau một ngày: Điểm đột phá, bài học nhận ra &amp; bước đệm cho sự nghiệp</p>
+            </div>
+          </div>
+
+          <!-- User Switcher Tab: Xem của Ngân / Xem của Bảo -->
+          <div class="journal-user-switcher" role="tablist">
+            <button type="button" class="btn-journal-tab active" id="tab-journal-ngan" data-user="ngan">
+              <span class="journal-tab-dot dot-ngan"></span>
+              <span>Ngân 🌸</span>
+            </button>
+            <button type="button" class="btn-journal-tab" id="tab-journal-bao" data-user="bao">
+              <span class="journal-tab-dot dot-bao"></span>
+              <span>Bảo 🌊</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="journal-card-body" id="journal-card-body">
+          <!-- Form View (Khi người dùng đang chọn tab của chính mình) -->
+          <form class="journal-form" id="journal-form">
+            <!-- 1. Top 3 Đột Phá -->
+            <div class="journal-field-group">
+              <div class="field-label-row">
+                <label class="journal-field-label">
+                  <span class="field-num">1</span>
+                  <strong>3 Việc Đột Phá Nhất Hôm Nay</strong>
+                  <span class="field-sub">(Những điều giúp bạn tiến gần hơn đến ước mơ)</span>
+                </label>
+                <button type="button" class="btn-quick-fill-wins" id="btn-quick-fill-wins" title="1-chạm nạp các việc đã làm xong hôm nay">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Gợi ý từ việc đã xong
+                </button>
+              </div>
+              <div class="top-wins-inputs">
+                <div class="win-input-row">
+                  <span class="win-badge">01</span>
+                  <input type="text" class="form-input form-input-sm win-input" id="journal-win-1" placeholder="Việc đột phá số 1 (ví dụ: Nắm vững thuật toán X, xong 100 từ vựng)...">
+                </div>
+                <div class="win-input-row">
+                  <span class="win-badge">02</span>
+                  <input type="text" class="form-input form-input-sm win-input" id="journal-win-2" placeholder="Việc đột phá số 2 (ví dụ: Hoàn thiện đề án, sửa triệt để lỗi logic)...">
+                </div>
+                <div class="win-input-row">
+                  <span class="win-badge">03</span>
+                  <input type="text" class="form-input form-input-sm win-input" id="journal-win-3" placeholder="Việc đột phá số 3 (ví dụ: Đọc xong chương sách chuyên môn, duy trì thể lực)...">
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Bài Học Nhận Ra & 3. Giá Trị Sự Nghiệp (Grid 2 cột trên Desktop) -->
+            <div class="journal-two-cols">
+              <div class="journal-field-group">
+                <label class="journal-field-label">
+                  <span class="field-num">2</span>
+                  <strong>Bài Học / Chiêm Nghiệm Rút Ra</strong>
+                  <span class="field-sub">(Điều bạn nhận ra sau một ngày thực tế)</span>
+                </label>
+                <textarea class="form-input journal-textarea" id="journal-lesson" rows="2" placeholder="Hôm nay mình nhận ra: Khi gặp vấn đề khó, chia nhỏ từng bước sẽ giúp bớt áp lực..."></textarea>
+              </div>
+
+              <div class="journal-field-group">
+                <label class="journal-field-label">
+                  <span class="field-num">3</span>
+                  <strong>Bước Đệm Cho Chuyên Môn &amp; Sự Nghiệp</strong>
+                  <span class="field-sub">(Giúp ích gì cho con đường dài hạn)</span>
+                </label>
+                <textarea class="form-input journal-textarea" id="journal-career" rows="2" placeholder="Điều này giúp mình: Rèn luyện tính tự chủ, nâng cao năng lực giải quyết đề án..."></textarea>
+              </div>
+            </div>
+
+            <!-- Bottom Actions Bar -->
+            <div class="journal-actions-row">
+              <div class="journal-status-meta" id="journal-status-meta">
+                <span class="status-indicator-dot" id="journal-indicator-dot"></span>
+                <span id="journal-status-text">Chưa lưu nhật ký hôm nay</span>
+              </div>
+              <div class="journal-btn-group">
+                <button type="submit" class="btn-save-journal" id="btn-save-journal" title="Khắc ghi nhật ký chiêm nghiệm và bước đệm hôm nay">
+                  <span class="btn-journal-icon-wrap" id="btn-journal-icon-wrap">
+                    <svg class="journal-icon-quill" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
+                      <line x1="16" y1="8" x2="2" y2="22"></line>
+                      <line x1="17.5" y1="15" x2="9" y2="15"></line>
+                    </svg>
+                  </span>
+                  <span class="btn-journal-label" id="btn-journal-label">Lưu Dấu Trưởng Thành</span>
+                  <span class="btn-journal-sparkle">✦</span>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Read-Only & Interaction View (Khi xem nhật ký của đối phương hoặc hiển thị xem lại) -->
+          <div class="journal-partner-view" id="journal-partner-view" style="display: none;">
+            <!-- Render động bằng JS: Top 3 việc, Bài học, Giá trị sự nghiệp kèm nút Thả Tim ❤️ -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           BÁO CÁO TIẾN BỘ & NĂNG SUẤT (SO SÁNH NGÀY / TUẦN / THÁNG)
+           ====================================================================== -->
+      <section class="schedule-analytics-section" id="schedule-analytics-section">
+        <div class="analytics-header">
+          <div class="analytics-title-wrap">
+            <span class="icon-circle small emerald">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+            </span>
+            <div>
+              <h3 class="analytics-heading">Báo Cáo Tiến Bộ & Năng Suất</h3>
+              <p class="analytics-sub">Theo dõi mức độ hoàn thành nhiệm vụ theo thời gian để cải thiện từng ngày</p>
+            </div>
+          </div>
+
+          <!-- Segmented Tab: Ngày / Tuần / Tháng -->
+          <div class="analytics-period-switcher" role="tablist">
+            <button type="button" class="btn-analytics-tab active" data-period="day">7 Ngày Qua</button>
+            <button type="button" class="btn-analytics-tab" data-period="week">4 Tuần Qua</button>
+            <button type="button" class="btn-analytics-tab" data-period="month">Theo Tháng</button>
+          </div>
+        </div>
+
+        <!-- Metric Stat Cards -->
+        <div class="analytics-kpi-grid">
+          <div class="analytics-kpi-card">
+            <span class="kpi-label">Tổng việc đã lên lịch</span>
+            <span class="kpi-value" id="kpi-total-tasks">0</span>
+            <span class="kpi-sub" id="kpi-total-tasks-sub">Trong kỳ phân tích</span>
+          </div>
+          <div class="analytics-kpi-card">
+            <span class="kpi-label">Đã hoàn thành</span>
+            <span class="kpi-value text-emerald" id="kpi-completed-tasks">0</span>
+            <span class="kpi-sub" id="kpi-completed-tasks-sub">0% tỉ lệ hoàn thành</span>
+          </div>
+          <div class="analytics-kpi-card">
+            <span class="kpi-label">Đánh giá tiến bộ</span>
+            <span class="kpi-value text-blue" id="kpi-trend-status">Khởi đầu tốt</span>
+            <span class="kpi-sub" id="kpi-trend-sub">Duy trì nhịp sinh học</span>
+          </div>
+        </div>
+
+        <!-- Visual Bar Chart Container -->
+        <div class="analytics-chart-card">
+          <div class="chart-legend-row">
+            <span class="chart-caption" id="analytics-chart-caption">So sánh tỷ lệ hoàn thành qua 7 ngày gần nhất</span>
+            <div class="chart-legend-items">
+              <span class="legend-badge"><span class="legend-dot dot-green"></span> Đã hoàn thành</span>
+              <span class="legend-badge"><span class="legend-dot dot-red"></span> Chưa xong</span>
+            </div>
+          </div>
+          <div class="analytics-bars-container" id="analytics-bars-container">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
       </section>
 
     </main>
@@ -474,42 +695,6 @@
 
     </main>
 
-    <!-- Application Footer & Data Management Tools -->
-    <footer class="app-footer">
-      <div class="footer-left">
-        <span>NgaOS • Kế Hoạch & Quản Lý Thực Tế Cho Bảo & Ngân</span>
-      </div>
-      <div class="footer-actions">
-        <button class="btn-tool" id="btn-export-data" title="Tải file sao lưu JSON về máy">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          <span>Sao Lưu</span>
-        </button>
-        <button class="btn-tool" id="btn-import-data" title="Nạp file sao lưu từ máy">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-          <span>Khôi Phục</span>
-        </button>
-        <button class="btn-tool" id="btn-reset-demo" title="Đặt lại trạng thái ban đầu">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-          <span>Đặt Lại</span>
-        </button>
-        <input type="file" id="file-import-json" accept=".json" style="display: none;">
-      </div>
-    </footer>
-
-  </div>
-
-  <!-- Reassuring Ocean Relaxation Dialog -->
-  <div class="modal-backdrop" id="modal-love">
-    <div class="modal-dialog">
-      <div class="modal-icon-svg">
-        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--ocean-blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c3.5-3 6.5-3 10 0s6.5 3 10 0"></path><path d="M2 17c3.5-3 6.5-3 10 0s6.5 3 10 0"></path></svg>
-      </div>
-      <h3 class="modal-title">Biển Bình Yên & Nghỉ Ngơi</h3>
-      <p class="modal-message">
-        Hãy thả lỏng đôi vai, uống một ngụm nước ấm và lắng nghe tiếng sóng biển vỗ về. Giữ tâm trí thanh thản và tiếp tục một ngày tràn đầy năng lượng nhé!
-      </p>
-      <button class="btn-primary" id="btn-close-modal-love">Dễ Chịu Hơn Rồi</button>
-    </div>
   </div>
 
   <!-- 2-User Authentication Modal (Bảo & Ngân) -->
@@ -611,6 +796,12 @@
   <!-- Cloud Sync Settings Modal (Google Firebase Firestore) -->
   <div class="modal-backdrop" id="modal-cloud-sync">
     <div class="modal-dialog cloud-modal-dialog">
+      <button class="btn-modal-close" id="btn-close-modal-cloud-x" title="Đóng bảng đồng bộ (Esc)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
       <div class="modal-icon-svg">
         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--ocean-blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
@@ -767,6 +958,206 @@
         </svg>
       </button>
     </form>
+  </div>
+
+  <!-- Modal Lịch Tháng Toàn Cảnh (30 Ngày & Tỷ Lệ Hoàn Thành Xanh/Đỏ) -->
+  <div class="modal-backdrop" id="modal-month-calendar" aria-hidden="true">
+    <div class="modal-dialog month-calendar-modal-dialog">
+      <div class="month-modal-header">
+        <div class="month-modal-title-group">
+          <span class="icon-circle small blue">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </span>
+          <div>
+            <h3 class="month-modal-title" id="month-modal-title-text">Lịch Toàn Cảnh Tháng 10 / 2026</h3>
+            <span class="month-modal-subtitle" id="month-modal-subtitle-text">Tuần thứ 42 / 52 trong năm • Bấm ngày để xem & sửa việc</span>
+          </div>
+        </div>
+
+        <div class="month-modal-actions">
+          <button type="button" class="btn-cal-nav" id="btn-month-modal-prev" title="Tháng trước">◀</button>
+          <button type="button" class="btn-today-pill" id="btn-month-modal-today">Hôm nay</button>
+          <button type="button" class="btn-cal-nav" id="btn-month-modal-next" title="Tháng sau">▶</button>
+          <button type="button" class="btn-modal-close" id="btn-close-month-modal" title="Đóng lịch (Esc)" aria-label="Đóng">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Month Legend -->
+      <div class="month-modal-legend">
+        <div class="legend-item">
+          <span class="legend-color-box full-green"></span>
+          <span>Xanh 100%: Hoàn hảo</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color-box split-sample"></span>
+          <span>Tỷ lệ Xanh/Đỏ: Đạt % tương ứng</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color-box full-red"></span>
+          <span>Đỏ: Chưa hoàn thành việc nào</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color-box empty-gray"></span>
+          <span>Xám: Chưa lên lịch</span>
+        </div>
+      </div>
+
+      <!-- Calendar 7 Day Headers -->
+      <div class="month-table-head">
+        <div class="day-head-col">Thứ 2</div>
+        <div class="day-head-col">Thứ 3</div>
+        <div class="day-head-col">Thứ 4</div>
+        <div class="day-head-col">Thứ 5</div>
+        <div class="day-head-col">Thứ 6</div>
+        <div class="day-head-col">Thứ 7</div>
+        <div class="day-head-col text-sun">Chủ Nhật</div>
+      </div>
+
+      <!-- Grid Cells (Rendered Dynamically) -->
+      <div class="month-grid-cells" id="month-grid-cells"></div>
+    </div>
+  </div>
+
+  <!-- Modal Hướng Dẫn Sử Dụng Nhanh NgaOS -->
+  <div class="modal-backdrop" id="modal-guide" aria-hidden="true">
+    <div class="modal-dialog guide-modal-dialog">
+      <div class="guide-modal-header">
+        <div class="guide-modal-title-group">
+          <span class="guide-header-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </span>
+          <div>
+            <h3 class="guide-modal-title">Bí Kíp Nhanh NgaOS</h3>
+            <span class="guide-modal-subtitle">Cách dùng hiệu quả &amp; sống có định hướng mỗi ngày</span>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" id="btn-close-guide-modal" title="Đóng hướng dẫn (Esc)" aria-label="Đóng">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="guide-modal-body">
+        <div class="guide-items-grid">
+          <!-- Item 1 -->
+          <div class="guide-item">
+            <div class="guide-item-icon amber">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              </svg>
+            </div>
+            <div class="guide-item-text">
+              <span class="guide-item-name">1. Lên Lịch 3 Buổi (Sáng/Chiều/Tối)</span>
+              <p class="guide-item-summary">Gõ việc rồi nhấn <kbd>Enter</kbd> • Chọn giờ 5p • Bấm ô tròn để tick hoàn thành</p>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="guide-item">
+            <div class="guide-item-icon blue">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <div class="guide-item-text">
+              <span class="guide-item-name">2. Lịch Toàn Cảnh 30 Ngày</span>
+              <p class="guide-item-summary">Bấm nút <strong>[ 📅 Tháng ▾ ]</strong> • Theo dõi vạch <span class="badge-sample-green">Xanh (xong)</span> / <span class="badge-sample-red">Đỏ (chưa)</span></p>
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="guide-item">
+            <div class="guide-item-icon gold">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+              </svg>
+            </div>
+            <div class="guide-item-text">
+              <span class="guide-item-name">3. Nhật Ký Trưởng Thành Cuối Ngày</span>
+              <p class="guide-item-summary">Ghi 3 việc đột phá &amp; bài học rút ra • Bấm <strong>Lưu Dấu Trưởng Thành ✦</strong></p>
+            </div>
+          </div>
+
+          <!-- Item 4 -->
+          <div class="guide-item">
+            <div class="guide-item-icon emerald">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div class="guide-item-text">
+              <span class="guide-item-name">4. Đồng Hành (Ngân &amp; Bảo)</span>
+              <p class="guide-item-summary">Bấm avatar đổi tài khoản • Nút trò chuyện góc phải để nhắn tin &amp; nhắc nhở</p>
+            </div>
+          </div>
+
+          <!-- Item 5 -->
+          <div class="guide-item">
+            <div class="guide-item-icon indigo">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+              </svg>
+            </div>
+            <div class="guide-item-text">
+              <span class="guide-item-name">5. Sóng Biển &amp; Chế Độ Đêm</span>
+              <p class="guide-item-summary">Bật <strong>Sóng Biển</strong> nghe ASMR thư giãn • Đổi <strong>Biển Ngày / Đêm</strong> dịu mắt</p>
+            </div>
+          </div>
+
+          <!-- Item 6 -->
+          <div class="guide-item">
+            <div class="guide-item-icon cyan">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                <line x1="6" y1="8" x2="6" y2="8"></line>
+                <line x1="10" y1="8" x2="10" y2="8"></line>
+                <line x1="14" y1="8" x2="14" y2="8"></line>
+                <line x1="18" y1="8" x2="18" y2="8"></line>
+                <line x1="7" y1="16" x2="17" y2="16"></line>
+              </svg>
+            </div>
+            <div class="guide-item-text">
+              <span class="guide-item-name">6. Phím Tắt &amp; Đường Dẫn</span>
+              <p class="guide-item-summary">Phím <kbd>?</kbd> mở hướng dẫn • Phím <kbd>Esc</kbd> đóng • Vào thẳng bằng <code>/guide</code></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-modal-footer">
+          <button type="button" class="btn-primary btn-guide-confirm" id="btn-guide-confirm">
+            <span>Đã Hiểu &amp; Bắt Đầu Thôi! 🚀</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Toast Container -->

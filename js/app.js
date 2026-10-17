@@ -43,7 +43,7 @@ window.playChime = function (freq = 587.33, duration = 0.2) {
 };
 
 // ----------------------------------------------------------------------------
-// Toast Notification Engine (Vector Icons)
+// Toast Notification Engine (Vector Icons & Modern Glass HUD)
 // ----------------------------------------------------------------------------
 window.showToast = function (message, type = 'info') {
   let container = document.getElementById('toast-container');
@@ -57,11 +57,18 @@ window.showToast = function (message, type = 'info') {
   const pill = document.createElement('div');
   pill.className = `toast-pill toast-${type}`;
 
-  const iconSvg = window.AppIcons ? (type === 'success' ? window.AppIcons.check : window.AppIcons.target) : '•';
+  let iconSvg = '';
+  if (type === 'success') {
+    iconSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+  } else if (type === 'warning') {
+    iconSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+  } else {
+    iconSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
+  }
 
   pill.innerHTML = `
     <span class="toast-icon-wrap">${iconSvg}</span>
-    <span>${message}</span>
+    <span class="toast-text">${message}</span>
   `;
 
   container.appendChild(pill);
@@ -74,8 +81,8 @@ window.showToast = function (message, type = 'info') {
     pill.classList.remove('show');
     setTimeout(() => {
       pill.remove();
-    }, 250);
-  }, 2600);
+    }, 350);
+  }, 3200);
 };
 
 // ----------------------------------------------------------------------------
@@ -129,27 +136,74 @@ function setupTabSwitching() {
 }
 
 // ----------------------------------------------------------------------------
-// Care / Encouragement Modal
+// User Guide Modal & Shortcut Controller
 // ----------------------------------------------------------------------------
-function setupCareModal() {
-  const pill = document.getElementById('care-note-pill');
-  const modal = document.getElementById('modal-love');
-  const btnClose = document.getElementById('btn-close-modal-love');
+function setupGuideModal() {
+  const btnOpen = document.getElementById('btn-open-guide');
+  const modal = document.getElementById('modal-guide');
+  const btnClose = document.getElementById('btn-close-guide-modal');
+  const btnConfirm = document.getElementById('btn-guide-confirm');
 
   if (!modal) return;
 
-  pill?.addEventListener('click', () => {
+  const openGuide = () => {
     modal.classList.add('active');
-    window.playChime(620, 0.2);
-  });
+    modal.setAttribute('aria-hidden', 'false');
+    window.playChime(523.25, 0.18);
+  };
 
-  btnClose?.addEventListener('click', () => {
+  const closeGuide = (markSeen = false) => {
     modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    if (markSeen) {
+      try {
+        localStorage.setItem('ngaos_seen_guide', 'true');
+      } catch (e) {}
+    }
+  };
+
+  btnOpen?.addEventListener('click', openGuide);
+  btnClose?.addEventListener('click', () => closeGuide(false));
+  btnConfirm?.addEventListener('click', () => {
+    closeGuide(true);
+    if (window.showToast) {
+      window.showToast('Chúc bạn một ngày học tập & làm việc thật năng suất! 🚀', 'success');
+    }
   });
 
   modal.addEventListener('click', (e) => {
-    if (e.target === modal) modal.classList.remove('active');
+    if (e.target === modal) closeGuide(false);
   });
+
+  // Keyboard shortcut: Press '?' anywhere (outside input/textarea) to toggle guide, Esc to close
+  document.addEventListener('keydown', (e) => {
+    const isEditing = ['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName);
+    if (e.key === '?' && !isEditing) {
+      e.preventDefault();
+      if (modal.classList.contains('active')) {
+        closeGuide(false);
+      } else {
+        openGuide();
+      }
+    } else if (e.key === 'Escape' && modal.classList.contains('active')) {
+      closeGuide(false);
+    }
+  });
+
+  // Open guide if URL route has /guide or #guide or ?guide=1
+  const path = window.location.pathname.toLowerCase();
+  const hash = window.location.hash.toLowerCase();
+  const search = window.location.search.toLowerCase();
+  if (path === '/guide' || hash === '#guide' || search.includes('guide')) {
+    setTimeout(openGuide, 400);
+  } else {
+    // First-time visitor gentle prompt
+    try {
+      if (!localStorage.getItem('ngaos_seen_guide')) {
+        setTimeout(openGuide, 1200);
+      }
+    } catch (e) {}
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -242,7 +296,7 @@ window.playMessengerChime = function () {
 document.addEventListener('DOMContentLoaded', () => {
   updateHeaderDate();
   setupTabSwitching();
-  setupCareModal();
+  setupGuideModal();
   setupDataTools();
 
   // Initialize Storage Sync (Edge <-> Chrome & multi-tab)
@@ -256,4 +310,29 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.ScheduleModule) ScheduleModule.init();
   if (window.FinanceModule) FinanceModule.init();
   if (window.ChatModule) ChatModule.init();
+
+  // Ocean Day/Night Theme Toggle Event
+  const btnThemeToggle = document.getElementById('btn-theme-toggle');
+  btnThemeToggle?.addEventListener('click', () => {
+    if (window.OceanEngine) {
+      const nextTheme = window.OceanEngine.toggleTheme();
+      window.playChime(nextTheme === 'night' ? 440 : 660, 0.15);
+      if (window.showToast) {
+        window.showToast(nextTheme === 'night' ? 'Đã bật chế độ: Biển Đêm Ánh Trăng 🌙' : 'Đã bật chế độ: Biển Ngày Tươi Mát ☀️', 'info');
+      }
+    }
+  });
+
+  // Ocean Waves Relaxation Sound Toggle Event
+  const btnSoundToggle = document.getElementById('btn-sound-toggle');
+  btnSoundToggle?.addEventListener('click', () => {
+    if (window.OceanEngine) {
+      const isPlaying = window.OceanEngine.toggleSound();
+      if (isPlaying) {
+        if (window.showToast) window.showToast('Đang phát tiếng sóng biển vỗ về thư giãn... 🌊', 'success');
+      } else {
+        if (window.showToast) window.showToast('Đã dừng tiếng sóng biển.', 'info');
+      }
+    }
+  });
 });

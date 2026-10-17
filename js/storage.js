@@ -430,6 +430,60 @@ const StorageManager = {
     return state;
   },
 
+  // --------------------------------------------------------------------------
+  // Growth Journal Operations (Tổng Kết & Nhật Ký Trưởng Thành Cuối Ngày)
+  // --------------------------------------------------------------------------
+  getDayJournal(dateStr) {
+    const targetDate = dateStr || this.getTodayDateStr();
+    const state = this.getState();
+    const dayData = this.ensureDaySchedule(state, targetDate);
+    if (!dayData.growthJournal) {
+      dayData.growthJournal = {
+        ngan: null,
+        bao: null
+      };
+    }
+    return dayData.growthJournal;
+  },
+
+  saveDayJournal(dateStr, userId, journalData) {
+    const targetDate = dateStr || this.getTodayDateStr();
+    const state = this.getState();
+    const dayData = this.ensureDaySchedule(state, targetDate);
+    if (!dayData.growthJournal) {
+      dayData.growthJournal = { ngan: null, bao: null };
+    }
+
+    const existing = dayData.growthJournal[userId] || {};
+    dayData.growthJournal[userId] = {
+      ...existing,
+      ...journalData,
+      updatedAt: Date.now()
+    };
+
+    this.saveState(state);
+    return dayData.growthJournal;
+  },
+
+  toggleJournalReaction(dateStr, targetUserId, reactorId) {
+    const targetDate = dateStr || this.getTodayDateStr();
+    const state = this.getState();
+    const dayData = this.ensureDaySchedule(state, targetDate);
+    if (!dayData.growthJournal || !dayData.growthJournal[targetUserId]) return null;
+
+    const journal = dayData.growthJournal[targetUserId];
+    if (!journal.reactions) journal.reactions = {};
+
+    if (journal.reactions[reactorId]) {
+      delete journal.reactions[reactorId];
+    } else {
+      journal.reactions[reactorId] = '❤️';
+    }
+
+    this.saveState(state);
+    return journal;
+  },
+
   clearTasks(dateStr) {
     const targetDate = dateStr || this.getTodayDateStr();
     const state = this.getState();

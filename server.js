@@ -37,9 +37,21 @@ function getSharedState() {
   return null;
 }
 
+const BACKUP_DIR = path.join(DATA_DIR, 'backups');
+if (!fs.existsSync(BACKUP_DIR)) {
+  fs.mkdirSync(BACKUP_DIR, { recursive: true });
+}
+
 function saveSharedState(state) {
   try {
+    // 1. Lưu file trạng thái chính thức
     fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf-8');
+
+    // 2. Tự động sao lưu lịch sử snapshot theo ngày (tránh mất dữ liệu 100%)
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 10); // 'YYYY-MM-DD'
+    const dailyBackupFile = path.join(BACKUP_DIR, `backup-${dateStr}.json`);
+    fs.writeFileSync(dailyBackupFile, JSON.stringify(state, null, 2), 'utf-8');
   } catch (err) {
     console.error('[Server] Lỗi ghi app-state.json:', err.message);
   }
@@ -155,8 +167,9 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // 4. Static File Serving
-  let filePath = path.join(ROOT_DIR, pathname === '/' ? 'index.html' : pathname);
+  // 4. Static File Serving (hỗ trợ / và /guide)
+  let targetPath = (pathname === '/' || pathname === '/guide') ? 'index.html' : pathname;
+  let filePath = path.join(ROOT_DIR, targetPath);
   
   // Normalize and prevent directory traversal
   filePath = path.normalize(filePath);

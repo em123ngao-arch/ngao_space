@@ -2,55 +2,7 @@
   "version": 3,
   "schedule": {
     "activePreset": "",
-    "tasks": [
-      {
-        "id": "task_1791913698110_c7if",
-        "period": "morning",
-        "time": "06:00 - 07:00",
-        "title": "Thực hành đề án môn học trên máy tính",
-        "category": "study",
-        "completed": true,
-        "createdBy": "ngan",
-        "date": "2026-10-14"
-      },
-      {
-        "id": "task_1791913698951_mis2",
-        "period": "afternoon",
-        "time": "12:00 - 13:00",
-        "title": "Cơm trưa & chợp mắt nghỉ ngơi",
-        "category": "routine",
-        "completed": false,
-        "createdBy": "ngan",
-        "date": "2026-10-14"
-      }
-    ],
-    "days": {
-      "2026-10-14": {
-        "tasks": [
-          {
-            "id": "task_1791913698110_c7if",
-            "period": "morning",
-            "time": "06:00 - 07:00",
-            "title": "Thực hành đề án môn học trên máy tính",
-            "category": "study",
-            "completed": true,
-            "createdBy": "ngan",
-            "date": "2026-10-14"
-          },
-          {
-            "id": "task_1791913698951_mis2",
-            "period": "afternoon",
-            "time": "12:00 - 13:00",
-            "title": "Cơm trưa & chợp mắt nghỉ ngơi",
-            "category": "routine",
-            "completed": false,
-            "createdBy": "ngan",
-            "date": "2026-10-14"
-          }
-        ],
-        "activePreset": ""
-      }
-    }
+    "tasks": []
   },
   "finance": {
     "weeklyBudget": 1500000,
@@ -76,9 +28,9 @@
         "type": "text",
         "text": "Chào Ngân! Hôm nay học tập thật tốt nhé em bé, anh luôn ở đây tiếp năng lượng cho em!",
         "time": "08:00",
-        "timestamp": 1791910096648
+        "timestamp": 1792214571227
       }
     ]
   },
-  "updatedAt": 1791913699643
+  "updatedAt": 1792218171227
 }

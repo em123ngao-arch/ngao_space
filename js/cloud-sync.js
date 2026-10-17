@@ -37,6 +37,23 @@
         modalCloud?.classList.remove('active');
       });
 
+      const btnCloseCloudX = document.getElementById('btn-close-modal-cloud-x');
+      btnCloseCloudX?.addEventListener('click', () => {
+        modalCloud?.classList.remove('active');
+      });
+
+      modalCloud?.addEventListener('click', (e) => {
+        if (e.target === modalCloud) {
+          modalCloud.classList.remove('active');
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalCloud?.classList.contains('active')) {
+          modalCloud.classList.remove('active');
+        }
+      });
+
       btnSaveCloudConfig?.addEventListener('click', () => {
         this.handleSaveConfigFromForm();
       });
@@ -120,7 +137,11 @@
     },
 
     handleRemoteUpdate(remoteData) {
-      if (!remoteData || !remoteData.updatedAt) return;
+      if (!remoteData || !remoteData.updatedAt || !remoteData.state) {
+        // Document trên đám mây chưa có dữ liệu -> đẩy dữ liệu hiện tại lên làm gốc
+        this.pushCurrentState();
+        return;
+      }
       if (remoteData.updatedAt <= lastRemoteTimestamp) return;
 
       const localState = StorageManager.getState();
@@ -134,9 +155,13 @@
         // Apply remote data into storage
         StorageManager.setState(remoteData.state);
 
-        // Re-render UI
+        // Re-render UI tất cả các module
         if (window.FinanceModule) window.FinanceModule.render();
         if (window.ScheduleModule) window.ScheduleModule.render();
+        if (window.ChatModule) {
+          window.ChatModule.renderMonitor();
+          window.ChatModule.renderMessages();
+        }
 
         const updatedBy = remoteData.lastUpdatedBy;
         const currentUserName = StorageManager.getCurrentUser()?.name;
@@ -147,6 +172,9 @@
         }
 
         isSyncing = false;
+      } else if (localUpdatedAt > remoteData.updatedAt) {
+        // Local có thay đổi mới hơn khi vừa offline -> đẩy lên Firebase
+        this.pushCurrentState();
       }
     },
 
