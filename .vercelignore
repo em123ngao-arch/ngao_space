@@ -1,6 +1,4 @@
 _legacy
-local-dev-server.js
-server.js
 screenshot.js
 test_two_browsers.js
 data/backups

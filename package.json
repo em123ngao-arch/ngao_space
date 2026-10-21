@@ -2,7 +2,8 @@
   "name": "ngao-space",
   "version": "1.0.0",
   "private": true,
+  "main": "server.js",
   "scripts": {
-    "build": "echo 'Static build complete'"
+    "start": "node server.js"
   }
 }
