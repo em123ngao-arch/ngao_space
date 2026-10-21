@@ -35,7 +35,8 @@ const serverHandler = (req, res) => {
     return;
   }
 
-  const urlPath = (req.url || '/').split('?')[0];
+  const rawUrl = req.headers['x-forwarded-url'] || req.url || '/';
+  const urlPath = rawUrl.split('?')[0];
   let target = (urlPath === '/' || urlPath === '/guide') ? 'index.html' : urlPath.replace(/^\//, '');
   let filePath = path.normalize(path.join(__dirname, target));
 
