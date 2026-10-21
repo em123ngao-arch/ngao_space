@@ -24,7 +24,6 @@ const MIME_TYPES = {
 };
 
 const serverHandler = (req, res) => {
-  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -38,49 +37,62 @@ const serverHandler = (req, res) => {
   const rawUrl = req.headers['x-forwarded-url'] || req.url || '/';
   const urlPath = rawUrl.split('?')[0];
   let target = (urlPath === '/' || urlPath === '/guide') ? 'index.html' : urlPath.replace(/^\//, '');
-  
-  let filePath = path.join(process.cwd(), target);
+
+  try {
+    target = decodeURIComponent(target);
+  } catch (e) {}
+
+  let filePath = path.resolve(__dirname, target);
   if (!fs.existsSync(filePath)) {
-    filePath = path.join(__dirname, target);
+    filePath = path.resolve(process.cwd(), target);
   }
 
-  // Security: prevent directory traversal
-  const normalized = path.normalize(filePath);
-  if (!normalized.startsWith(process.cwd()) && !normalized.startsWith(__dirname)) {
-    res.writeHead(403);
+  // Security check: ensure path stays within root
+  const rootDir = __dirname;
+  const cwdDir = process.cwd();
+  if (!filePath.startsWith(rootDir) && !filePath.startsWith(cwdDir)) {
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
     res.end('Forbidden');
     return;
   }
 
-  // If file exists, serve it
-  if (fs.existsSync(normalized) && fs.statSync(normalized).isFile()) {
-    const ext = path.extname(normalized).toLowerCase();
+  // If static file exists, serve it immediately with fs.readFileSync
+  if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+    const ext = path.extname(filePath).toLowerCase();
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+    const content = fs.readFileSync(filePath);
     res.writeHead(200, {
       'Content-Type': contentType,
+      'Content-Length': content.length,
       'Cache-Control': ext === '.html' ? 'public, max-age=0, must-revalidate' : 'public, max-age=86400'
     });
-    return fs.createReadStream(normalized).pipe(res);
+    res.end(content);
+    return;
   }
 
-  // Fallback to index.html for SPA routing
-  let indexPath = path.join(process.cwd(), 'index.html');
-  if (!fs.existsSync(indexPath)) {
-    indexPath = path.join(__dirname, 'index.html');
-  }
-  if (fs.existsSync(indexPath)) {
-    res.writeHead(200, {
-      'Content-Type': 'text/html; charset=utf-8',
-      'Cache-Control': 'public, max-age=0, must-revalidate'
-    });
-    return fs.createReadStream(indexPath).pipe(res);
+  // SPA fallback only for HTML navigation requests (not for missing .css, .js, .png)
+  const isAssetRequest = path.extname(target) !== '';
+  if (!isAssetRequest) {
+    let indexPath = path.resolve(__dirname, 'index.html');
+    if (!fs.existsSync(indexPath)) {
+      indexPath = path.resolve(process.cwd(), 'index.html');
+    }
+    if (fs.existsSync(indexPath)) {
+      const content = fs.readFileSync(indexPath);
+      res.writeHead(200, {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Content-Length': content.length,
+        'Cache-Control': 'public, max-age=0, must-revalidate'
+      });
+      res.end(content);
+      return;
+    }
   }
 
   res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
   res.end('Not Found');
 };
 
-// Start server if executed directly (e.g. node server.js locally)
 if (require.main === module) {
   const PORT = process.env.PORT || 7823;
   const server = http.createServer(serverHandler);
@@ -89,5 +101,4 @@ if (require.main === module) {
   });
 }
 
-// Export handler for Vercel Serverless Function
 module.exports = serverHandler;
