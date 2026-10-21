@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "server.js": {
+      "includeFiles": "css/**, js/**, assets/**, index.html"
+    }
+  },
   "rewrites": [
     {
       "source": "/guide",

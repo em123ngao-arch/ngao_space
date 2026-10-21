@@ -38,28 +38,36 @@ const serverHandler = (req, res) => {
   const rawUrl = req.headers['x-forwarded-url'] || req.url || '/';
   const urlPath = rawUrl.split('?')[0];
   let target = (urlPath === '/' || urlPath === '/guide') ? 'index.html' : urlPath.replace(/^\//, '');
-  let filePath = path.normalize(path.join(__dirname, target));
+  
+  let filePath = path.join(process.cwd(), target);
+  if (!fs.existsSync(filePath)) {
+    filePath = path.join(__dirname, target);
+  }
 
   // Security: prevent directory traversal
-  if (!filePath.startsWith(__dirname)) {
+  const normalized = path.normalize(filePath);
+  if (!normalized.startsWith(process.cwd()) && !normalized.startsWith(__dirname)) {
     res.writeHead(403);
     res.end('Forbidden');
     return;
   }
 
   // If file exists, serve it
-  if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-    const ext = path.extname(filePath).toLowerCase();
+  if (fs.existsSync(normalized) && fs.statSync(normalized).isFile()) {
+    const ext = path.extname(normalized).toLowerCase();
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
     res.writeHead(200, {
       'Content-Type': contentType,
       'Cache-Control': ext === '.html' ? 'public, max-age=0, must-revalidate' : 'public, max-age=86400'
     });
-    return fs.createReadStream(filePath).pipe(res);
+    return fs.createReadStream(normalized).pipe(res);
   }
 
   // Fallback to index.html for SPA routing
-  const indexPath = path.join(__dirname, 'index.html');
+  let indexPath = path.join(process.cwd(), 'index.html');
+  if (!fs.existsSync(indexPath)) {
+    indexPath = path.join(__dirname, 'index.html');
+  }
   if (fs.existsSync(indexPath)) {
     res.writeHead(200, {
       'Content-Type': 'text/html; charset=utf-8',
