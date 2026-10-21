@@ -29,7 +29,7 @@ if (!fs.existsSync(PUBLIC_DIR)) {
 }
 
 // Items to copy to public
-const itemsToCopy = ['index.html', 'css', 'js', 'assets', 'data'];
+const itemsToCopy = ['index.html', 'favicon.ico', 'css', 'js', 'assets', 'data'];
 
 for (const item of itemsToCopy) {
   const srcPath = path.join(ROOT_DIR, item);

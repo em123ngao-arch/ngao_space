@@ -190,8 +190,8 @@ const StorageManager = {
       }
     });
 
-    // 3. Server-Sent Events (SSE): Đồng bộ thời gian thực giữa 2 TRÌNH DUYỆT KHÁC NHAU (Edge <-> Chrome)
-    if (typeof EventSource !== 'undefined') {
+    // 3. Server-Sent Events (SSE): Đồng bộ thời gian thực cho localhost (Edge <-> Chrome)
+    if (this.isLocalServer() && typeof EventSource !== 'undefined') {
       try {
         this.sseSource = new EventSource('/api/events');
         this.sseSource.addEventListener('sync', (event) => {
@@ -210,7 +210,12 @@ const StorageManager = {
     }
   },
 
+  isLocalServer() {
+    return ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+  },
+
   fetchServerState() {
+    if (!this.isLocalServer()) return;
     fetch('/api/state')
       .then(res => res.json())
       .then(data => {
@@ -265,6 +270,7 @@ const StorageManager = {
   },
 
   pushStateToServer(state, meta = {}) {
+    if (!this.isLocalServer()) return;
     const currentUser = this.getCurrentUser();
     fetch('/api/sync', {
       method: 'POST',
