@@ -2,7 +2,6 @@ node_modules/
 screenshot*.png
 test*.png
 data/backups/
-package.json
 package-lock.json
 local-dev-server.js
 !assets/**
