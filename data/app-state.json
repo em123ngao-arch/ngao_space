@@ -2,7 +2,22 @@
   "version": 3,
   "schedule": {
     "activePreset": "",
-    "tasks": []
+    "tasks": [],
+    "days": {
+      "2026-10-17": {
+        "tasks": [],
+        "activePreset": "",
+        "growthJournal": {
+          "ngan": {
+            "topWins": [],
+            "lessonLearned": "",
+            "careerValue": "fdf",
+            "updatedAt": 1792227588901
+          },
+          "bao": null
+        }
+      }
+    }
   },
   "finance": {
     "weeklyBudget": 1500000,
@@ -32,5 +47,5 @@
       }
     ]
   },
-  "updatedAt": 1792218171227
+  "updatedAt": 1792227588901
 }
