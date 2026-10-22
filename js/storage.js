@@ -305,9 +305,13 @@ const StorageManager = {
         } catch (e) {}
       }
 
-      // 3. Tự động đẩy dữ liệu lên Firebase Firestore nếu đã kết nối
-      if (window.CloudSync && typeof window.CloudSync.pushUpdate === 'function') {
-        window.CloudSync.pushUpdate(state);
+      // 3. Tự động đẩy dữ liệu lên Firebase Firestore nếu đã kết nối (Debounced 800ms)
+      if (window.CloudSync) {
+        if (typeof window.CloudSync.pushUpdateDebounced === 'function') {
+          window.CloudSync.pushUpdateDebounced(state);
+        } else if (typeof window.CloudSync.pushUpdate === 'function') {
+          window.CloudSync.pushUpdate(state);
+        }
       }
     } catch (e) {
       console.error('Không thể lưu vào LocalStorage:', e);

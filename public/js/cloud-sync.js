@@ -11,6 +11,7 @@
   let unsubscribeListener = null;
   let isSyncing = false;
   let lastRemoteTimestamp = 0;
+  let pushDebounceTimer = null;
 
   window.CloudSync = {
     status: 'local', // 'local' | 'connecting' | 'connected' | 'error'
@@ -28,6 +29,9 @@
       const btnSaveCloudConfig = document.getElementById('btn-save-cloud-config');
       const btnDisconnectCloud = document.getElementById('btn-disconnect-cloud');
       const btnManualSync = document.getElementById('btn-manual-sync-now');
+      const btnExportBackup = document.getElementById('btn-export-backup-now');
+      const btnImportBackup = document.getElementById('btn-import-backup-now');
+      const inputImportFile = document.getElementById('input-import-backup-file');
 
       btnCloud?.addEventListener('click', () => {
         this.openCloudModal();
@@ -40,6 +44,48 @@
       const btnCloseCloudX = document.getElementById('btn-close-modal-cloud-x');
       btnCloseCloudX?.addEventListener('click', () => {
         modalCloud?.classList.remove('active');
+      });
+
+      // 1-Click Backup Export
+      btnExportBackup?.addEventListener('click', () => {
+        if (window.StorageManager && typeof window.StorageManager.exportJSON === 'function') {
+          window.StorageManager.exportJSON();
+          if (window.showToast) window.showToast('Đã tải file sao lưu (.json) thành công!', 'success');
+        }
+      });
+
+      // 1-Click Backup Import / Restore
+      btnImportBackup?.addEventListener('click', () => {
+        inputImportFile?.click();
+      });
+
+      inputImportFile?.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          try {
+            const content = evt.target.result;
+            const result = window.StorageManager.importJSON(content);
+            if (result && result.success) {
+              if (window.FinanceModule) window.FinanceModule.render();
+              if (window.ScheduleModule) window.ScheduleModule.render();
+              if (window.ChatModule) {
+                window.ChatModule.renderMonitor();
+                window.ChatModule.renderMessages();
+              }
+              if (window.showToast) window.showToast('Khôi phục dữ liệu thành công!', 'success');
+              this.pushCurrentState();
+            } else {
+              alert('Lỗi khôi phục: ' + (result?.error || 'File không hợp lệ'));
+            }
+          } catch (err) {
+            alert('Không thể đọc file: ' + err.message);
+          }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
       });
 
       modalCloud?.addEventListener('click', (e) => {
@@ -104,6 +150,19 @@
         }
 
         firestoreDb = firebase.firestore(app);
+
+        // Kích hoạt Offline Persistence cho Firestore
+        try {
+          if (firestoreDb && typeof firestoreDb.enablePersistence === 'function') {
+            firestoreDb.enablePersistence({ synchronizeTabs: true }).catch((err) => {
+              if (err.code === 'failed-precondition') {
+                console.warn('Firestore persistence: Nhiều tab mở đồng thời');
+              } else if (err.code === 'unimplemented') {
+                console.warn('Firestore persistence không hỗ trợ trình duyệt này');
+              }
+            });
+          }
+        } catch (e) {}
 
         // Listen for real-time changes from Firestore
         const docRef = firestoreDb.collection('ngaos_spaces').doc('shared_data');
@@ -207,6 +266,13 @@
       } catch (e) {
         console.warn('Không thể gửi cập nhật đến Firestore:', e);
       }
+    },
+
+    pushUpdateDebounced(state) {
+      if (pushDebounceTimer) clearTimeout(pushDebounceTimer);
+      pushDebounceTimer = setTimeout(() => {
+        this.pushUpdate(state);
+      }, 800);
     },
 
     pushCurrentState() {

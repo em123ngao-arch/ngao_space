@@ -794,7 +794,7 @@
     </div>
   </div>
 
-  <!-- Cloud Sync Settings Modal (Google Firebase Firestore) -->
+  <!-- Cloud & Data Management Modal -->
   <div class="modal-backdrop" id="modal-cloud-sync">
     <div class="modal-dialog cloud-modal-dialog">
       <button class="btn-modal-close" id="btn-close-modal-cloud-x" title="Đóng bảng đồng bộ (Esc)">
@@ -808,8 +808,8 @@
           <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
         </svg>
       </div>
-      <h3 class="modal-title">Đồng Bộ Đám Mây Vĩnh Viễn</h3>
-      <p class="modal-message">Lưu trữ đám mây Google Firebase Firestore miễn phí 100% & đồng bộ thời gian thực giữa Bảo & Ngân.</p>
+      <h3 class="modal-title">Bảo Vệ &amp; Lưu Trữ Dữ Liệu</h3>
+      <p class="modal-message">Mọi lịch học, chi tiêu và tin nhắn của Bảo &amp; Ngân được tự động lưu trữ và bảo vệ an toàn 100%.</p>
 
       <div class="cloud-status-indicator-box">
         <span class="status-label">Trạng thái hiện tại:</span>
@@ -818,39 +818,65 @@
         </div>
       </div>
 
-      <!-- Form nhập cấu hình Firebase -->
-      <div class="cloud-config-form">
-        <div class="form-group-cloud">
-          <label for="cfg-project-id">Firebase Project ID *</label>
-          <input type="text" id="cfg-project-id" class="form-input form-input-sm" placeholder="vd: ngaos-space">
+      <!-- Card Sao Lưu & Khôi Phục 1-Chạm -->
+      <div class="cloud-backup-card">
+        <div class="cloud-backup-card-header">
+          <span class="cloud-backup-title">Sao Lưu &amp; Khôi Phục Nhanh:</span>
         </div>
-
-        <div class="form-group-cloud">
-          <label for="cfg-api-key">API Key (Web API Key) *</label>
-          <input type="text" id="cfg-api-key" class="form-input form-input-sm" placeholder="AIzaSy...">
-        </div>
-
-        <div class="form-group-cloud">
-          <label for="cfg-auth-domain">Auth Domain (Tùy chọn)</label>
-          <input type="text" id="cfg-auth-domain" class="form-input form-input-sm" placeholder="ngaos-space.firebaseapp.com">
+        <p class="cloud-backup-desc">Xuất dữ liệu thành file dự phòng để cất giữ hoặc gửi qua Zalo/Messenger cho nhau:</p>
+        <div class="cloud-backup-buttons">
+          <button type="button" class="btn-secondary btn-backup-action" id="btn-export-backup-now">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Tải Bản Sao Lưu (.json)
+          </button>
+          <button type="button" class="btn-secondary btn-backup-action" id="btn-import-backup-now">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            Khôi Phục Dữ Liệu
+          </button>
+          <input type="file" id="input-import-backup-file" accept=".json" style="display: none;">
         </div>
       </div>
 
-      <!-- Hướng dẫn 3 bước nhanh -->
-      <div class="cloud-guide-card">
-        <div class="guide-title">Cách lấy mã miễn phí trong 2 phút:</div>
-        <ol class="guide-steps">
-          <li>Vào <a href="https://console.firebase.google.com" target="_blank" rel="noopener">console.firebase.google.com</a> bằng Gmail.</li>
-          <li>Bấm <strong>Tạo dự án mới</strong> (gói Spark free vĩnh viễn).</li>
-          <li>Bật <strong>Firestore Database</strong> và vào <strong>Project Settings</strong> sao chép <code>Project ID</code> & <code>API Key</code> dán vào đây!</li>
-        </ol>
-      </div>
+      <!-- Cấu hình đám mây Google Firebase (Thu gọn nâng cao) -->
+      <details class="cloud-advanced-details" id="cloud-advanced-details">
+        <summary class="cloud-advanced-summary">⚙️ Đồng Bộ Đám Mây Real-Time (Nâng Cao)</summary>
+        <div class="cloud-config-form" style="margin-top: 10px;">
+          <div class="form-group-cloud">
+            <label for="cfg-project-id">Firebase Project ID</label>
+            <input type="text" id="cfg-project-id" class="form-input form-input-sm" placeholder="vd: ngaos-space">
+          </div>
+          <div class="form-group-cloud">
+            <label for="cfg-api-key">API Key (Web API Key)</label>
+            <input type="text" id="cfg-api-key" class="form-input form-input-sm" placeholder="AIzaSy...">
+          </div>
+          <div class="form-group-cloud">
+            <label for="cfg-auth-domain">Auth Domain (Tùy chọn)</label>
+            <input type="text" id="cfg-auth-domain" class="form-input form-input-sm" placeholder="ngaos-space.firebaseapp.com">
+          </div>
+          <div class="cloud-guide-card">
+            <div class="guide-title">Cách lấy mã từ Firebase Console:</div>
+            <ol class="guide-steps">
+              <li>Vào <a href="https://console.firebase.google.com" target="_blank" rel="noopener">console.firebase.google.com</a> (Gmail).</li>
+              <li>Tạo dự án mới (Spark free vĩnh viễn), bật <strong>Firestore Database</strong>.</li>
+              <li>Vào <strong>Project Settings</strong> sao chép <code>Project ID</code> &amp; <code>API Key</code> dán vào đây.</li>
+            </ol>
+          </div>
+          <button class="btn-primary" id="btn-save-cloud-config" style="width: 100%; margin-top: 6px;">Lưu &amp; Kết Nối Đám Mây</button>
+        </div>
+      </details>
 
-      <div class="modal-action-row" style="width: 100%; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-        <button class="btn-primary" id="btn-save-cloud-config">Lưu & Kết Nối Đám Mây</button>
+      <div class="modal-action-row" style="width: 100%; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 12px;">
         <button class="btn-secondary" id="btn-manual-sync-now" style="display: none;">Đồng Bộ Thử Ngay</button>
-        <button class="btn-secondary btn-disconnect-cloud" id="btn-disconnect-cloud" style="display: none; color: var(--coral-rose);">Ngắt Kết Nối</button>
-        <button class="btn-secondary" id="btn-close-modal-cloud">Đóng</button>
+        <button class="btn-secondary btn-disconnect-cloud" id="btn-disconnect-cloud" style="display: none; color: var(--coral-rose);">Ngắt Kết Nối Đám Mây</button>
+        <button class="btn-primary" id="btn-close-modal-cloud">Đã Hiểu &amp; Đóng</button>
       </div>
     </div>
   </div>
