@@ -199,7 +199,7 @@ function setupGuideModal() {
   } else {
     // First-time visitor gentle prompt
     try {
-      if (!localStorage.getItem('ngaos_seen_guide')) {
+      if (!localStorage.getItem('ngaos_seen_guide') && window.innerWidth > 768) {
         setTimeout(openGuide, 1200);
       }
     } catch (e) {}

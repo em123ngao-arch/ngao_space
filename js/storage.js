@@ -43,11 +43,21 @@ const PRESET_TEMPLATES = {
 };
 
 function getCleanInitialState() {
+  const d = new Date();
+  const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const defaultTasks = JSON.parse(JSON.stringify(PRESET_TEMPLATES['self-study']));
+
   return {
     version: 3,
     schedule: {
-      activePreset: '',
-      tasks: [] // Clean slate
+      activePreset: 'self-study',
+      tasks: defaultTasks,
+      days: {
+        [today]: {
+          activePreset: 'self-study',
+          tasks: defaultTasks
+        }
+      }
     },
     finance: {
       weeklyBudget: 1500000,
@@ -62,7 +72,7 @@ function getCleanInitialState() {
           category: 'tech'
         }
       ],
-      transactions: [] // Clean slate
+      transactions: []
     },
     chat: {
       messages: [
