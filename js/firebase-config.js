@@ -9,14 +9,14 @@
 (function () {
   'use strict';
 
-  // Điền cấu hình từ Firebase Console của bạn vào đây (nếu muốn đặt mặc định)
+  // Cấu hình Firebase chính thức của NgaOS (Bảo & Ngân)
   const DEFAULT_CONFIG = {
-    apiKey: "",
-    authDomain: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
+    apiKey: "AIzaSyBMaLn8FuuHfRn2Y8_qRe9M9v_GDcPAGDA",
+    authDomain: "ngaos-space.firebaseapp.com",
+    projectId: "ngaos-space",
+    storageBucket: "ngaos-space.firebasestorage.app",
+    messagingSenderId: "526511005511",
+    appId: "1:526511005511:web:f6508e2b33f483dd58b662"
   };
 
   const STORAGE_KEY = 'NGAOS_FIREBASE_CONFIG_V1';
