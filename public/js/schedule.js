@@ -299,10 +299,9 @@ window.ScheduleModule = {
   },
 
   // --------------------------------------------------------------------------
-  // Dynamic Time Range Picker & Slot Locking
+  // Dynamic Time Range Picker (Linh hoạt, tự do chọn giờ, không chặn trùng lịch)
   // Khung giờ theo buổi: Morning (06:00-12:00), Afternoon (12:00-18:00), Evening (18:00-24:00)
-  // Bước nhảy linh hoạt: 5 PHÚT (cho phép lên lịch việc ngắn 5p, 10p, 15p, 20p...)
-  // Tự động KHÓA CHẶT CHẼ mọi phút đã được các việc trước đó chiếm dụng!
+  // Bước nhảy 5 phút: Cho phép tùy chỉnh mọi độ dài công việc (5p, 15p, 30p, 1h, 2h...)
   // --------------------------------------------------------------------------
   getPeriodTimeBounds(period) {
     switch (period) {
@@ -326,87 +325,45 @@ window.ScheduleModule = {
     return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
   },
 
-  parseTaskTimeInterval(timeStr) {
-    if (!timeStr || !timeStr.includes('-')) return null;
-    const parts = timeStr.split('-');
-    const startM = this.timeStrToMinutes(parts[0]);
-    const endM = this.timeStrToMinutes(parts[1]);
-    if (startM === null || endM === null || startM >= endM) return null;
-    return { startM, endM };
-  },
-
   renderTimePickers() {
-    const dayTasks = StorageManager.getDayTasks(this.selectedDate);
-
     ['morning', 'afternoon', 'evening'].forEach(period => {
       const selectStart = document.getElementById(`incard-start-${period}`);
       const selectEnd = document.getElementById(`incard-end-${period}`);
       if (!selectStart || !selectEnd) return;
 
       const { startM: periodStart, endM: periodEnd } = this.getPeriodTimeBounds(period);
-      const periodTasks = dayTasks.filter(t => t.period === period);
-
-      // Thu thập danh sách các khoảng thời gian đã bị chiếm
-      const occupiedIntervals = [];
-      periodTasks.forEach(t => {
-        const interval = this.parseTaskTimeInterval(t.time);
-        if (interval) occupiedIntervals.push(interval);
-      });
-
-      // Bước nhảy 5 phút (hỗ trợ việc ngắn 5p, 10p, 15p, 30p, 45p...)
       const step = 5;
 
-      // Kiểm tra khoảng [rangeStart, rangeEnd] có bị giao nhau với việc đã có hay không
-      const isRangeOccupied = (rangeStart, rangeEnd) => {
-        return occupiedIntervals.some(inv => {
-          return Math.max(rangeStart, inv.startM) < Math.min(rangeEnd, inv.endM);
-        });
-      };
-
-      // Giữ lại giá trị start đang chọn nếu còn hợp lệ
+      // 1. Render Start Select
       const curStartVal = selectStart.value;
-
-      // 1. Render Start Select:
-      // Mốc start `m` có thể bắt đầu nếu ít nhất slot [m, m + 5] không bị chiếm
       selectStart.innerHTML = '';
-      let firstAvailableStart = null;
 
       for (let m = periodStart; m < periodEnd; m += step) {
         const timeStr = this.minutesToTimeStr(m);
-        const slotBlocked = isRangeOccupied(m, m + step);
-
         const opt = document.createElement('option');
         opt.value = timeStr;
-        opt.textContent = slotBlocked ? `${timeStr} (Đã có việc)` : timeStr;
-        if (slotBlocked) {
-          opt.disabled = true;
-        } else if (!firstAvailableStart) {
-          firstAvailableStart = timeStr;
-        }
+        opt.textContent = timeStr;
         selectStart.appendChild(opt);
       }
 
-      // Chọn giá trị bắt đầu: nếu curStartVal chưa bị khóa thì giữ, ngược lại lấy firstAvailableStart
-      if (curStartVal && selectStart.querySelector(`option[value="${curStartVal}"]:not(:disabled)`)) {
+      // Giữ giá trị đang chọn nếu còn hợp lệ, ngược lại lấy mốc đầu buổi
+      if (curStartVal && selectStart.querySelector(`option[value="${curStartVal}"]`)) {
         selectStart.value = curStartVal;
-      } else if (firstAvailableStart) {
-        selectStart.value = firstAvailableStart;
+      } else {
+        selectStart.value = this.minutesToTimeStr(periodStart);
       }
 
       // 2. Render End Select tương ứng
-      this.updateEndSelect(period, isRangeOccupied, periodEnd, step);
+      this.updateEndSelect(period, periodEnd, step);
 
-      // Gắn sự kiện change để cập nhật End Select tự động
-      if (!selectStart._hasChangeListener) {
-        selectStart._hasChangeListener = true;
-        selectStart.addEventListener('change', () => {
-          this.updateEndSelect(period, isRangeOccupied, periodEnd, step);
-        });
-      }
+      // Gắn sự kiện change (dùng thuộc tính trực tiếp để luôn cập nhật theo thời gian thực)
+      selectStart.onchange = () => {
+        this.updateEndSelect(period, periodEnd, step);
+      };
     });
   },
 
-  updateEndSelect(period, isRangeOccupied, periodEnd, step) {
+  updateEndSelect(period, periodEnd, step = 5) {
     const selectStart = document.getElementById(`incard-start-${period}`);
     const selectEnd = document.getElementById(`incard-end-${period}`);
     if (!selectStart || !selectEnd) return;
@@ -417,38 +374,43 @@ window.ScheduleModule = {
 
     if (startMinutes === null) return;
 
-    let firstAvailableEnd = null;
+    let defaultEndVal = null;
 
-    // Giờ kết thúc có thể tăng từng 5 phút từ startMinutes + 5 cho đến khi chạm vào việc tiếp theo hoặc hết buổi
+    // Giờ kết thúc chạy từ startMinutes + step đến hết buổi
     for (let m = startMinutes + step; m <= periodEnd; m += step) {
       const timeStr = this.minutesToTimeStr(m);
-      const slotBlocked = isRangeOccupied(m - step, m);
+      const diffMinutes = m - startMinutes;
+
+      let durationLabel = '';
+      if (diffMinutes < 60) {
+        durationLabel = `+${diffMinutes}p`;
+      } else {
+        const hours = Math.floor(diffMinutes / 60);
+        const mins = diffMinutes % 60;
+        durationLabel = mins > 0 ? `+${hours}h${mins}p` : `+${hours}h`;
+      }
 
       const opt = document.createElement('option');
       opt.value = timeStr;
-
-      if (slotBlocked) {
-        opt.textContent = `${timeStr} (Bị trùng việc)`;
-        opt.disabled = true;
-      } else {
-        const diffMinutes = m - startMinutes;
-        opt.textContent = `${timeStr} (+${diffMinutes}p)`;
-        if (!firstAvailableEnd) firstAvailableEnd = timeStr;
-      }
-
+      opt.textContent = `${timeStr} (${durationLabel})`;
       selectEnd.appendChild(opt);
 
-      // Nếu gặp việc đã có phía trước, khóa và dừng lại không cho kéo dài hơn
-      if (slotBlocked) {
-        break;
+      // Gợi ý mặc định việc kéo dài 30 phút (hoặc mốc khả dụng đầu tiên)
+      if (!defaultEndVal && diffMinutes >= 30) {
+        defaultEndVal = timeStr;
       }
     }
 
-    // Chọn giá trị kết thúc hợp lệ
-    if (curEndVal && selectEnd.querySelector(`option[value="${curEndVal}"]:not(:disabled)`)) {
+    if (!defaultEndVal && selectEnd.options.length > 0) {
+      defaultEndVal = selectEnd.options[0].value;
+    }
+
+    // Chọn giá trị kết thúc: giữ giá trị cũ nếu vẫn sau startMinutes, ngược lại lấy defaultEndVal
+    const curEndMinutes = this.timeStrToMinutes(curEndVal);
+    if (curEndMinutes && curEndMinutes > startMinutes && selectEnd.querySelector(`option[value="${curEndVal}"]`)) {
       selectEnd.value = curEndVal;
-    } else if (firstAvailableEnd) {
-      selectEnd.value = firstAvailableEnd;
+    } else if (defaultEndVal) {
+      selectEnd.value = defaultEndVal;
     }
   },
 
