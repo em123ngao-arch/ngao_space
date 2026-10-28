@@ -1187,6 +1187,68 @@
     </div>
   </div>
 
+  <!-- Modal Chỉnh Sửa Nhiệm Vụ (CRUD - Update Task) -->
+  <div class="modal-backdrop" id="modal-edit-task" aria-hidden="true">
+    <div class="modal-dialog edit-task-modal-dialog">
+      <button class="btn-modal-close" id="btn-close-edit-task-x" title="Đóng (Esc)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <div class="modal-icon-svg">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--ocean-blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9"></path>
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+        </svg>
+      </div>
+
+      <h3 class="modal-title">Chỉnh Sửa Nhiệm Vụ</h3>
+      <p class="modal-message">Cập nhật nội dung, khung giờ hoặc buổi cho nhiệm vụ này.</p>
+
+      <form id="form-edit-task" class="edit-task-form">
+        <input type="hidden" id="edit-task-id">
+
+        <div class="form-group-cloud">
+          <label for="edit-task-title">Tên nhiệm vụ</label>
+          <input type="text" id="edit-task-title" class="form-input" required placeholder="Nhập tên nhiệm vụ...">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+          <div class="form-group-cloud">
+            <label for="edit-task-period">Buổi trong ngày</label>
+            <select id="edit-task-period" class="form-input">
+              <option value="morning">🌅 Buổi Sáng</option>
+              <option value="afternoon">☀️ Buổi Chiều</option>
+              <option value="evening">🌙 Buổi Tối</option>
+            </select>
+          </div>
+
+          <div class="form-group-cloud">
+            <label for="edit-task-category">Phân loại</label>
+            <select id="edit-task-category" class="form-input">
+              <option value="routine">Sinh Hoạt</option>
+              <option value="study">Chuyên Môn</option>
+              <option value="project">Đề Án</option>
+              <option value="health">Sức Khỏe</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group-cloud" style="margin-top: 10px;">
+          <label for="edit-task-time">Khung giờ thực hiện</label>
+          <input type="text" id="edit-task-time" class="form-input" placeholder="Ví dụ: 08:00 - 09:30 hoặc Trong buổi">
+        </div>
+
+        <div class="modal-action-row" style="width: 100%; display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px;">
+          <button type="button" class="btn-secondary" id="btn-cancel-edit-task">Hủy</button>
+          <button type="submit" class="btn-primary" id="btn-save-edit-task">Lưu Thay Đổi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Toast Container -->
   <div class="toast-container" id="toast-container"></div>
 
@@ -1195,16 +1257,16 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <!-- Modular Scripts -->
-  <script src="js/icons.js?v=38"></script>
-  <script src="js/storage.js?v=38"></script>
-  <script src="js/firebase-config.js?v=38"></script>
-  <script src="js/cloud-sync.js?v=38"></script>
-  <script src="js/auth.js?v=38"></script>
-  <script src="js/ocean-waves.js?v=38"></script>
-  <script src="js/schedule.js?v=38"></script>
-  <script src="js/finance.js?v=38"></script>
-  <script src="js/chat.js?v=38"></script>
-  <script src="js/app.js?v=38"></script>
+  <script src="js/icons.js?v=39"></script>
+  <script src="js/storage.js?v=39"></script>
+  <script src="js/firebase-config.js?v=39"></script>
+  <script src="js/cloud-sync.js?v=39"></script>
+  <script src="js/auth.js?v=39"></script>
+  <script src="js/ocean-waves.js?v=39"></script>
+  <script src="js/schedule.js?v=39"></script>
+  <script src="js/finance.js?v=39"></script>
+  <script src="js/chat.js?v=39"></script>
+  <script src="js/app.js?v=39"></script>
 
 </body>
 </html>

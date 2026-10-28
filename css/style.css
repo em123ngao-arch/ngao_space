@@ -1417,18 +1417,58 @@ body.theme-night .ocean-help-btn .help-btn-icon {
 .cat-routine { background: var(--sea-emerald-soft); color: var(--sea-emerald); }
 .cat-health  { background: var(--coral-rose-soft);  color: var(--coral-rose); }
 
+.task-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.task-btn-edit {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 3px 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.task-btn-edit:hover {
+  color: var(--ocean-blue);
+  background: rgba(2, 132, 199, 0.08);
+}
+
 .task-btn-delete {
   background: transparent;
   border: none;
   color: #cbd5e1;
   cursor: pointer;
-  font-size: 12px;
-  padding: 2px;
-  transition: color var(--transition-fast);
+  font-size: 13px;
+  padding: 3px 5px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
 }
 
 .task-btn-delete:hover {
   color: var(--coral-rose);
+  background: rgba(244, 63, 94, 0.08);
+}
+
+.edit-task-modal-dialog {
+  max-width: 440px;
+  padding: 26px 22px;
+  text-align: left;
+  align-items: stretch;
+}
+
+.edit-task-form {
+  width: 100%;
 }
 
 /* --------------------------------------------------------------------------

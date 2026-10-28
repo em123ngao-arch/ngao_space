@@ -204,6 +204,59 @@ window.ScheduleModule = {
 
     // 5. Growth Journal Events (Nhật ký trưởng thành cuối ngày)
     this.bindJournalEvents();
+
+    // 6. Modal Edit Task Events (CRUD - Update Task)
+    const modalEditTask = document.getElementById('modal-edit-task');
+    const btnCloseEditTaskX = document.getElementById('btn-close-edit-task-x');
+    const btnCancelEditTask = document.getElementById('btn-cancel-edit-task');
+    const formEditTask = document.getElementById('form-edit-task');
+
+    btnCloseEditTaskX?.addEventListener('click', () => {
+      this.closeEditTaskModal();
+    });
+
+    btnCancelEditTask?.addEventListener('click', () => {
+      this.closeEditTaskModal();
+    });
+
+    modalEditTask?.addEventListener('click', (e) => {
+      if (e.target === modalEditTask) {
+        this.closeEditTaskModal();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modalEditTask?.classList.contains('active')) {
+        this.closeEditTaskModal();
+      }
+    });
+
+    formEditTask?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const taskId = document.getElementById('edit-task-id')?.value;
+      const title = document.getElementById('edit-task-title')?.value;
+      const period = document.getElementById('edit-task-period')?.value;
+      const category = document.getElementById('edit-task-category')?.value;
+      const time = document.getElementById('edit-task-time')?.value;
+
+      if (!taskId || !title || !title.trim()) {
+        if (window.showToast) window.showToast('Vui lòng nhập tên nhiệm vụ!', 'warning');
+        return;
+      }
+
+      StorageManager.updateTask(taskId, {
+        title: title.trim(),
+        period,
+        category,
+        time: time ? time.trim() : ''
+      }, this.selectedDate);
+
+      this.closeEditTaskModal();
+      this.render();
+
+      if (window.showToast) window.showToast('Đã cập nhật nhiệm vụ thành công!', 'success');
+      if (window.playChime) window.playChime(760, 0.16);
+    });
   },
 
   handleIncardAdd(period) {
@@ -602,13 +655,21 @@ window.ScheduleModule = {
             <button class="task-checkbox-btn" aria-label="Hoàn thành công việc" data-id="${task.id}">
               ${task.completed ? (window.AppIcons ? window.AppIcons.check : '✓') : ''}
             </button>
-            <div class="task-info-block">
+            <div class="task-info-block" title="Bấm để chỉnh sửa nhiệm vụ" style="cursor: pointer;">
               <span class="task-time-pill">${task.time ? task.time : 'Trong buổi'}${creatorText}</span>
               <p class="task-title">${this.escapeHTML(task.title)}</p>
               <span class="task-category-pill ${cat.class}">${cat.label}</span>
             </div>
           </div>
-          <button class="task-btn-delete" title="Xóa công việc" data-id="${task.id}">✕</button>
+          <div class="task-actions-group">
+            <button class="task-btn-edit" title="Chỉnh sửa nhiệm vụ" data-id="${task.id}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+              </svg>
+            </button>
+            <button class="task-btn-delete" title="Xóa công việc" data-id="${task.id}">✕</button>
+          </div>
         `;
 
         // Checkbox event
@@ -617,6 +678,18 @@ window.ScheduleModule = {
           StorageManager.toggleTask(task.id, this.selectedDate);
           this.render();
           if (window.playChime) window.playChime(task.completed ? 440 : 660, 0.12);
+        });
+
+        // Edit button event
+        card.querySelector('.task-btn-edit').addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.openEditTaskModal(task);
+        });
+
+        // Click task info block to edit
+        card.querySelector('.task-info-block').addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.openEditTaskModal(task);
         });
 
         // Delete event
@@ -674,6 +747,42 @@ window.ScheduleModule = {
 
   closeMonthModal() {
     const modal = document.getElementById('modal-month-calendar');
+    if (modal) {
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+  },
+
+  // --------------------------------------------------------------------------
+  // EDIT TASK MODAL (CRUD - Update Task)
+  // --------------------------------------------------------------------------
+  openEditTaskModal(task) {
+    if (!task) return;
+    const modal = document.getElementById('modal-edit-task');
+    const inputId = document.getElementById('edit-task-id');
+    const inputTitle = document.getElementById('edit-task-title');
+    const selectPeriod = document.getElementById('edit-task-period');
+    const selectCategory = document.getElementById('edit-task-category');
+    const inputTime = document.getElementById('edit-task-time');
+
+    if (inputId) inputId.value = task.id;
+    if (inputTitle) inputTitle.value = task.title || '';
+    if (selectPeriod) selectPeriod.value = task.period || 'morning';
+    if (selectCategory) selectCategory.value = task.category || 'study';
+    if (inputTime) inputTime.value = task.time || '';
+
+    if (modal) {
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+    setTimeout(() => {
+      inputTitle?.focus();
+    }, 50);
+    if (window.playChime) window.playChime(620, 0.1);
+  },
+
+  closeEditTaskModal() {
+    const modal = document.getElementById('modal-edit-task');
     if (modal) {
       modal.classList.remove('active');
       modal.setAttribute('aria-hidden', 'true');

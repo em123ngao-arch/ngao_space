@@ -438,6 +438,24 @@ const StorageManager = {
     return state;
   },
 
+  updateTask(taskId, updates, dateStr) {
+    const targetDate = dateStr || this.getTodayDateStr();
+    const state = this.getState();
+    const dayData = this.ensureDaySchedule(state, targetDate);
+    const task = dayData.tasks.find(t => t.id === taskId);
+    if (task && updates) {
+      if (updates.title !== undefined) task.title = updates.title.trim();
+      if (updates.time !== undefined) task.time = (updates.time || '').trim();
+      if (updates.category !== undefined) task.category = updates.category;
+      if (updates.period !== undefined) task.period = updates.period;
+      if (targetDate === this.getTodayDateStr()) {
+        state.schedule.tasks = dayData.tasks;
+      }
+      this.saveState(state);
+    }
+    return state;
+  },
+
   deleteTask(taskId, dateStr) {
     const targetDate = dateStr || this.getTodayDateStr();
     const state = this.getState();
