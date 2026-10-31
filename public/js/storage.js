@@ -458,6 +458,104 @@ const StorageManager = {
     }
   },
 
+  createTag(name, color = 'orange') {
+    if (!name || !name.trim()) return { success: false, message: 'Tên nhãn không được để trống' };
+    const trimmed = name.trim();
+    const state = this.getState();
+    if (!state.schedule.tags) state.schedule.tags = JSON.parse(JSON.stringify(DEFAULT_TAGS));
+
+    const exists = state.schedule.tags.find(t => t.name.toLowerCase() === trimmed.toLowerCase());
+    if (exists) {
+      return { success: false, message: `Nhãn "${trimmed}" đã tồn tại!` };
+    }
+
+    const newTag = { name: trimmed, color: color || 'orange' };
+    state.schedule.tags.push(newTag);
+    this.saveState(state);
+    return { success: true, tag: newTag };
+  },
+
+  updateTag(oldName, newName, newColor) {
+    if (!oldName || !newName || !newName.trim()) return { success: false, message: 'Dữ liệu không hợp lệ' };
+    const trimmedNew = newName.trim();
+    const state = this.getState();
+    if (!state.schedule.tags) state.schedule.tags = JSON.parse(JSON.stringify(DEFAULT_TAGS));
+
+    const tagIndex = state.schedule.tags.findIndex(t => t.name.toLowerCase() === oldName.trim().toLowerCase());
+    if (tagIndex === -1) {
+      return { success: false, message: 'Không tìm thấy nhãn cần sửa' };
+    }
+
+    if (trimmedNew.toLowerCase() !== oldName.trim().toLowerCase()) {
+      const duplicate = state.schedule.tags.find(t => t.name.toLowerCase() === trimmedNew.toLowerCase());
+      if (duplicate) {
+        return { success: false, message: `Nhãn "${trimmedNew}" đã tồn tại!` };
+      }
+    }
+
+    const updatedColor = newColor || state.schedule.tags[tagIndex].color || 'orange';
+    state.schedule.tags[tagIndex] = { name: trimmedNew, color: updatedColor };
+
+    const normOld = oldName.trim().toLowerCase();
+    const updateTaskTag = (t) => {
+      if ((t.tag || '').trim().toLowerCase() === normOld) {
+        t.tag = trimmedNew;
+        t.tagColor = updatedColor;
+      }
+    };
+
+    if (state.schedule.tasks) state.schedule.tasks.forEach(updateTaskTag);
+    if (state.schedule.days) {
+      Object.values(state.schedule.days).forEach(day => {
+        if (day.tasks) day.tasks.forEach(updateTaskTag);
+      });
+    }
+
+    this.saveState(state);
+    return { success: true, tag: state.schedule.tags[tagIndex] };
+  },
+
+  deleteTag(name) {
+    if (!name) return { success: false, message: 'Tên nhãn không hợp lệ' };
+    const norm = name.trim().toLowerCase();
+    const state = this.getState();
+    if (!state.schedule.tags) return { success: true };
+
+    state.schedule.tags = state.schedule.tags.filter(t => t.name.toLowerCase() !== norm);
+
+    const clearTaskTag = (t) => {
+      if ((t.tag || '').trim().toLowerCase() === norm) {
+        t.tag = '';
+        t.tagColor = '';
+      }
+    };
+
+    if (state.schedule.tasks) state.schedule.tasks.forEach(clearTaskTag);
+    if (state.schedule.days) {
+      Object.values(state.schedule.days).forEach(day => {
+        if (day.tasks) day.tasks.forEach(clearTaskTag);
+      });
+    }
+
+    this.saveState(state);
+    return { success: true };
+  },
+
+  countTasksByTag(tagName) {
+    if (!tagName) return 0;
+    const state = this.getState();
+    const norm = tagName.trim().toLowerCase();
+    let count = 0;
+    if (state.schedule?.days) {
+      Object.values(state.schedule.days).forEach(day => {
+        (day.tasks || []).forEach(t => {
+          if ((t.tag || '').trim().toLowerCase() === norm) count++;
+        });
+      });
+    }
+    return count;
+  },
+
   getTasksByTag(tagName) {
     if (!tagName) return null;
     const state = this.getState();

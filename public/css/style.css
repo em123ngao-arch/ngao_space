@@ -4431,14 +4431,23 @@ body.theme-night .important-toggle-label {
   color: #fb923c;
 }
 
-/* 3. Filter Chips Strip */
+/* 3. Filter Chips Strip & CRUD Nhãn Dán */
 .day-tags-filter-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.tags-filter-chips-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  flex: 1;
+  padding-bottom: 2px;
 }
 
 .tags-filter-label {
@@ -4452,6 +4461,203 @@ body.theme-night .important-toggle-label {
   display: flex;
   gap: 6px;
   flex-wrap: nowrap;
+}
+
+.btn-manage-tags-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-main);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.btn-manage-tags-pill:hover {
+  background: var(--ocean-blue);
+  color: #ffffff;
+  border-color: var(--ocean-blue);
+  transform: translateY(-1px);
+}
+
+.btn-mini-tag-manage {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 9px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--card-border-subtle);
+  background: var(--card-subtle);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-mini-tag-manage:hover {
+  color: var(--ocean-blue);
+  border-color: var(--ocean-blue);
+  background: var(--card-bg-hover);
+}
+
+/* Modal Quản Lý Nhãn Dán */
+.manage-tags-modal-dialog {
+  max-width: 580px;
+  width: 95%;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.manage-tag-form {
+  background: var(--card-subtle);
+  border: 1px solid var(--card-border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tag-form-inputs-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.tag-color-swatches {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+.tag-color-swatch-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.tag-color-swatch-btn:hover {
+  transform: scale(1.15);
+}
+
+.tag-color-swatch-btn.selected {
+  border-color: var(--text-main);
+  box-shadow: 0 0 0 2px var(--card-bg), 0 0 8px rgba(0, 0, 0, 0.25);
+  transform: scale(1.1);
+}
+
+.tag-form-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.existing-tags-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.existing-tags-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--card-border-subtle);
+}
+
+.existing-tags-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.existing-tags-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.tag-manage-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border-subtle);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.tag-manage-row:hover {
+  background: var(--card-bg-hover);
+  border-color: var(--card-border);
+}
+
+.tag-manage-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tag-manage-count {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.tag-manage-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-tag-action-edit, .btn-tag-action-delete {
+  padding: 4px 9px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--card-border-subtle);
+  background: var(--card-subtle);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-tag-action-edit {
+  color: var(--ocean-blue);
+}
+
+.btn-tag-action-edit:hover {
+  background: var(--ocean-blue);
+  color: #fff;
+}
+
+.btn-tag-action-delete {
+  color: #ef4444;
+}
+
+.btn-tag-action-delete:hover {
+  background: #ef4444;
+  color: #fff;
 }
 
 .tag-filter-chip {

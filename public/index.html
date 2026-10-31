@@ -25,8 +25,8 @@
   <meta http-equiv="Pragma" content="no-cache">
 
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=42">
-  <link rel="stylesheet" href="css/responsive.css?v=42">
+  <link rel="stylesheet" href="css/style.css?v=43">
+  <link rel="stylesheet" href="css/responsive.css?v=43">
 </head>
 <body>
 
@@ -190,28 +190,6 @@
 
       <!-- VIEW 1: CHI TIẾT NGÀY (DÒNG THỜI GIAN SÁNG -> TỐI, CẢNH BÁO QUAN TRỌNG, NHÃN LIÊN KẾT) -->
       <section class="schedule-view-container" id="container-view-day">
-        <!-- Preset Selector & Daily Progress Strip -->
-        <div class="schedule-top-bar">
-          <div class="preset-selector-group">
-            <span class="preset-label">Mẫu lịch nhanh:</span>
-            <div class="preset-chips">
-              <button class="preset-chip" data-preset="campus">Ngày Học Trên Trường</button>
-              <button class="preset-chip" data-preset="self-study">Ngày Tự Học &amp; Đề Án</button>
-              <button class="preset-chip" data-preset="weekend">Cuối Tuần Hồi Phục</button>
-            </div>
-          </div>
-
-          <!-- Progress Summary -->
-          <div class="daily-progress-card">
-            <div class="progress-text-row">
-              <span class="progress-label" id="progress-date-label">Tiến độ hôm nay</span>
-              <span class="progress-val" id="progress-fraction">0/0 việc (0%)</span>
-            </div>
-            <div class="progress-bar-track">
-              <div class="progress-bar-fill" id="daily-progress-bar" style="width: 0%;"></div>
-            </div>
-          </div>
-        </div>
 
         <!-- Thêm Việc Linh Hoạt (Không ép cứng 3 buổi) -->
         <div class="day-add-task-card">
@@ -227,6 +205,7 @@
             <div class="day-add-field-group">
               <span class="day-field-label">🏷️ Nhãn môn/dự án:</span>
               <select id="day-select-tag" class="form-input form-input-sm day-tag-select"></select>
+              <button type="button" class="btn-mini-tag-manage" id="btn-quick-manage-tags" title="Tạo mới, sửa màu hoặc xóa nhãn dán">⚙️ Quản lý nhãn</button>
             </div>
             <label class="day-important-toggle" title="Đánh dấu việc quan trọng / deadline để cảnh báo viền nổi bật">
               <input type="checkbox" id="day-checkbox-important">
@@ -235,9 +214,18 @@
           </div>
         </div>
 
-        <!-- Tag Quick Filter Strip -->
+        <!-- Tag Quick Filter Strip & CRUD Nhãn Dán Button -->
         <div class="day-tags-filter-bar">
-          <span class="tags-filter-label">Lọc nhanh theo nhãn:</span>
+          <div class="tags-filter-chips-wrap">
+            <span class="tags-filter-label">🏷️ Lọc nhãn:</span>
+            <div class="tags-filter-chips" id="day-tags-filter-chips">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+          <button type="button" class="btn-manage-tags-pill" id="btn-open-manage-tags" title="Tạo mới, đổi màu hoặc xóa nhãn dán">
+            <span>⚙️ Quản Lý Nhãn Dán</span>
+          </button>
+        </div>
           <div class="tags-filter-chips" id="day-tags-filter-chips">
             <!-- Rendered dynamically -->
           </div>
@@ -935,6 +923,66 @@
     </div>
   </div>
 
+  <!-- Modal Quản Lý Nhãn Dán (CRUD Nhãn Dán) -->
+  <div class="modal-backdrop" id="modal-manage-tags" aria-hidden="true">
+    <div class="modal-dialog manage-tags-modal-dialog">
+      <div class="manage-tags-modal-header">
+        <div class="title-with-icon">
+          <span class="icon-circle small blue">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+              <line x1="7" y1="7" x2="7.01" y2="7"></line>
+            </svg>
+          </span>
+          <div>
+            <h3 class="modal-title">Quản Lý Nhãn Dán (Tags)</h3>
+            <p class="modal-message">Tạo nhãn mới, chọn màu, chỉnh sửa hoặc xóa nhãn dán</p>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" id="btn-close-manage-tags" title="Đóng (Esc)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="manage-tags-modal-body">
+        <!-- Form Thêm / Cập Nhật Nhãn -->
+        <form id="form-manage-tag" class="manage-tag-form">
+          <input type="hidden" id="tag-form-original-name" value="">
+          <div class="tag-form-inputs-row">
+            <div class="form-group-cloud" style="flex: 1;">
+              <label for="tag-form-name" id="tag-form-title-label">Tên nhãn môn / dự án</label>
+              <input type="text" id="tag-form-name" class="form-input" placeholder="Ví dụ: Admin môn JAVA, Đề Án..." required>
+            </div>
+            <div class="form-group-cloud">
+              <label>Màu sắc</label>
+              <div class="tag-color-swatches" id="tag-color-swatches">
+                <!-- Color options rendered dynamically -->
+              </div>
+            </div>
+          </div>
+          <div class="tag-form-actions-row">
+            <button type="button" class="btn-secondary btn-sm" id="btn-cancel-edit-tag" style="display: none;">Hủy sửa</button>
+            <button type="submit" class="btn-primary btn-sm" id="btn-submit-tag">+ Tạo Nhãn Mới</button>
+          </div>
+        </form>
+
+        <!-- Danh Sách Nhãn Hiện Có -->
+        <div class="existing-tags-section">
+          <div class="existing-tags-header">
+            <span class="existing-tags-title">Danh sách nhãn hiện tại</span>
+            <span class="existing-tags-count" id="manage-tags-total-count">0 nhãn</span>
+          </div>
+          <div class="existing-tags-list" id="manage-tags-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal Hướng Dẫn Sử Dụng Nhanh NgaOS -->
   <div class="modal-backdrop" id="modal-guide" aria-hidden="true">
     <div class="modal-dialog guide-modal-dialog">
@@ -1134,16 +1182,16 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <!-- Modular Scripts -->
-  <script src="js/icons.js?v=42"></script>
-  <script src="js/storage.js?v=42"></script>
-  <script src="js/firebase-config.js?v=42"></script>
-  <script src="js/cloud-sync.js?v=42"></script>
-  <script src="js/auth.js?v=42"></script>
-  <script src="js/ocean-waves.js?v=42"></script>
-  <script src="js/schedule.js?v=42"></script>
-  <script src="js/finance.js?v=42"></script>
-  <script src="js/chat.js?v=42"></script>
-  <script src="js/app.js?v=42"></script>
+  <script src="js/icons.js?v=43"></script>
+  <script src="js/storage.js?v=43"></script>
+  <script src="js/firebase-config.js?v=43"></script>
+  <script src="js/cloud-sync.js?v=43"></script>
+  <script src="js/auth.js?v=43"></script>
+  <script src="js/ocean-waves.js?v=43"></script>
+  <script src="js/schedule.js?v=43"></script>
+  <script src="js/finance.js?v=43"></script>
+  <script src="js/chat.js?v=43"></script>
+  <script src="js/app.js?v=43"></script>
 
 </body>
 </html>

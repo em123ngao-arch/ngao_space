@@ -104,26 +104,27 @@ window.ScheduleModule = {
       this.goToToday();
     });
 
-    // 5. Preset Chips (Áp dụng cho ngày đang xem)
-    const presetChips = document.querySelectorAll('.preset-chip');
-    presetChips.forEach(chip => {
-      chip.addEventListener('click', () => {
-        const presetKey = chip.getAttribute('data-preset');
-        if (!presetKey) return;
+    // 5. Modal Quản Lý Nhãn Dán (CRUD Tags) Events
+    const btnOpenManageTags = document.getElementById('btn-open-manage-tags');
+    const btnQuickManageTags = document.getElementById('btn-quick-manage-tags');
+    const btnCloseManageTags = document.getElementById('btn-close-manage-tags');
+    const modalManageTags = document.getElementById('modal-manage-tags');
+    const formManageTag = document.getElementById('form-manage-tag');
+    const btnCancelEditTag = document.getElementById('btn-cancel-edit-tag');
 
-        StorageManager.loadPreset(presetKey, this.selectedDate);
-        this.render();
+    btnOpenManageTags?.addEventListener('click', () => this.openManageTagsModal());
+    btnQuickManageTags?.addEventListener('click', () => this.openManageTagsModal());
+    btnCloseManageTags?.addEventListener('click', () => this.closeManageTagsModal());
 
-        const names = {
-          campus: 'Ngày Học Trên Trường',
-          'self-study': 'Ngày Tự Học & Đề Án',
-          weekend: 'Cuối Tuần Hồi Phục'
-        };
-        if (window.showToast) {
-          window.showToast(`Đã áp dụng mẫu: ${names[presetKey] || presetKey}`, 'success');
-        }
-        if (window.playChime) window.playChime(620, 0.18);
-      });
+    modalManageTags?.addEventListener('click', (e) => {
+      if (e.target === modalManageTags) this.closeManageTagsModal();
+    });
+
+    btnCancelEditTag?.addEventListener('click', () => this.resetTagForm());
+
+    formManageTag?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.handleTagFormSubmit();
     });
 
     // 6. Modal Tag Chain Events
@@ -179,6 +180,7 @@ window.ScheduleModule = {
         this.closeQuickAddModal();
         this.closeEditTaskModal();
         this.closeMonthModal();
+        this.closeManageTagsModal();
       }
     });
   },
@@ -1049,6 +1051,208 @@ window.ScheduleModule = {
 
     if (window.showToast) window.showToast('Đã lưu thay đổi nhiệm vụ!', 'success');
     if (window.playChime) window.playChime(760, 0.16);
+  },
+
+  // --------------------------------------------------------------------------
+  // MODAL QUẢN LÝ NHÃN DÁN (FULL CRUD TAGS)
+  // --------------------------------------------------------------------------
+  selectedTagColor: 'orange',
+
+  openManageTagsModal() {
+    const modal = document.getElementById('modal-manage-tags');
+    this.resetTagForm();
+    this.renderTagColorSwatches();
+    this.renderManageTagsList();
+
+    if (modal) {
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+    const input = document.getElementById('tag-form-name');
+    setTimeout(() => input?.focus(), 50);
+    if (window.playChime) window.playChime(620, 0.1);
+  },
+
+  closeManageTagsModal() {
+    const modal = document.getElementById('modal-manage-tags');
+    if (modal) {
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+  },
+
+  renderTagColorSwatches() {
+    const container = document.getElementById('tag-color-swatches');
+    if (!container) return;
+
+    const palette = StorageManager.TAG_PALETTE;
+    const colors = Object.keys(palette);
+
+    container.innerHTML = colors.map(c => {
+      const isSelected = c === this.selectedTagColor;
+      const dotColor = palette[c].dot;
+      return `
+        <button type="button" class="tag-color-swatch-btn ${isSelected ? 'selected' : ''}" 
+                data-color="${c}" 
+                style="background-color: ${dotColor};" 
+                title="${palette[c].name}">
+        </button>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.tag-color-swatch-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const c = btn.getAttribute('data-color');
+        if (c) {
+          this.selectedTagColor = c;
+          this.renderTagColorSwatches();
+        }
+      });
+    });
+  },
+
+  renderManageTagsList() {
+    const listContainer = document.getElementById('manage-tags-list');
+    const countBadge = document.getElementById('manage-tags-total-count');
+    if (!listContainer) return;
+
+    const tags = StorageManager.getAllTags();
+    if (countBadge) countBadge.textContent = `${tags.length} nhãn`;
+
+    if (tags.length === 0) {
+      listContainer.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 12.5px; padding: 16px;">Chưa có nhãn nào. Hãy tạo nhãn mới ở trên.</div>`;
+      return;
+    }
+
+    listContainer.innerHTML = tags.map(t => {
+      const taskCount = StorageManager.countTasksByTag(t.name);
+      return `
+        <div class="tag-manage-row" data-tag-name="${this.escapeHTML(t.name)}">
+          <div class="tag-manage-left">
+            <span class="tag-pill tag-pill-${t.color}">
+              ${this.escapeHTML(t.name)}
+            </span>
+            <span class="tag-manage-count">${taskCount} công việc</span>
+          </div>
+          <div class="tag-manage-actions">
+            <button type="button" class="btn-tag-action-edit" data-tag="${this.escapeHTML(t.name)}" title="Sửa tên hoặc màu nhãn">
+              Sửa
+            </button>
+            <button type="button" class="btn-tag-action-delete" data-tag="${this.escapeHTML(t.name)}" title="Xóa nhãn này">
+              Xóa
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Bắt sự kiện Sửa nhãn
+    listContainer.querySelectorAll('.btn-tag-action-edit').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const name = btn.getAttribute('data-tag');
+        this.editTagInModal(name);
+      });
+    });
+
+    // Bắt sự kiện Xóa nhãn
+    listContainer.querySelectorAll('.btn-tag-action-delete').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const name = btn.getAttribute('data-tag');
+        this.deleteTagInModal(name);
+      });
+    });
+  },
+
+  editTagInModal(name) {
+    const inputOrig = document.getElementById('tag-form-original-name');
+    const inputName = document.getElementById('tag-form-name');
+    const labelTitle = document.getElementById('tag-form-title-label');
+    const btnSubmit = document.getElementById('btn-submit-tag');
+    const btnCancel = document.getElementById('btn-cancel-edit-tag');
+
+    const tags = StorageManager.getAllTags();
+    const found = tags.find(t => t.name.toLowerCase() === name.toLowerCase());
+    if (!found) return;
+
+    if (inputOrig) inputOrig.value = found.name;
+    if (inputName) inputName.value = found.name;
+    if (labelTitle) labelTitle.textContent = `Đang sửa nhãn: "${found.name}"`;
+    if (btnSubmit) btnSubmit.textContent = 'Lưu Thay Đổi';
+    if (btnCancel) btnCancel.style.display = 'inline-block';
+
+    this.selectedTagColor = found.color || 'orange';
+    this.renderTagColorSwatches();
+    inputName?.focus();
+  },
+
+  deleteTagInModal(name) {
+    if (!confirm(`Bạn có chắc chắn muốn xóa nhãn "${name}" không?`)) return;
+
+    const res = StorageManager.deleteTag(name);
+    if (res.success) {
+      if (this.filterTag && this.filterTag.toLowerCase() === name.toLowerCase()) {
+        this.filterTag = null;
+      }
+      this.renderManageTagsList();
+      this.render();
+      if (window.showToast) window.showToast(`Đã xóa nhãn "${name}".`, 'info');
+      if (window.playChime) window.playChime(480, 0.1);
+    }
+  },
+
+  resetTagForm() {
+    const inputOrig = document.getElementById('tag-form-original-name');
+    const inputName = document.getElementById('tag-form-name');
+    const labelTitle = document.getElementById('tag-form-title-label');
+    const btnSubmit = document.getElementById('btn-submit-tag');
+    const btnCancel = document.getElementById('btn-cancel-edit-tag');
+
+    if (inputOrig) inputOrig.value = '';
+    if (inputName) inputName.value = '';
+    if (labelTitle) labelTitle.textContent = 'Tên nhãn môn / dự án mới';
+    if (btnSubmit) btnSubmit.textContent = '+ Tạo Nhãn Mới';
+    if (btnCancel) btnCancel.style.display = 'none';
+
+    this.selectedTagColor = 'orange';
+    this.renderTagColorSwatches();
+  },
+
+  handleTagFormSubmit() {
+    const inputOrig = document.getElementById('tag-form-original-name');
+    const inputName = document.getElementById('tag-form-name');
+    const originalName = inputOrig?.value || '';
+    const newName = (inputName?.value || '').trim();
+
+    if (!newName) {
+      if (window.showToast) window.showToast('Vui lòng nhập tên nhãn!', 'warning');
+      return;
+    }
+
+    if (originalName) {
+      // Update Tag
+      const res = StorageManager.updateTag(originalName, newName, this.selectedTagColor);
+      if (!res.success) {
+        if (window.showToast) window.showToast(res.message, 'warning');
+        return;
+      }
+      if (this.filterTag && this.filterTag.toLowerCase() === originalName.toLowerCase()) {
+        this.filterTag = newName;
+      }
+      if (window.showToast) window.showToast(`Đã cập nhật nhãn: "${newName}"!`, 'success');
+    } else {
+      // Create Tag
+      const res = StorageManager.createTag(newName, this.selectedTagColor);
+      if (!res.success) {
+        if (window.showToast) window.showToast(res.message, 'warning');
+        return;
+      }
+      if (window.showToast) window.showToast(`Đã tạo nhãn mới: "${newName}"!`, 'success');
+    }
+
+    this.resetTagForm();
+    this.renderManageTagsList();
+    this.render();
+    if (window.playChime) window.playChime(760, 0.15);
   },
 
   closeMonthModal() {
