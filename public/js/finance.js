@@ -37,6 +37,15 @@ function getWeekInfo() {
   };
 }
 
+function formatLocalDateStr(d) {
+  if (!d) return '';
+  const dateObj = (typeof d === 'string') ? new Date(d) : d;
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function getCurrentWeekDates() {
   const now = new Date();
   const currentDay = now.getDay();
@@ -53,7 +62,7 @@ function getCurrentWeekDates() {
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = formatLocalDateStr(d);
     const isToday = d.toDateString() === now.toDateString();
 
     days.push({
@@ -103,7 +112,7 @@ window.FinanceModule = {
   setDefaultDateInput() {
     const transDateInput = document.getElementById('trans-date');
     if (transDateInput) {
-      transDateInput.value = new Date().toISOString().split('T')[0];
+      transDateInput.value = formatLocalDateStr(new Date());
     }
   },
 
@@ -187,9 +196,15 @@ window.FinanceModule = {
 
       let selectedIso = new Date().toISOString();
       if (inputDate && inputDate.value) {
-        const picked = new Date(inputDate.value);
-        picked.setHours(new Date().getHours(), new Date().getMinutes());
-        selectedIso = picked.toISOString();
+        const parts = inputDate.value.split('-');
+        if (parts.length === 3) {
+          const year = parseInt(parts[0], 10);
+          const month = parseInt(parts[1], 10) - 1;
+          const day = parseInt(parts[2], 10);
+          const now = new Date();
+          const localDate = new Date(year, month, day, now.getHours(), now.getMinutes(), now.getSeconds());
+          selectedIso = localDate.toISOString();
+        }
       }
 
       StorageManager.addTransaction({
@@ -512,7 +527,7 @@ window.FinanceModule = {
         let dayTotal = 0;
         transactions.forEach(t => {
           const tDate = new Date(t.date);
-          const tDateStr = tDate.toISOString().split('T')[0];
+          const tDateStr = formatLocalDateStr(tDate);
           if (tDateStr === dayInfo.dateStr && t.type === 'expense') {
             dayTotal += t.amount;
           }
@@ -641,7 +656,7 @@ window.FinanceModule = {
       let filteredTx = transactions;
       if (this.selectedDayFilter) {
         filteredTx = transactions.filter(t => {
-          const tDateStr = new Date(t.date).toISOString().split('T')[0];
+          const tDateStr = formatLocalDateStr(new Date(t.date));
           return tDateStr === this.selectedDayFilter;
         });
       }

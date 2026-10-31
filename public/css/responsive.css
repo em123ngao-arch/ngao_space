@@ -16,8 +16,8 @@
 /* Mobile Screens (<= 768px) */
 @media (max-width: 768px) {
   .app-container {
-    padding: 12px 14px 60px;
-    gap: 16px;
+    padding: 10px 12px 96px;
+    gap: 14px;
   }
 
   /* Header on Mobile */
@@ -26,8 +26,8 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    padding: 12px 14px;
+    gap: 8px;
+    padding: 10px 12px;
   }
 
   .header-left {
@@ -35,7 +35,11 @@
   }
 
   .brand-title {
-    font-size: 18px;
+    font-size: 17px;
+  }
+
+  .brand-sub {
+    font-size: 10px;
   }
 
   .date-badge {
@@ -43,8 +47,9 @@
   }
 
   .header-right {
-    gap: 6px;
+    gap: 5px;
     align-items: center;
+    flex-wrap: nowrap;
   }
 
   .user-profile-btn {
@@ -64,25 +69,36 @@
     display: none;
   }
 
+  .switch-chevron {
+    font-size: 9px;
+  }
+
   .cloud-status-pill {
-    padding: 4px 7px;
+    padding: 5px 8px;
     font-size: 11px;
+    min-height: 32px;
   }
 
   .cloud-status-pill .cloud-pill-text {
     display: none;
   }
 
-  .gentle-love-pill {
-    padding: 4px 8px;
-    font-size: 11px;
+  .ocean-theme-toggle-btn,
+  .ocean-sound-toggle-btn,
+  .ocean-help-btn {
+    padding: 5px 8px;
+    min-width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-pill);
   }
 
-  .gentle-love-pill span.love-text {
-    max-width: 130px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .theme-toggle-text,
+  .sound-toggle-text,
+  .help-btn-text {
+    display: none !important;
   }
 
   .segmented-control {
@@ -90,13 +106,16 @@
     order: 3;
     margin-top: 4px;
     padding: 3px;
+    border-radius: var(--radius-pill);
   }
 
   .seg-btn {
     flex: 1;
     justify-content: center;
-    padding: 8px 10px;
-    font-size: 12px;
+    padding: 9px 12px;
+    font-size: 12.5px;
+    font-weight: 600;
+    min-height: 42px;
   }
 
   /* Schedule Tab on Mobile */
@@ -189,18 +208,39 @@
 
   .incard-meta-row {
     width: 100%;
-    gap: 6px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    align-items: center;
   }
 
   .incard-time-range-picker {
-    flex: 1;
-    min-width: 130px;
+    width: 100%;
+    display: flex;
+    align-items: center;
     justify-content: space-between;
+    gap: 2px;
+    background: var(--bg-surface);
+    border: 1px solid var(--card-border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 3px 6px;
+    min-height: 38px;
+  }
+
+  .incard-time-range-picker select {
+    border: none;
+    background: transparent;
+    padding: 2px;
+    font-size: 11.5px;
+    font-weight: 500;
+    max-width: 48%;
   }
 
   .incard-cat-select {
-    flex: 1;
-    min-width: 90px;
+    width: 100%;
+    min-height: 38px;
+    font-size: 12px;
+    padding: 4px 8px;
   }
 
   .incard-quick-presets {
@@ -233,15 +273,29 @@
   }
 
   .deposit-buttons-group {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .deposit-label {
+    width: 100%;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 2px;
   }
 
   .btn-deposit {
-    padding: 6px 2px;
-    font-size: 11px;
+    flex: 1 1 calc(25% - 6px);
+    padding: 7px 4px;
+    font-size: 11.5px;
+    font-weight: 600;
     text-align: center;
+    border-radius: var(--radius-sm);
+    min-height: 36px;
   }
 
   .goal-custom-inputs {
@@ -260,14 +314,19 @@
   }
 
   .days-comparison-grid {
-    gap: 5px;
-    overflow-x: auto;
-    padding-bottom: 6px;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    padding: 6px 0;
   }
 
   .day-column-card {
-    padding: 8px 4px;
-    min-width: 42px;
+    padding: 6px 2px;
+    min-width: 0;
+  }
+
+  .day-spend-label {
+    font-size: 8.5px;
   }
 
   .day-spend-label {
@@ -330,18 +389,40 @@
     max-height: 270px;
   }
 
-  /* Floating Chat & Live Monitor on Mobile */
+  /* Floating Chat on Mobile (Compact Messenger-Style Bubble) */
   .floating-chat-btn {
-    bottom: 16px;
-    right: 14px;
-    padding: 5px 12px 5px 6px;
-    font-size: 12px;
-    gap: 8px;
+    bottom: 18px;
+    right: 16px;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 18px rgba(2, 132, 199, 0.38);
+  }
+
+  .floating-chat-btn .chat-btn-text-wrap {
+    display: none;
   }
 
   .chat-btn-avatar-wrap {
-    width: 28px;
-    height: 28px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+
+  .floating-chat-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .chat-badge-count {
+    top: -2px;
+    right: -2px;
   }
 
   .floating-chat-drawer {
@@ -407,23 +488,6 @@
 
   .cell-ratio-label {
     font-size: 8.5px;
-  }
-
-  .analytics-kpi-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .bar-row-item {
-    grid-template-columns: 75px 1fr 55px;
-    gap: 8px;
-  }
-
-  .bar-row-label {
-    font-size: 11px;
-  }
-
-  .bar-row-metrics {
-    font-size: 10.5px;
   }
 
   /* Quick Guide Modal Responsive */

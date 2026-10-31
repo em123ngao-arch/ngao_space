@@ -6,6 +6,24 @@
 const STORAGE_KEY = 'NGAOS_STATE_V3';
 const AUTH_KEY = 'NGAOS_AUTH_V3';
 
+const TAG_PALETTE = {
+  orange:  { name: 'Cam', bg: '#fff7ed', border: '#fdba74', text: '#c2410c', badgeBg: '#ffedd5', badgeText: '#9a3412', dot: '#f97316' },
+  blue:    { name: 'Xanh dương', bg: '#eff6ff', border: '#93c5fd', text: '#1d4ed8', badgeBg: '#dbeafe', badgeText: '#1e40af', dot: '#3b82f6' },
+  purple:  { name: 'Tím', bg: '#faf5ff', border: '#d8b4fe', text: '#7e22ce', badgeBg: '#f3e8ff', badgeText: '#6b21a8', dot: '#a855f7' },
+  emerald: { name: 'Xanh ngọc', bg: '#ecfdf5', border: '#6ee7b7', text: '#047857', badgeBg: '#d1fae5', badgeText: '#065f46', dot: '#10b981' },
+  rose:    { name: 'Đỏ hồng', bg: '#fff1f2', border: '#fda4af', text: '#be123c', badgeBg: '#ffe4e6', badgeText: '#9f1239', dot: '#f43f5e' },
+  amber:   { name: 'Hổ phách', bg: '#fffbeb', border: '#fcd34d', text: '#b45309', badgeBg: '#fef3c7', badgeText: '#92400e', dot: '#f59e0b' }
+};
+
+const DEFAULT_TAGS = [
+  { name: 'Admin môn JAVA', color: 'orange' },
+  { name: 'Chuyên Môn', color: 'purple' },
+  { name: 'Đề Án', color: 'blue' },
+  { name: 'Sinh Hoạt', color: 'emerald' },
+  { name: 'Ôn Thi', color: 'amber' },
+  { name: 'Deadline Gấp', color: 'rose' }
+];
+
 const AUTH_USERS = [
   { id: 'bao', name: 'Bảo', role: 'Người đồng hành', pin: '1234', avatarColor: '#0284c7', avatarUrl: 'assets/avatars/bao.png' },
   { id: 'ngan', name: 'Ngân', role: 'Chủ nhân không gian', pin: '5678', avatarColor: '#059669', avatarUrl: 'assets/avatars/ngan.png' }
@@ -45,17 +63,39 @@ const PRESET_TEMPLATES = {
 function getCleanInitialState() {
   const d = new Date();
   const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  const defaultTasks = JSON.parse(JSON.stringify(PRESET_TEMPLATES['self-study']));
+  
+  // Ngày mai để demo tính năng liên kết công việc
+  const tomorrowObj = new Date(d);
+  tomorrowObj.setDate(d.getDate() + 1);
+  const tomorrow = `${tomorrowObj.getFullYear()}-${String(tomorrowObj.getMonth() + 1).padStart(2, '0')}-${String(tomorrowObj.getDate()).padStart(2, '0')}`;
+
+  const defaultTasks = [
+    { id: 't_java_1', time: '08:30', title: 'Admin môn JAVA: Thiết kế giao diện quản trị viên & Đăng ký môn', tag: 'Admin môn JAVA', tagColor: 'orange', important: true, completed: false, period: 'morning' },
+    { id: 's2', time: '10:00', title: 'Nghiên cứu tài liệu chuyên sâu & viết đề án (Deep Work)', tag: 'Đề Án', tagColor: 'blue', important: false, completed: false, period: 'morning' },
+    { id: 's4', time: '14:30', title: 'Thực hành bài tập đề án, sửa lỗi & hoàn thiện báo cáo', tag: 'Đề Án', tagColor: 'blue', important: true, completed: false, period: 'afternoon' },
+    { id: 's7', time: '20:15', title: 'Đọc 1 chương sách chuyên môn & tổng hợp ghi chú', tag: 'Chuyên Môn', tagColor: 'purple', important: false, completed: false, period: 'evening' }
+  ];
+
+  const tomorrowTasks = [
+    { id: 't_java_2', time: '09:00', title: 'Admin môn JAVA: Viết API phân quyền Spring Security & Test Postman', tag: 'Admin môn JAVA', tagColor: 'orange', important: true, completed: false, period: 'morning' },
+    { id: 't_review', time: '15:00', title: 'Họp nhóm tổng kết tuần & Review tiến độ', tag: 'Chuyên Môn', tagColor: 'purple', important: false, completed: false, period: 'afternoon' }
+  ];
 
   return {
     version: 3,
     schedule: {
+      viewMode: 'day',
       activePreset: 'self-study',
+      tags: JSON.parse(JSON.stringify(DEFAULT_TAGS)),
       tasks: defaultTasks,
       days: {
         [today]: {
           activePreset: 'self-study',
           tasks: defaultTasks
+        },
+        [tomorrow]: {
+          activePreset: 'self-study',
+          tasks: tomorrowTasks
         }
       }
     },
@@ -155,6 +195,54 @@ const StorageManager = {
         parsed.chat = getCleanInitialState().chat;
         this.saveState(parsed);
       }
+
+      // Tương thích ngược: Đảm bảo có tags & migrate task sang schema mới
+      if (!Array.isArray(parsed.schedule.tags)) {
+        parsed.schedule.tags = JSON.parse(JSON.stringify(DEFAULT_TAGS));
+      }
+      if (!parsed.schedule.viewMode) {
+        parsed.schedule.viewMode = 'day';
+      }
+
+      let stateMigrated = false;
+      const migrateTaskObj = (t) => {
+        if (!t.tag) {
+          stateMigrated = true;
+          if (t.title && t.title.toLowerCase().includes('java')) {
+            t.tag = 'Admin môn JAVA';
+            t.tagColor = 'orange';
+            t.important = true;
+          } else if (t.category === 'project') {
+            t.tag = 'Đề Án';
+            t.tagColor = 'blue';
+          } else if (t.category === 'routine' || t.category === 'health') {
+            t.tag = 'Sinh Hoạt';
+            t.tagColor = 'emerald';
+          } else {
+            t.tag = 'Chuyên Môn';
+            t.tagColor = 'purple';
+          }
+        }
+        if (!t.tagColor) {
+          t.tagColor = t.tag === 'Admin môn JAVA' ? 'orange' : 'purple';
+          stateMigrated = true;
+        }
+        if (t.important === undefined) {
+          t.important = false;
+          stateMigrated = true;
+        }
+      };
+
+      if (parsed.schedule.tasks) parsed.schedule.tasks.forEach(migrateTaskObj);
+      if (parsed.schedule.days) {
+        Object.values(parsed.schedule.days).forEach(day => {
+          if (day.tasks) day.tasks.forEach(migrateTaskObj);
+        });
+      }
+      if (stateMigrated) {
+        this.saveState(parsed);
+      }
+
       return parsed;
     } catch (e) {
       console.warn('Khởi tạo lại state V3 chuẩn:', e);
@@ -340,6 +428,149 @@ const StorageManager = {
   // --------------------------------------------------------------------------
   // Schedule Operations (Date-aware: Month / Week / Day)
   // --------------------------------------------------------------------------
+  TAG_PALETTE,
+  DEFAULT_TAGS,
+
+  getAllTags() {
+    const state = this.getState();
+    return state.schedule?.tags || DEFAULT_TAGS;
+  },
+
+  getTagColor(tagName) {
+    if (!tagName) return 'orange';
+    const tags = this.getAllTags();
+    const found = tags.find(t => t.name.toLowerCase() === tagName.trim().toLowerCase());
+    return found ? found.color : 'orange';
+  },
+
+  registerTag(tagName, color = 'orange') {
+    if (!tagName || !tagName.trim()) return;
+    const name = tagName.trim();
+    const state = this.getState();
+    if (!state.schedule.tags) state.schedule.tags = JSON.parse(JSON.stringify(DEFAULT_TAGS));
+    const exists = state.schedule.tags.find(t => t.name.toLowerCase() === name.toLowerCase());
+    if (!exists) {
+      state.schedule.tags.push({ name, color });
+      this.saveState(state);
+    } else if (color && exists.color !== color) {
+      exists.color = color;
+      this.saveState(state);
+    }
+  },
+
+  getTasksByTag(tagName) {
+    if (!tagName) return null;
+    const state = this.getState();
+    const todayStr = this.getTodayDateStr();
+    const days = state.schedule?.days || {};
+    const normTag = tagName.trim().toLowerCase();
+    const color = this.getTagColor(tagName);
+
+    const result = {
+      tag: tagName,
+      color: color,
+      past: [],
+      today: [],
+      future: [],
+      totalCount: 0,
+      completedCount: 0
+    };
+
+    const sortedDates = Object.keys(days).sort();
+    for (const dStr of sortedDates) {
+      const dayTasks = days[dStr]?.tasks || [];
+      const matches = dayTasks.filter(t => (t.tag || '').trim().toLowerCase() === normTag);
+      for (const t of matches) {
+        const item = { ...t, date: dStr };
+        result.totalCount++;
+        if (t.completed) result.completedCount++;
+
+        if (dStr < todayStr) {
+          result.past.push(item);
+        } else if (dStr === todayStr) {
+          result.today.push(item);
+        } else {
+          result.future.push(item);
+        }
+      }
+    }
+
+    return result;
+  },
+
+  getFourWeeksData(anchorDateStr) {
+    const todayStr = this.getTodayDateStr();
+    const anchor = new Date(anchorDateStr || todayStr);
+    
+    // Tìm Thứ Hai của tuần chứa anchorDateStr
+    const dayOfWeek = anchor.getDay(); // 0: CN, 1: T2, ..., 6: T7
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const firstMonday = new Date(anchor);
+    firstMonday.setDate(anchor.getDate() + diffToMonday);
+
+    const weeks = [];
+    const dayNames = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+
+    for (let w = 0; w < 4; w++) {
+      const weekStartDate = new Date(firstMonday);
+      weekStartDate.setDate(firstMonday.getDate() + w * 7);
+
+      const weekDays = [];
+      let totalTasks = 0;
+      let completedTasks = 0;
+
+      for (let d = 0; d < 7; d++) {
+        const curDate = new Date(weekStartDate);
+        curDate.setDate(weekStartDate.getDate() + d);
+
+        const y = curDate.getFullYear();
+        const m = String(curDate.getMonth() + 1).padStart(2, '0');
+        const dt = String(curDate.getDate()).padStart(2, '0');
+        const dateStr = `${y}-${m}-${dt}`;
+
+        const tasks = this.getDayTasks(dateStr);
+        const dayTotal = tasks.length;
+        const dayDone = tasks.filter(t => t.completed).length;
+
+        totalTasks += dayTotal;
+        completedTasks += dayDone;
+
+        weekDays.push({
+          dateStr,
+          dayNumber: curDate.getDate(),
+          monthNumber: curDate.getMonth() + 1,
+          dayName: dayNames[d],
+          isToday: dateStr === todayStr,
+          isPast: dateStr < todayStr,
+          tasks,
+          total: dayTotal,
+          completed: dayDone
+        });
+      }
+
+      const weekEndDate = new Date(weekStartDate);
+      weekEndDate.setDate(weekStartDate.getDate() + 6);
+
+      const percent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+      
+      let weekLabel = w === 0 ? 'Tuần Này (Hiện Tại)' : (w === 1 ? 'Tuần Tới (+1)' : `Tuần +${w}`);
+      const startStr = `${weekStartDate.getDate()}/${weekStartDate.getMonth() + 1}`;
+      const endStr = `${weekEndDate.getDate()}/${weekEndDate.getMonth() + 1}`;
+
+      weeks.push({
+        weekIndex: w,
+        label: weekLabel,
+        rangeStr: `${startStr} - ${endStr}`,
+        days: weekDays,
+        totalTasks,
+        completedTasks,
+        percent
+      });
+    }
+
+    return weeks;
+  },
+
   getTodayDateStr() {
     const d = new Date();
     const year = d.getFullYear();
@@ -397,17 +628,47 @@ const StorageManager = {
     return state;
   },
 
-  addTask({ period, time, title, category, date }) {
+  addTask({ period, time, title, category, date, tag, tagColor, important }) {
     const targetDate = date || this.getTodayDateStr();
     const state = this.getState();
     const currentUser = this.getCurrentUser();
+
+    let taskTag = (tag || '').trim();
+    let taskColor = tagColor;
+
+    if (!taskTag) {
+      if (title.toLowerCase().includes('java')) {
+        taskTag = 'Admin môn JAVA';
+        taskColor = 'orange';
+      } else if (category === 'project') {
+        taskTag = 'Đề Án';
+        taskColor = 'blue';
+      } else if (category === 'routine' || category === 'health') {
+        taskTag = 'Sinh Hoạt';
+        taskColor = 'emerald';
+      } else {
+        taskTag = 'Chuyên Môn';
+        taskColor = 'purple';
+      }
+    }
+
+    if (!taskColor) {
+      taskColor = this.getTagColor(taskTag);
+    }
+
+    this.registerTag(taskTag, taskColor);
+
     const newTask = {
       id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
       period: period || 'morning',
       time: (time || '').trim(),
       title: title.trim(),
       category: category || 'study',
+      tag: taskTag,
+      tagColor: taskColor,
+      important: !!important,
       completed: false,
+      completedAt: null,
       createdBy: currentUser.id,
       date: targetDate
     };
@@ -430,6 +691,7 @@ const StorageManager = {
     const task = dayData.tasks.find(t => t.id === taskId);
     if (task) {
       task.completed = !task.completed;
+      task.completedAt = task.completed ? new Date().toISOString() : null;
       if (targetDate === this.getTodayDateStr()) {
         state.schedule.tasks = dayData.tasks;
       }
@@ -448,6 +710,12 @@ const StorageManager = {
       if (updates.time !== undefined) task.time = (updates.time || '').trim();
       if (updates.category !== undefined) task.category = updates.category;
       if (updates.period !== undefined) task.period = updates.period;
+      if (updates.tag !== undefined) task.tag = (updates.tag || '').trim();
+      if (updates.tagColor !== undefined) task.tagColor = updates.tagColor;
+      if (updates.important !== undefined) task.important = !!updates.important;
+      if (task.tag) {
+        this.registerTag(task.tag, task.tagColor || this.getTagColor(task.tag));
+      }
       if (targetDate === this.getTodayDateStr()) {
         state.schedule.tasks = dayData.tasks;
       }
@@ -466,60 +734,6 @@ const StorageManager = {
     }
     this.saveState(state);
     return state;
-  },
-
-  // --------------------------------------------------------------------------
-  // Growth Journal Operations (Tổng Kết & Nhật Ký Trưởng Thành Cuối Ngày)
-  // --------------------------------------------------------------------------
-  getDayJournal(dateStr) {
-    const targetDate = dateStr || this.getTodayDateStr();
-    const state = this.getState();
-    const dayData = this.ensureDaySchedule(state, targetDate);
-    if (!dayData.growthJournal) {
-      dayData.growthJournal = {
-        ngan: null,
-        bao: null
-      };
-    }
-    return dayData.growthJournal;
-  },
-
-  saveDayJournal(dateStr, userId, journalData) {
-    const targetDate = dateStr || this.getTodayDateStr();
-    const state = this.getState();
-    const dayData = this.ensureDaySchedule(state, targetDate);
-    if (!dayData.growthJournal) {
-      dayData.growthJournal = { ngan: null, bao: null };
-    }
-
-    const existing = dayData.growthJournal[userId] || {};
-    dayData.growthJournal[userId] = {
-      ...existing,
-      ...journalData,
-      updatedAt: Date.now()
-    };
-
-    this.saveState(state);
-    return dayData.growthJournal;
-  },
-
-  toggleJournalReaction(dateStr, targetUserId, reactorId) {
-    const targetDate = dateStr || this.getTodayDateStr();
-    const state = this.getState();
-    const dayData = this.ensureDaySchedule(state, targetDate);
-    if (!dayData.growthJournal || !dayData.growthJournal[targetUserId]) return null;
-
-    const journal = dayData.growthJournal[targetUserId];
-    if (!journal.reactions) journal.reactions = {};
-
-    if (journal.reactions[reactorId]) {
-      delete journal.reactions[reactorId];
-    } else {
-      journal.reactions[reactorId] = '❤️';
-    }
-
-    this.saveState(state);
-    return journal;
   },
 
   clearTasks(dateStr) {
@@ -762,37 +976,6 @@ const StorageManager = {
     }
 
     return this.addChatMessage(nudgeText, 'nudge', { nudgeType, nudgeTitle });
-  },
-
-  getStudyStatusSummary(dateStr) {
-    const targetDate = dateStr || this.getTodayDateStr();
-    const tasks = this.getDayTasks(targetDate);
-    const total = tasks.length;
-    const completed = tasks.filter(t => t.completed).length;
-    const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
-
-    const hour = new Date().getHours();
-    let currentPeriod = 'morning';
-    let periodName = 'Buổi Sáng';
-    if (hour >= 12 && hour < 18) {
-      currentPeriod = 'afternoon';
-      periodName = 'Buổi Chiều';
-    } else if (hour >= 18 || hour < 6) {
-      currentPeriod = 'evening';
-      periodName = 'Buổi Tối';
-    }
-
-    const completedTasks = tasks.filter(t => t.completed);
-    const lastCompleted = completedTasks.length > 0 ? completedTasks[completedTasks.length - 1] : null;
-
-    return {
-      total,
-      completed,
-      percent,
-      currentPeriod,
-      periodName,
-      lastCompletedTitle: lastCompleted ? lastCompleted.title : null
-    };
   },
 
   // --------------------------------------------------------------------------

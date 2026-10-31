@@ -25,8 +25,8 @@
   <meta http-equiv="Pragma" content="no-cache">
 
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=36">
-  <link rel="stylesheet" href="css/responsive.css?v=36">
+  <link rel="stylesheet" href="css/style.css?v=42">
+  <link rel="stylesheet" href="css/responsive.css?v=42">
 </head>
 <body>
 
@@ -170,349 +170,156 @@
         <div class="week-strip-container" id="week-strip-container"></div>
       </section>
 
-      <!-- Preset Selector & Daily Progress Strip -->
-      <section class="schedule-top-bar">
-        <div class="preset-selector-group">
-          <span class="preset-label">Mẫu lịch áp dụng:</span>
-          <div class="preset-chips">
-            <button class="preset-chip" data-preset="campus">
-              Ngày Học Trên Trường
-            </button>
-            <button class="preset-chip" data-preset="self-study">
-              Ngày Tự Học & Đề Án
-            </button>
-            <button class="preset-chip" data-preset="weekend">
-              Cuối Tuần Hồi Phục
-            </button>
-          </div>
-        </div>
-
-        <!-- Progress Summary -->
-        <div class="daily-progress-card">
-          <div class="progress-text-row">
-            <span class="progress-label" id="progress-date-label">Tiến độ ngày này</span>
-            <span class="progress-val" id="progress-fraction">0/0 việc (0%)</span>
-          </div>
-          <div class="progress-bar-track">
-            <div class="progress-bar-fill" id="daily-progress-bar" style="width: 0%;"></div>
-          </div>
+      <!-- 3 View Mode Switcher: [☀️ Chi Tiết Ngày] [📆 Bảng 4 Tuần] [📅 Bảng Tháng] -->
+      <section class="schedule-view-switcher-bar">
+        <div class="view-switcher-control" role="tablist">
+          <button type="button" class="view-mode-btn active" id="btn-mode-day" data-mode="day" title="Xem chi tiết ngày theo dòng thời gian từ sáng đến tối">
+            <span class="view-mode-icon">☀️</span>
+            <span class="view-mode-label">Chi Tiết Ngày</span>
+          </button>
+          <button type="button" class="view-mode-btn" id="btn-mode-four-weeks" data-mode="four-weeks" title="Xem 4 tuần liên tiếp để nắm bắt tương lai gần & độ tải">
+            <span class="view-mode-icon">📆</span>
+            <span class="view-mode-label">Bảng 4 Tuần</span>
+          </button>
+          <button type="button" class="view-mode-btn" id="btn-mode-month" data-mode="month" title="Xem bao quát toàn bộ tháng">
+            <span class="view-mode-icon">📅</span>
+            <span class="view-mode-label">Bảng Tháng</span>
+          </button>
         </div>
       </section>
 
-      <!-- Bio-Rhythm 3 Periods Container (Khung giờ chuẩn: 06:00-12:00, 12:00-18:00, 18:00-24:00) -->
-      <section class="periods-grid">
+      <!-- VIEW 1: CHI TIẾT NGÀY (DÒNG THỜI GIAN SÁNG -> TỐI, CẢNH BÁO QUAN TRỌNG, NHÃN LIÊN KẾT) -->
+      <section class="schedule-view-container" id="container-view-day">
+        <!-- Preset Selector & Daily Progress Strip -->
+        <div class="schedule-top-bar">
+          <div class="preset-selector-group">
+            <span class="preset-label">Mẫu lịch nhanh:</span>
+            <div class="preset-chips">
+              <button class="preset-chip" data-preset="campus">Ngày Học Trên Trường</button>
+              <button class="preset-chip" data-preset="self-study">Ngày Tự Học &amp; Đề Án</button>
+              <button class="preset-chip" data-preset="weekend">Cuối Tuần Hồi Phục</button>
+            </div>
+          </div>
 
-        <!-- 1. BUỔI SÁNG (06:00 — 12:00) -->
-        <div class="period-card period-morning">
-          <div class="period-header">
-            <div class="period-title-wrap">
-              <span class="period-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>
+          <!-- Progress Summary -->
+          <div class="daily-progress-card">
+            <div class="progress-text-row">
+              <span class="progress-label" id="progress-date-label">Tiến độ hôm nay</span>
+              <span class="progress-val" id="progress-fraction">0/0 việc (0%)</span>
+            </div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" id="daily-progress-bar" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thêm Việc Linh Hoạt (Không ép cứng 3 buổi) -->
+        <div class="day-add-task-card">
+          <div class="day-add-row-primary">
+            <input type="text" id="day-input-title" class="form-input day-task-title-input" placeholder="Thêm công việc cho ngày này (Ví dụ: Admin môn JAVA - Làm bài tập 2, nhấn Enter để lưu)...">
+            <button type="button" id="btn-day-add-task" class="btn-primary btn-sm">+ Thêm Việc</button>
+          </div>
+          <div class="day-add-row-secondary">
+            <div class="day-add-field-group">
+              <span class="day-field-label">⏱️ Khung giờ:</span>
+              <input type="time" id="day-input-time" class="form-input form-input-sm day-time-input" value="08:30" title="Giờ thực hiện (tự xếp sáng -> tối)">
+            </div>
+            <div class="day-add-field-group">
+              <span class="day-field-label">🏷️ Nhãn môn/dự án:</span>
+              <select id="day-select-tag" class="form-input form-input-sm day-tag-select"></select>
+            </div>
+            <label class="day-important-toggle" title="Đánh dấu việc quan trọng / deadline để cảnh báo viền nổi bật">
+              <input type="checkbox" id="day-checkbox-important">
+              <span class="important-toggle-label">⭐ Việc Quan Trọng</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Tag Quick Filter Strip -->
+        <div class="day-tags-filter-bar">
+          <span class="tags-filter-label">Lọc nhanh theo nhãn:</span>
+          <div class="tags-filter-chips" id="day-tags-filter-chips">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Dòng Thời Gian Công Việc (Chronological Timeline Sáng -> Tối) -->
+        <div class="daily-timeline-card">
+          <div class="timeline-header-row">
+            <div class="title-with-icon">
+              <span class="icon-circle small blue">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
               </span>
               <div>
-                <h3 class="period-title">Buổi Sáng</h3>
-                <span class="period-time-range">06:00 — 12:00 • Khởi đầu &amp; Tập trung</span>
+                <h3 class="panel-section-title">Trình Tự Công Việc Trong Ngày</h3>
+                <p class="panel-section-sub">Tự động sắp xếp từ sáng đến tối theo mốc giờ • Bấm nhãn màu để xem chuỗi liên kết</p>
               </div>
             </div>
-            <span class="period-count-badge" id="count-morning">0 việc</span>
+            <span class="timeline-count-badge" id="timeline-summary-count">0 việc</span>
           </div>
 
-          <div class="tasks-list" id="list-morning"></div>
-
-          <!-- Thêm việc trực tiếp trong Buổi Sáng (Tối ưu 2 tầng gọn gàng, không co ép) -->
-          <div class="incard-add-block" data-period="morning">
-            <div class="incard-input-row">
-              <input type="text" class="form-input form-input-sm incard-task-title" id="incard-title-morning" placeholder="Thêm việc buổi sáng (nhấn Enter để lưu)...">
-              <button type="button" class="btn-primary btn-sm btn-incard-add" data-period="morning">+ Thêm</button>
-            </div>
-            <div class="incard-meta-row">
-              <div class="incard-time-range-picker" title="Khoảng thời gian thực hiện">
-                <select class="form-input form-input-sm incard-time-start" id="incard-start-morning" title="Giờ bắt đầu"></select>
-                <span class="time-sep">→</span>
-                <select class="form-input form-input-sm incard-time-end" id="incard-end-morning" title="Giờ kết thúc"></select>
-              </div>
-              <select class="form-input form-input-sm incard-cat-select" id="incard-cat-morning" title="Chọn phân loại">
-                <option value="study">Chuyên Môn</option>
-                <option value="project">Đề Án</option>
-                <option value="routine">Sinh Hoạt</option>
-                <option value="health">Sức Khỏe</option>
-              </select>
-              <div class="incard-quick-presets">
-                <button type="button" class="btn-incard-preset" data-period="morning" data-time="06:30 - 07:15" data-title="Ăn sáng &amp; nạp năng lượng" data-cat="routine">Ăn sáng</button>
-                <button type="button" class="btn-incard-preset" data-period="morning" data-time="07:30 - 11:30" data-title="Học bài ca sáng / Lên giảng đường" data-cat="study">Học sáng</button>
-                <button type="button" class="btn-incard-preset" data-period="morning" data-time="11:30 - 12:00" data-title="Nghỉ giải lao &amp; uống nước" data-cat="health">Nghỉ ngơi</button>
-              </div>
-            </div>
-          </div>
+          <!-- Danh sách công việc dạng dòng thời gian -->
+          <div class="daily-timeline-list" id="daily-timeline-list"></div>
         </div>
-
-        <!-- 2. BUỔI CHIỀU (12:00 — 18:00) -->
-        <div class="period-card period-afternoon">
-          <div class="period-header">
-            <div class="period-title-wrap">
-              <span class="period-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path></svg>
-              </span>
-              <div>
-                <h3 class="period-title">Buổi Chiều</h3>
-                <span class="period-time-range">12:00 — 18:00 • Năng lượng &amp; Đề án</span>
-              </div>
-            </div>
-            <span class="period-count-badge" id="count-afternoon">0 việc</span>
-          </div>
-
-          <div class="tasks-list" id="list-afternoon"></div>
-
-          <!-- Thêm việc trực tiếp trong Buổi Chiều -->
-          <div class="incard-add-block" data-period="afternoon">
-            <div class="incard-input-row">
-              <input type="text" class="form-input form-input-sm incard-task-title" id="incard-title-afternoon" placeholder="Thêm việc buổi chiều (nhấn Enter để lưu)...">
-              <button type="button" class="btn-primary btn-sm btn-incard-add" data-period="afternoon">+ Thêm</button>
-            </div>
-            <div class="incard-meta-row">
-              <div class="incard-time-range-picker" title="Khoảng thời gian thực hiện">
-                <select class="form-input form-input-sm incard-time-start" id="incard-start-afternoon" title="Giờ bắt đầu"></select>
-                <span class="time-sep">→</span>
-                <select class="form-input form-input-sm incard-time-end" id="incard-end-afternoon" title="Giờ kết thúc"></select>
-              </div>
-              <select class="form-input form-input-sm incard-cat-select" id="incard-cat-afternoon" title="Chọn phân loại">
-                <option value="study">Chuyên Môn</option>
-                <option value="project">Đề Án</option>
-                <option value="routine">Sinh Hoạt</option>
-                <option value="health">Sức Khỏe</option>
-              </select>
-              <div class="incard-quick-presets">
-                <button type="button" class="btn-incard-preset" data-period="afternoon" data-time="12:00 - 13:00" data-title="Cơm trưa &amp; chợp mắt nghỉ ngơi" data-cat="routine">Ăn trưa</button>
-                <button type="button" class="btn-incard-preset" data-period="afternoon" data-time="13:30 - 16:30" data-title="Học bài ca chiều / Thảo luận đề án" data-cat="project">Học chiều</button>
-                <button type="button" class="btn-incard-preset" data-period="afternoon" data-time="17:00 - 18:00" data-title="Tập thể dục, đi dạo thả lỏng" data-cat="health">Nghỉ ngơi</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3. BUỔI TỐI (18:00 — 24:00) -->
-        <div class="period-card period-evening">
-          <div class="period-header">
-            <div class="period-title-wrap">
-              <span class="period-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-              </span>
-              <div>
-                <h3 class="period-title">Buổi Tối</h3>
-                <span class="period-time-range">18:00 — 24:00 • Ôn bài &amp; Thư giãn</span>
-              </div>
-            </div>
-            <span class="period-count-badge" id="count-evening">0 việc</span>
-          </div>
-
-          <div class="tasks-list" id="list-evening"></div>
-
-          <!-- Thêm việc trực tiếp trong Buổi Tối -->
-          <div class="incard-add-block" data-period="evening">
-            <div class="incard-input-row">
-              <input type="text" class="form-input form-input-sm incard-task-title" id="incard-title-evening" placeholder="Thêm việc buổi tối (nhấn Enter để lưu)...">
-              <button type="button" class="btn-primary btn-sm btn-incard-add" data-period="evening">+ Thêm</button>
-            </div>
-            <div class="incard-meta-row">
-              <div class="incard-time-range-picker" title="Khoảng thời gian thực hiện">
-                <select class="form-input form-input-sm incard-time-start" id="incard-start-evening" title="Giờ bắt đầu"></select>
-                <span class="time-sep">→</span>
-                <select class="form-input form-input-sm incard-time-end" id="incard-end-evening" title="Giờ kết thúc"></select>
-              </div>
-              <select class="form-input form-input-sm incard-cat-select" id="incard-cat-evening" title="Chọn phân loại">
-                <option value="study">Chuyên Môn</option>
-                <option value="project">Đề Án</option>
-                <option value="routine">Sinh Hoạt</option>
-                <option value="health">Sức Khỏe</option>
-              </select>
-              <div class="incard-quick-presets">
-                <button type="button" class="btn-incard-preset" data-period="evening" data-time="18:30 - 19:30" data-title="Cơm tối gia đình &amp; trò chuyện" data-cat="routine">Ăn tối</button>
-                <button type="button" class="btn-incard-preset" data-period="evening" data-time="20:00 - 22:00" data-title="Ôn tập bài học &amp; chuẩn bị bài mới" data-cat="study">Ôn bài tối</button>
-                <button type="button" class="btn-incard-preset" data-period="evening" data-time="22:30 - 23:30" data-title="Skincare, nghe nhạc &amp; ngủ sớm" data-cat="health">Nghỉ ngơi</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
       </section>
 
-      <!-- ======================================================================
-           KHỐI TỔNG KẾT & NHẬT KÝ TRƯỞNG THÀNH CUỐI NGÀY (GROWTH JOURNAL)
-           Sống theo ước mơ: Đúc kết 3 đột phá, bài học và giá trị sự nghiệp
-           ====================================================================== -->
-      <section class="growth-journal-section" id="section-growth-journal">
-        <div class="journal-header">
-          <div class="journal-title-wrap">
-            <span class="icon-circle small gold">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 20h9"></path>
-                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-              </svg>
-            </span>
-            <div>
-              <div class="journal-title-row">
-                <h3 class="journal-heading">Nhật Ký Trưởng Thành Cuối Ngày</h3>
-                <span class="journal-date-tag" id="journal-current-date-tag">Hôm nay</span>
-              </div>
-              <p class="journal-sub">Đúc kết giá trị thực tế sau một ngày: Điểm đột phá, bài học nhận ra &amp; bước đệm cho sự nghiệp</p>
-            </div>
+      <!-- VIEW 2: BẢNG 4 TUẦN (HORIZON ROADMAP 4 TUẦN TỚI) -->
+      <section class="schedule-view-container" id="container-view-four-weeks" style="display: none;">
+        <div class="four-weeks-header-info">
+          <div>
+            <h3 class="panel-section-title">Bảng 4 Tuần (Horizon Roadmap)</h3>
+            <p class="panel-section-sub">Dự phóng công việc &amp; độ tải 4 tuần tới • Bấm ngày để xem chi tiết bên dưới • Bấm '+' để thêm việc</p>
           </div>
-
-          <!-- User Switcher Tab: Xem của Ngân / Xem của Bảo -->
-          <div class="journal-user-switcher" role="tablist">
-            <button type="button" class="btn-journal-tab active" id="tab-journal-ngan" data-user="ngan">
-              <span class="journal-tab-dot dot-ngan"></span>
-              <span>Ngân 🌸</span>
-            </button>
-            <button type="button" class="btn-journal-tab" id="tab-journal-bao" data-user="bao">
-              <span class="journal-tab-dot dot-bao"></span>
-              <span>Bảo 🌊</span>
-            </button>
+          <div class="four-weeks-legend">
+            <span class="legend-chip-sample tag-orange">Admin môn JAVA</span>
+            <span class="legend-chip-sample tag-blue">Đề Án</span>
+            <span class="legend-chip-sample tag-purple">Chuyên Môn</span>
+            <span class="legend-chip-sample tag-star">⭐ Quan Trọng</span>
           </div>
         </div>
 
-        <div class="journal-card-body" id="journal-card-body">
-          <!-- Form View (Khi người dùng đang chọn tab của chính mình) -->
-          <form class="journal-form" id="journal-form">
-            <!-- 1. Top 3 Đột Phá -->
-            <div class="journal-field-group">
-              <div class="field-label-row">
-                <label class="journal-field-label">
-                  <span class="field-num">1</span>
-                  <strong>3 Việc Đột Phá Nhất Hôm Nay</strong>
-                  <span class="field-sub">(Những điều giúp bạn tiến gần hơn đến ước mơ)</span>
-                </label>
-                <button type="button" class="btn-quick-fill-wins" id="btn-quick-fill-wins" title="1-chạm nạp các việc đã làm xong hôm nay">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  Gợi ý từ việc đã xong
-                </button>
-              </div>
-              <div class="top-wins-inputs">
-                <div class="win-input-row">
-                  <span class="win-badge">01</span>
-                  <input type="text" class="form-input form-input-sm win-input" id="journal-win-1" placeholder="Việc đột phá số 1 (ví dụ: Nắm vững thuật toán X, xong 100 từ vựng)...">
-                </div>
-                <div class="win-input-row">
-                  <span class="win-badge">02</span>
-                  <input type="text" class="form-input form-input-sm win-input" id="journal-win-2" placeholder="Việc đột phá số 2 (ví dụ: Hoàn thiện đề án, sửa triệt để lỗi logic)...">
-                </div>
-                <div class="win-input-row">
-                  <span class="win-badge">03</span>
-                  <input type="text" class="form-input form-input-sm win-input" id="journal-win-3" placeholder="Việc đột phá số 3 (ví dụ: Đọc xong chương sách chuyên môn, duy trì thể lực)...">
-                </div>
-              </div>
+        <div class="four-weeks-grid" id="four-weeks-grid">
+          <!-- 4 Week Cards rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- VIEW 3: BẢNG THÁNG TOÀN CẢNH (MONTH GRID CÓ MINI TAGS & NÚT '+') -->
+      <section class="schedule-view-container" id="container-view-month" style="display: none;">
+        <div class="month-inline-card">
+          <div class="month-inline-header">
+            <div class="month-inline-title-group">
+              <h3 class="panel-section-title" id="month-inline-title">Bảng Tháng Toàn Cảnh</h3>
+              <p class="panel-section-sub">Bấm dấu '+' trên ô ngày để ghi việc ngắn gọn • Bấm ô ngày để chuyển xem chi tiết</p>
             </div>
-
-            <!-- 2. Bài Học Nhận Ra & 3. Giá Trị Sự Nghiệp (Grid 2 cột trên Desktop) -->
-            <div class="journal-two-cols">
-              <div class="journal-field-group">
-                <label class="journal-field-label">
-                  <span class="field-num">2</span>
-                  <strong>Bài Học / Chiêm Nghiệm Rút Ra</strong>
-                  <span class="field-sub">(Điều bạn nhận ra sau một ngày thực tế)</span>
-                </label>
-                <textarea class="form-input journal-textarea" id="journal-lesson" rows="2" placeholder="Hôm nay mình nhận ra: Khi gặp vấn đề khó, chia nhỏ từng bước sẽ giúp bớt áp lực..."></textarea>
-              </div>
-
-              <div class="journal-field-group">
-                <label class="journal-field-label">
-                  <span class="field-num">3</span>
-                  <strong>Bước Đệm Cho Chuyên Môn &amp; Sự Nghiệp</strong>
-                  <span class="field-sub">(Giúp ích gì cho con đường dài hạn)</span>
-                </label>
-                <textarea class="form-input journal-textarea" id="journal-career" rows="2" placeholder="Điều này giúp mình: Rèn luyện tính tự chủ, nâng cao năng lực giải quyết đề án..."></textarea>
-              </div>
+            <div class="month-inline-nav">
+              <button type="button" class="btn-cal-nav" id="btn-month-inline-prev" title="Tháng trước">◀</button>
+              <button type="button" class="btn-today-pill" id="btn-month-inline-today">Hôm nay</button>
+              <button type="button" class="btn-cal-nav" id="btn-month-inline-next" title="Tháng sau">▶</button>
             </div>
+          </div>
 
-            <!-- Bottom Actions Bar -->
-            <div class="journal-actions-row">
-              <div class="journal-status-meta" id="journal-status-meta">
-                <span class="status-indicator-dot" id="journal-indicator-dot"></span>
-                <span id="journal-status-text">Chưa lưu nhật ký hôm nay</span>
-              </div>
-              <div class="journal-btn-group">
-                <button type="submit" class="btn-save-journal" id="btn-save-journal" title="Khắc ghi nhật ký chiêm nghiệm và bước đệm hôm nay">
-                  <span class="btn-journal-icon-wrap" id="btn-journal-icon-wrap">
-                    <svg class="journal-icon-quill" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
-                      <line x1="16" y1="8" x2="2" y2="22"></line>
-                      <line x1="17.5" y1="15" x2="9" y2="15"></line>
-                    </svg>
-                  </span>
-                  <span class="btn-journal-label" id="btn-journal-label">Lưu Dấu Trưởng Thành</span>
-                  <span class="btn-journal-sparkle">✦</span>
-                </button>
-              </div>
-            </div>
-          </form>
+          <div class="month-inline-table-head">
+            <div class="day-head-col">Thứ 2</div>
+            <div class="day-head-col">Thứ 3</div>
+            <div class="day-head-col">Thứ 4</div>
+            <div class="day-head-col">Thứ 5</div>
+            <div class="day-head-col">Thứ 6</div>
+            <div class="day-head-col">Thứ 7</div>
+            <div class="day-head-col text-sun">Chủ Nhật</div>
+          </div>
 
-          <!-- Read-Only & Interaction View (Khi xem nhật ký của đối phương hoặc hiển thị xem lại) -->
-          <div class="journal-partner-view" id="journal-partner-view" style="display: none;">
-            <!-- Render động bằng JS: Top 3 việc, Bài học, Giá trị sự nghiệp kèm nút Thả Tim ❤️ -->
+          <div class="month-inline-grid-cells" id="month-inline-grid-cells">
+            <!-- 35-42 day cells rendered dynamically with mini pills and '+' button -->
           </div>
         </div>
       </section>
 
-      <!-- ======================================================================
-           BÁO CÁO TIẾN BỘ & NĂNG SUẤT (SO SÁNH NGÀY / TUẦN / THÁNG)
-           ====================================================================== -->
-      <section class="schedule-analytics-section" id="schedule-analytics-section">
-        <div class="analytics-header">
-          <div class="analytics-title-wrap">
-            <span class="icon-circle small emerald">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="20" x2="18" y2="10"></line>
-                <line x1="12" y1="20" x2="12" y2="4"></line>
-                <line x1="6" y1="20" x2="6" y2="14"></line>
-              </svg>
-            </span>
-            <div>
-              <h3 class="analytics-heading">Báo Cáo Tiến Bộ & Năng Suất</h3>
-              <p class="analytics-sub">Theo dõi mức độ hoàn thành nhiệm vụ theo thời gian để cải thiện từng ngày</p>
-            </div>
-          </div>
 
-          <!-- Segmented Tab: Ngày / Tuần / Tháng -->
-          <div class="analytics-period-switcher" role="tablist">
-            <button type="button" class="btn-analytics-tab active" data-period="day">7 Ngày Qua</button>
-            <button type="button" class="btn-analytics-tab" data-period="week">4 Tuần Qua</button>
-            <button type="button" class="btn-analytics-tab" data-period="month">Theo Tháng</button>
-          </div>
-        </div>
 
-        <!-- Metric Stat Cards -->
-        <div class="analytics-kpi-grid">
-          <div class="analytics-kpi-card">
-            <span class="kpi-label">Tổng việc đã lên lịch</span>
-            <span class="kpi-value" id="kpi-total-tasks">0</span>
-            <span class="kpi-sub" id="kpi-total-tasks-sub">Trong kỳ phân tích</span>
-          </div>
-          <div class="analytics-kpi-card">
-            <span class="kpi-label">Đã hoàn thành</span>
-            <span class="kpi-value text-emerald" id="kpi-completed-tasks">0</span>
-            <span class="kpi-sub" id="kpi-completed-tasks-sub">0% tỉ lệ hoàn thành</span>
-          </div>
-          <div class="analytics-kpi-card">
-            <span class="kpi-label">Đánh giá tiến bộ</span>
-            <span class="kpi-value text-blue" id="kpi-trend-status">Khởi đầu tốt</span>
-            <span class="kpi-sub" id="kpi-trend-sub">Duy trì nhịp sinh học</span>
-          </div>
-        </div>
 
-        <!-- Visual Bar Chart Container -->
-        <div class="analytics-chart-card">
-          <div class="chart-legend-row">
-            <span class="chart-caption" id="analytics-chart-caption">So sánh tỷ lệ hoàn thành qua 7 ngày gần nhất</span>
-            <div class="chart-legend-items">
-              <span class="legend-badge"><span class="legend-dot dot-green"></span> Đã hoàn thành</span>
-              <span class="legend-badge"><span class="legend-dot dot-red"></span> Chưa xong</span>
-            </div>
-          </div>
-          <div class="analytics-bars-container" id="analytics-bars-container">
-            <!-- Rendered by JS -->
-          </div>
-        </div>
-      </section>
 
     </main>
 
@@ -597,33 +404,7 @@
         <div class="days-comparison-grid" id="days-comparison-bars"></div>
       </section>
 
-      <!-- 4. BẢNG SO SÁNH GIỮA CÁC TUẦN -->
-      <section class="finance-card weeks-comparison-card">
-        <div class="list-header-row">
-          <div>
-            <h3 class="panel-section-title">So Sánh Chi Tiêu Giữa Các Tuần Gần Nhất</h3>
-            <p class="panel-section-sub">Theo dõi xu hướng sài tiền tăng hay giảm qua từng tuần</p>
-          </div>
-          <span class="card-hint-text">Đơn vị: VNĐ</span>
-        </div>
-
-        <div class="weeks-table-wrap">
-          <table class="weeks-compare-table">
-            <thead>
-              <tr>
-                <th>Tuần</th>
-                <th>Tổng Chi</th>
-                <th>Hạn Mức</th>
-                <th>Tiết Kiệm Được</th>
-                <th>Đánh Giá & Xu Hướng</th>
-              </tr>
-            </thead>
-            <tbody id="weeks-compare-tbody"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- 5. GHI CHÉP THU/CHI NHANH & SỔ GIAO DỊCH -->
+      <!-- 4. GHI CHÉP THU/CHI NHANH & SỔ GIAO DỊCH -->
       <section class="ledger-container">
 
         <!-- Left: Quick Add Transaction -->
@@ -935,9 +716,6 @@
       </div>
     </div>
 
-    <!-- Live Study Progress Monitor (Bạn trai giám sát tiến độ học của bạn gái) -->
-    <div class="chat-monitor-section" id="chat-monitor-content"></div>
-
     <!-- Quick Nudges & Sweet Actions Bar (Nhắc nhở 1-chạm cao cấp) -->
     <div class="quick-nudges-bar">
       <span class="nudges-label">Nhắc nhanh:</span>
@@ -1055,6 +833,108 @@
     </div>
   </div>
 
+  <!-- Modal Chuỗi Liên Kết Nhãn (Quá khứ -> Hôm nay -> Tương lai) -->
+  <div class="modal-backdrop" id="modal-tag-chain" aria-hidden="true">
+    <div class="modal-dialog tag-chain-modal-dialog">
+      <div class="tag-chain-modal-header">
+        <div class="tag-chain-title-group">
+          <span class="tag-chain-dot-indicator" id="tag-chain-dot-indicator"></span>
+          <div>
+            <div class="tag-chain-badge-wrap">
+              <span class="tag-chain-pill-large" id="tag-chain-modal-pill">Admin môn JAVA</span>
+              <span class="tag-chain-stat-pill" id="tag-chain-stat-pill">0/0 hoàn thành</span>
+            </div>
+            <p class="tag-chain-subtitle">Chuỗi công việc liên kết theo dòng thời gian (Quá khứ • Hôm nay • Tương lai)</p>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" id="btn-close-tag-chain" title="Đóng (Esc)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="tag-chain-modal-body">
+        <!-- Chặng 1: Quá Khứ -->
+        <div class="tag-chain-stage stage-past">
+          <div class="stage-header">
+            <span class="stage-icon">📜</span>
+            <span class="stage-title">Quá Khứ (Đã Xong)</span>
+            <span class="stage-badge" id="tag-chain-past-count">0 việc</span>
+          </div>
+          <div class="stage-list" id="tag-chain-past-list"></div>
+        </div>
+
+        <!-- Chặng 2: Hôm Nay -->
+        <div class="tag-chain-stage stage-today">
+          <div class="stage-header">
+            <span class="stage-icon">🎯</span>
+            <span class="stage-title">Hôm Nay</span>
+            <span class="stage-badge" id="tag-chain-today-count">0 việc</span>
+          </div>
+          <div class="stage-list" id="tag-chain-today-list"></div>
+        </div>
+
+        <!-- Chặng 3: Tương Lai -->
+        <div class="tag-chain-stage stage-future">
+          <div class="stage-header">
+            <span class="stage-icon">🔭</span>
+            <span class="stage-title">Tương Lai / Sắp Tới</span>
+            <span class="stage-badge" id="tag-chain-future-count">0 việc</span>
+          </div>
+          <div class="stage-list" id="tag-chain-future-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Thêm Nhanh Trên Ô Ngày (Bảng Tháng / 4 Tuần) -->
+  <div class="modal-backdrop" id="modal-quick-add-task" aria-hidden="true">
+    <div class="modal-dialog quick-add-modal-dialog">
+      <div class="quick-add-modal-header">
+        <div>
+          <h3 class="modal-title" id="quick-add-modal-title">Thêm Việc Cho Ngày</h3>
+          <p class="modal-message">Ghi việc ngắn gọn để nắm bắt trên bảng tháng &amp; 4 tuần</p>
+        </div>
+        <button type="button" class="btn-modal-close" id="btn-close-quick-add" title="Đóng (Esc)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <form id="form-quick-add-task" class="quick-add-form">
+        <input type="hidden" id="quick-add-date">
+        <div class="form-group-cloud">
+          <label for="quick-add-title">Nội dung công việc</label>
+          <input type="text" id="quick-add-title" class="form-input" placeholder="VD: Admin môn JAVA - Bài 2..." required>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+          <div class="form-group-cloud">
+            <label for="quick-add-time">Khung giờ (tự xếp sáng -> tối)</label>
+            <input type="time" id="quick-add-time" class="form-input" value="09:00">
+          </div>
+          <div class="form-group-cloud">
+            <label for="quick-add-tag">Nhãn công việc</label>
+            <select id="quick-add-tag" class="form-input"></select>
+          </div>
+        </div>
+        <div style="margin-top: 12px;">
+          <label class="day-important-toggle">
+            <input type="checkbox" id="quick-add-important">
+            <span class="important-toggle-label">⭐ Đánh dấu là Việc Quan Trọng (Cảnh báo viền nổi bật)</span>
+          </label>
+        </div>
+        <div class="modal-action-row" style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn-secondary" id="btn-cancel-quick-add">Hủy</button>
+          <button type="submit" class="btn-primary" id="btn-submit-quick-add">+ Lưu Vào Lịch</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Modal Hướng Dẫn Sử Dụng Nhanh NgaOS -->
   <div class="modal-backdrop" id="modal-guide" aria-hidden="true">
     <div class="modal-dialog guide-modal-dialog">
@@ -1117,15 +997,16 @@
 
           <!-- Item 3 -->
           <div class="guide-item">
-            <div class="guide-item-icon gold">
+            <div class="guide-item-icon emerald">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 20h9"></path>
-                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="6"></circle>
+                <circle cx="12" cy="12" r="2" fill="currentColor"></circle>
               </svg>
             </div>
             <div class="guide-item-text">
-              <span class="guide-item-name">3. Nhật Ký Trưởng Thành Cuối Ngày</span>
-              <p class="guide-item-summary">Ghi 3 việc đột phá &amp; bài học rút ra • Bấm <strong>Lưu Dấu Trưởng Thành ✦</strong></p>
+              <span class="guide-item-name">3. Quản Lý Tài Chính Tuần</span>
+              <p class="guide-item-summary">Hạn mức chi tiêu tuần, quỹ mục tiêu lớn &amp; sổ thu chi nhanh gọn</p>
             </div>
           </div>
 
@@ -1217,29 +1098,25 @@
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
           <div class="form-group-cloud">
-            <label for="edit-task-period">Buổi trong ngày</label>
-            <select id="edit-task-period" class="form-input">
-              <option value="morning">🌅 Buổi Sáng</option>
-              <option value="afternoon">☀️ Buổi Chiều</option>
-              <option value="evening">🌙 Buổi Tối</option>
-            </select>
+            <label for="edit-task-time">Khung giờ (VD: 08:30)</label>
+            <input type="text" id="edit-task-time" class="form-input" placeholder="08:30">
           </div>
 
           <div class="form-group-cloud">
-            <label for="edit-task-category">Phân loại</label>
-            <select id="edit-task-category" class="form-input">
-              <option value="routine">Sinh Hoạt</option>
-              <option value="study">Chuyên Môn</option>
-              <option value="project">Đề Án</option>
-              <option value="health">Sức Khỏe</option>
-            </select>
+            <label for="edit-task-tag">Nhãn môn / dự án</label>
+            <select id="edit-task-tag" class="form-input"></select>
           </div>
         </div>
 
-        <div class="form-group-cloud" style="margin-top: 10px;">
-          <label for="edit-task-time">Khung giờ thực hiện</label>
-          <input type="text" id="edit-task-time" class="form-input" placeholder="Ví dụ: 08:00 - 09:30 hoặc Trong buổi">
+        <div style="margin-top: 10px;">
+          <label class="day-important-toggle">
+            <input type="checkbox" id="edit-task-important">
+            <span class="important-toggle-label">⭐ Đánh dấu là Việc Quan Trọng (Cảnh báo viền nổi bật)</span>
+          </label>
         </div>
+
+        <input type="hidden" id="edit-task-period" value="morning">
+        <input type="hidden" id="edit-task-category" value="study">
 
         <div class="modal-action-row" style="width: 100%; display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px;">
           <button type="button" class="btn-secondary" id="btn-cancel-edit-task">Hủy</button>
@@ -1257,16 +1134,16 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <!-- Modular Scripts -->
-  <script src="js/icons.js?v=41"></script>
-  <script src="js/storage.js?v=41"></script>
-  <script src="js/firebase-config.js?v=41"></script>
-  <script src="js/cloud-sync.js?v=41"></script>
-  <script src="js/auth.js?v=41"></script>
-  <script src="js/ocean-waves.js?v=41"></script>
-  <script src="js/schedule.js?v=41"></script>
-  <script src="js/finance.js?v=41"></script>
-  <script src="js/chat.js?v=41"></script>
-  <script src="js/app.js?v=41"></script>
+  <script src="js/icons.js?v=42"></script>
+  <script src="js/storage.js?v=42"></script>
+  <script src="js/firebase-config.js?v=42"></script>
+  <script src="js/cloud-sync.js?v=42"></script>
+  <script src="js/auth.js?v=42"></script>
+  <script src="js/ocean-waves.js?v=42"></script>
+  <script src="js/schedule.js?v=42"></script>
+  <script src="js/finance.js?v=42"></script>
+  <script src="js/chat.js?v=42"></script>
+  <script src="js/app.js?v=42"></script>
 
 </body>
 </html>

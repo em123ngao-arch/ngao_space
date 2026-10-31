@@ -1,0 +1,202 @@
+{
+  "version": 3,
+  "schedule": {
+    "activePreset": "self-study",
+    "tasks": [
+      {
+        "id": "s1",
+        "period": "morning",
+        "time": "07:30 - 08:30",
+        "title": "Ăn sáng, cafe & lên mục tiêu trọng tâm trong ngày",
+        "category": "routine",
+        "completed": false
+      },
+      {
+        "id": "s2",
+        "period": "morning",
+        "time": "08:30 - 11:30",
+        "title": "Nghiên cứu tài liệu chuyên sâu & viết đề án (Deep Work)",
+        "category": "project",
+        "completed": false
+      },
+      {
+        "id": "s3",
+        "period": "afternoon",
+        "time": "12:00 - 13:30",
+        "title": "Ăn trưa dinh dưỡng & nghe nhạc thư giãn",
+        "category": "routine",
+        "completed": false
+      },
+      {
+        "id": "s4",
+        "period": "afternoon",
+        "time": "14:00 - 17:00",
+        "title": "Thực hành bài tập đề án, sửa lỗi & hoàn thiện báo cáo",
+        "category": "project",
+        "completed": false
+      },
+      {
+        "id": "s5",
+        "period": "afternoon",
+        "time": "17:30 - 18:15",
+        "title": "Tập yoga / Chạy bộ nhẹ nhàng",
+        "category": "health",
+        "completed": false
+      },
+      {
+        "id": "s6",
+        "period": "evening",
+        "time": "19:00 - 20:00",
+        "title": "Bữa tối cùng gia đình / bạn bè",
+        "category": "routine",
+        "completed": false
+      },
+      {
+        "id": "s7",
+        "period": "evening",
+        "time": "20:15 - 22:00",
+        "title": "Đọc 1 chương sách chuyên môn & tổng hợp ghi chú",
+        "category": "study",
+        "completed": false
+      },
+      {
+        "id": "s8",
+        "period": "evening",
+        "time": "22:30 - 23:00",
+        "title": "Viết nhật ký ngày & chuẩn bị ngủ sớm",
+        "category": "health",
+        "completed": false
+      },
+      {
+        "id": "task_1793279402869_4emx",
+        "period": "morning",
+        "time": "06:00 - 06:30",
+        "title": "Đọc sách 30 phút buổi sáng",
+        "category": "study",
+        "completed": false,
+        "createdBy": "ngan",
+        "date": "2026-10-29"
+      }
+    ],
+    "days": {
+      "2026-10-29": {
+        "activePreset": "self-study",
+        "tasks": [
+          {
+            "id": "s1",
+            "period": "morning",
+            "time": "07:30 - 08:30",
+            "title": "Ăn sáng, cafe & lên mục tiêu trọng tâm trong ngày",
+            "category": "routine",
+            "completed": false
+          },
+          {
+            "id": "s2",
+            "period": "morning",
+            "time": "08:30 - 11:30",
+            "title": "Nghiên cứu tài liệu chuyên sâu & viết đề án (Deep Work)",
+            "category": "project",
+            "completed": false
+          },
+          {
+            "id": "s3",
+            "period": "afternoon",
+            "time": "12:00 - 13:30",
+            "title": "Ăn trưa dinh dưỡng & nghe nhạc thư giãn",
+            "category": "routine",
+            "completed": false
+          },
+          {
+            "id": "s4",
+            "period": "afternoon",
+            "time": "14:00 - 17:00",
+            "title": "Thực hành bài tập đề án, sửa lỗi & hoàn thiện báo cáo",
+            "category": "project",
+            "completed": false
+          },
+          {
+            "id": "s5",
+            "period": "afternoon",
+            "time": "17:30 - 18:15",
+            "title": "Tập yoga / Chạy bộ nhẹ nhàng",
+            "category": "health",
+            "completed": false
+          },
+          {
+            "id": "s6",
+            "period": "evening",
+            "time": "19:00 - 20:00",
+            "title": "Bữa tối cùng gia đình / bạn bè",
+            "category": "routine",
+            "completed": false
+          },
+          {
+            "id": "s7",
+            "period": "evening",
+            "time": "20:15 - 22:00",
+            "title": "Đọc 1 chương sách chuyên môn & tổng hợp ghi chú",
+            "category": "study",
+            "completed": false
+          },
+          {
+            "id": "s8",
+            "period": "evening",
+            "time": "22:30 - 23:00",
+            "title": "Viết nhật ký ngày & chuẩn bị ngủ sớm",
+            "category": "health",
+            "completed": false
+          },
+          {
+            "id": "task_1793279402869_4emx",
+            "period": "morning",
+            "time": "06:00 - 06:30",
+            "title": "Đọc sách 30 phút buổi sáng",
+            "category": "study",
+            "completed": false,
+            "createdBy": "ngan",
+            "date": "2026-10-29"
+          }
+        ]
+      }
+    }
+  },
+  "finance": {
+    "weeklyBudget": 1500000,
+    "goals": [
+      {
+        "id": "goal_laptop",
+        "title": "Quỹ Mua Laptop Mới",
+        "targetAmount": 25000000,
+        "currentAmount": 100000,
+        "deadline": "2026-12-31",
+        "creator": "ngan",
+        "category": "tech"
+      }
+    ],
+    "transactions": [
+      {
+        "id": "tx_1793279404668_35hk",
+        "type": "expense",
+        "desc": "Bánh mì & Cà phê",
+        "amount": 50000,
+        "category": "food",
+        "date": "2026-10-29T13:10:04.000Z",
+        "creator": "ngan"
+      }
+    ]
+  },
+  "chat": {
+    "messages": [
+      {
+        "id": "msg_initial_1",
+        "sender": "bao",
+        "senderName": "Bảo",
+        "type": "text",
+        "text": "Chào Ngân! Hôm nay học tập thật tốt nhé em bé, anh luôn ở đây tiếp năng lượng cho em!",
+        "time": "08:00",
+        "timestamp": 1793275801645
+      }
+    ]
+  },
+  "updatedAt": 1793279404668
+}

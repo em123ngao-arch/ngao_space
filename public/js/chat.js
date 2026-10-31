@@ -218,7 +218,6 @@
 
     render() {
       this.renderHeader();
-      this.renderMonitor();
       this.renderMessages();
       this.renderInputPlaceholder();
       this.updateFloatingBtnUI();
@@ -259,80 +258,10 @@
     },
 
     // ------------------------------------------------------------------------
-    // Live Study Monitor Bar
+    // Chat Monitor (Removed for privacy & focus)
     // ------------------------------------------------------------------------
     renderMonitor() {
-      const monitorContainer = document.getElementById('chat-monitor-content');
-      if (!monitorContainer) return;
-
-      const currentUser = StorageManager.getCurrentUser();
-      const studyStatus = StorageManager.getStudyStatusSummary();
-      const partner = currentUser.id === 'bao' ? StorageManager.USERS[1] : StorageManager.USERS[0];
-
-      if (currentUser.id === 'bao') {
-        // Góc nhìn của Bảo: Theo dõi tiến độ học tập của Ngân
-        let progressDetail = '';
-        if (studyStatus.total > 0) {
-          progressDetail = `
-            <div class="monitor-stats-row">
-              <span class="monitor-fraction">${studyStatus.completed}/${studyStatus.total} bài (${studyStatus.percent}%)</span>
-              <span class="monitor-period-tag">${studyStatus.periodName}</span>
-            </div>
-            <div class="progress-bar-track monitor-progress-bar">
-              <div class="progress-bar-fill fill-emerald" style="width: ${studyStatus.percent}%;"></div>
-            </div>
-            ${studyStatus.lastCompletedTitle ? `
-              <div class="monitor-recent-activity">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Vừa xong: <strong>${studyStatus.lastCompletedTitle}</strong></span>
-              </div>
-            ` : ''}
-          `;
-        } else {
-          progressDetail = `
-            <div class="monitor-empty-text">Ngân chưa lên lịch học hôm nay. Hãy nhắn tin nhắc cô ấy nhé!</div>
-          `;
-        }
-
-        monitorContainer.innerHTML = `
-          <div class="monitor-card">
-            <div class="monitor-header">
-              <div class="monitor-user-info">
-                <div class="auth-avatar-mini ngan-avatar">
-                  <img src="assets/avatars/ngan.png" class="auth-avatar-mini-photo" alt="Ngân">
-                </div>
-                <div>
-                  <h4 class="monitor-title">Tiến Độ Học Tập Của Ngân</h4>
-                  <span class="monitor-sub">Cập nhật trực tiếp thời gian thực</span>
-                </div>
-              </div>
-              <span class="live-dot-pulse" title="Đang kết nối trực tiếp"></span>
-            </div>
-            ${progressDetail}
-          </div>
-        `;
-      } else {
-        // Góc nhìn của Ngân: Đồng hành cùng Bảo
-        monitorContainer.innerHTML = `
-          <div class="monitor-card">
-            <div class="monitor-header">
-              <div class="monitor-user-info">
-                <div class="auth-avatar-mini bao-avatar">
-                  <img src="assets/avatars/bao.png" class="auth-avatar-mini-photo" alt="Bảo">
-                </div>
-                <div>
-                  <h4 class="monitor-title">Bảo Đang Đồng Hành Cùng Bạn</h4>
-                  <span class="monitor-sub">Tiến độ hôm nay: ${studyStatus.completed}/${studyStatus.total} việc (${studyStatus.percent}%)</span>
-                </div>
-              </div>
-              <span class="live-dot-pulse" title="Đang kết nối trực tiếp"></span>
-            </div>
-            <div class="progress-bar-track monitor-progress-bar">
-              <div class="progress-bar-fill fill-emerald" style="width: ${studyStatus.percent}%;"></div>
-            </div>
-          </div>
-        `;
-      }
+      // Intentionally empty
     },
 
     // ------------------------------------------------------------------------

@@ -196,13 +196,6 @@ function setupGuideModal() {
   const search = window.location.search.toLowerCase();
   if (path === '/guide' || hash === '#guide' || search.includes('guide')) {
     setTimeout(openGuide, 400);
-  } else {
-    // First-time visitor gentle prompt
-    try {
-      if (!localStorage.getItem('ngaos_seen_guide') && window.innerWidth > 768) {
-        setTimeout(openGuide, 1200);
-      }
-    } catch (e) {}
   }
 }
 
