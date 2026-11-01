@@ -1,202 +1,416 @@
 {
-  "version": 3,
-  "schedule": {
-    "activePreset": "self-study",
-    "tasks": [
-      {
-        "id": "s1",
-        "period": "morning",
-        "time": "07:30 - 08:30",
-        "title": "Ăn sáng, cafe & lên mục tiêu trọng tâm trong ngày",
-        "category": "routine",
-        "completed": false
-      },
-      {
-        "id": "s2",
-        "period": "morning",
-        "time": "08:30 - 11:30",
-        "title": "Nghiên cứu tài liệu chuyên sâu & viết đề án (Deep Work)",
-        "category": "project",
-        "completed": false
-      },
-      {
-        "id": "s3",
-        "period": "afternoon",
-        "time": "12:00 - 13:30",
-        "title": "Ăn trưa dinh dưỡng & nghe nhạc thư giãn",
-        "category": "routine",
-        "completed": false
-      },
-      {
-        "id": "s4",
-        "period": "afternoon",
-        "time": "14:00 - 17:00",
-        "title": "Thực hành bài tập đề án, sửa lỗi & hoàn thiện báo cáo",
-        "category": "project",
-        "completed": false
-      },
-      {
-        "id": "s5",
-        "period": "afternoon",
-        "time": "17:30 - 18:15",
-        "title": "Tập yoga / Chạy bộ nhẹ nhàng",
-        "category": "health",
-        "completed": false
-      },
-      {
-        "id": "s6",
-        "period": "evening",
-        "time": "19:00 - 20:00",
-        "title": "Bữa tối cùng gia đình / bạn bè",
-        "category": "routine",
-        "completed": false
-      },
-      {
-        "id": "s7",
-        "period": "evening",
-        "time": "20:15 - 22:00",
-        "title": "Đọc 1 chương sách chuyên môn & tổng hợp ghi chú",
-        "category": "study",
-        "completed": false
-      },
-      {
-        "id": "s8",
-        "period": "evening",
-        "time": "22:30 - 23:00",
-        "title": "Viết nhật ký ngày & chuẩn bị ngủ sớm",
-        "category": "health",
-        "completed": false
-      },
-      {
-        "id": "task_1793279402869_4emx",
-        "period": "morning",
-        "time": "06:00 - 06:30",
-        "title": "Đọc sách 30 phút buổi sáng",
-        "category": "study",
-        "completed": false,
-        "createdBy": "ngan",
-        "date": "2026-10-29"
-      }
-    ],
-    "days": {
-      "2026-10-29": {
-        "activePreset": "self-study",
-        "tasks": [
-          {
-            "id": "s1",
-            "period": "morning",
-            "time": "07:30 - 08:30",
-            "title": "Ăn sáng, cafe & lên mục tiêu trọng tâm trong ngày",
-            "category": "routine",
-            "completed": false
-          },
-          {
-            "id": "s2",
-            "period": "morning",
-            "time": "08:30 - 11:30",
-            "title": "Nghiên cứu tài liệu chuyên sâu & viết đề án (Deep Work)",
-            "category": "project",
-            "completed": false
-          },
-          {
-            "id": "s3",
-            "period": "afternoon",
-            "time": "12:00 - 13:30",
-            "title": "Ăn trưa dinh dưỡng & nghe nhạc thư giãn",
-            "category": "routine",
-            "completed": false
-          },
-          {
-            "id": "s4",
-            "period": "afternoon",
-            "time": "14:00 - 17:00",
-            "title": "Thực hành bài tập đề án, sửa lỗi & hoàn thiện báo cáo",
-            "category": "project",
-            "completed": false
-          },
-          {
-            "id": "s5",
-            "period": "afternoon",
-            "time": "17:30 - 18:15",
-            "title": "Tập yoga / Chạy bộ nhẹ nhàng",
-            "category": "health",
-            "completed": false
-          },
-          {
-            "id": "s6",
-            "period": "evening",
-            "time": "19:00 - 20:00",
-            "title": "Bữa tối cùng gia đình / bạn bè",
-            "category": "routine",
-            "completed": false
-          },
-          {
-            "id": "s7",
-            "period": "evening",
-            "time": "20:15 - 22:00",
-            "title": "Đọc 1 chương sách chuyên môn & tổng hợp ghi chú",
-            "category": "study",
-            "completed": false
-          },
-          {
-            "id": "s8",
-            "period": "evening",
-            "time": "22:30 - 23:00",
-            "title": "Viết nhật ký ngày & chuẩn bị ngủ sớm",
-            "category": "health",
-            "completed": false
-          },
-          {
-            "id": "task_1793279402869_4emx",
-            "period": "morning",
-            "time": "06:00 - 06:30",
-            "title": "Đọc sách 30 phút buổi sáng",
-            "category": "study",
-            "completed": false,
-            "createdBy": "ngan",
-            "date": "2026-10-29"
-          }
-        ]
-      }
-    }
-  },
   "finance": {
+    "transactions": [],
     "weeklyBudget": 1500000,
     "goals": [
       {
+        "category": "tech",
+        "deadline": "2026-12-31",
         "id": "goal_laptop",
+        "currentAmount": 0,
         "title": "Quỹ Mua Laptop Mới",
         "targetAmount": 25000000,
-        "currentAmount": 100000,
-        "deadline": "2026-12-31",
-        "creator": "ngan",
-        "category": "tech"
-      }
-    ],
-    "transactions": [
-      {
-        "id": "tx_1793279404668_35hk",
-        "type": "expense",
-        "desc": "Bánh mì & Cà phê",
-        "amount": 50000,
-        "category": "food",
-        "date": "2026-10-29T13:10:04.000Z",
         "creator": "ngan"
       }
     ]
   },
+  "schedule": {
+    "days": {
+      "2026-11-01": {
+        "tasks": [
+          {
+            "period": "morning",
+            "important": true,
+            "tag": "Admin môn JAVA",
+            "time": "08:30",
+            "tagColor": "orange",
+            "title": "Admin môn JAVA: Thiết kế giao diện quản trị viên & Đăng ký môn",
+            "completed": false,
+            "id": "t_java_1"
+          },
+          {
+            "time": "10:00",
+            "completed": false,
+            "title": "Nghiên cứu tài liệu chuyên sâu & viết đề án (Deep Work)",
+            "tag": "Đề Án",
+            "period": "morning",
+            "tagColor": "blue",
+            "id": "s2",
+            "important": false
+          },
+          {
+            "period": "afternoon",
+            "completed": false,
+            "tag": "Đề Án",
+            "tagColor": "blue",
+            "time": "14:30",
+            "title": "Thực hành bài tập đề án, sửa lỗi & hoàn thiện báo cáo",
+            "important": true,
+            "id": "s4"
+          },
+          {
+            "title": "Đọc 1 chương sách chuyên môn & tổng hợp ghi chú",
+            "id": "s7",
+            "completed": false,
+            "tagColor": "purple",
+            "time": "20:15",
+            "tag": "Chuyên Môn",
+            "period": "evening",
+            "important": false
+          },
+          {
+            "time": "07:15 - 07:45",
+            "endTime": "07:45",
+            "completed": false,
+            "completedAt": null,
+            "createdBy": "ngan",
+            "tag": "Đi làm",
+            "id": "task_1793506057003_4gnl",
+            "category": "study",
+            "important": false,
+            "period": "morning",
+            "date": "2026-11-01",
+            "tagColor": "blue",
+            "title": "Đi làm ca sáng",
+            "startTime": "07:15"
+          }
+        ],
+        "activePreset": "self-study"
+      },
+      "2026-10-29": {
+        "activePreset": "self-study",
+        "growthJournal": {
+          "bao": null,
+          "ngan": {
+            "updatedAt": 1793269311341,
+            "careerValue": "",
+            "lessonLearned": "",
+            "topWins": [
+              "Học tiếng Hàn"
+            ]
+          }
+        },
+        "tasks": [
+          {
+            "tag": "Sinh Hoạt",
+            "category": "routine",
+            "important": false,
+            "period": "morning",
+            "time": "07:30 - 08:30",
+            "tagColor": "emerald",
+            "completed": false,
+            "title": "Ăn sáng, cafe & lên mục tiêu trọng tâm trong ngày",
+            "id": "s1"
+          },
+          {
+            "important": false,
+            "id": "s2",
+            "title": "Nghiên cứu tài liệu chuyên sâu & viết đề án (Deep Work)",
+            "completed": false,
+            "tagColor": "blue",
+            "time": "08:30 - 11:30",
+            "category": "project",
+            "period": "morning",
+            "tag": "Đề Án"
+          },
+          {
+            "category": "routine",
+            "completed": false,
+            "tagColor": "emerald",
+            "tag": "Sinh Hoạt",
+            "important": false,
+            "period": "afternoon",
+            "time": "12:00 - 13:30",
+            "title": "Ăn trưa dinh dưỡng & nghe nhạc thư giãn",
+            "id": "s3"
+          },
+          {
+            "period": "afternoon",
+            "time": "14:00 - 17:00",
+            "id": "s4",
+            "title": "Thực hành bài tập đề án, sửa lỗi & hoàn thiện báo cáo",
+            "important": false,
+            "tagColor": "blue",
+            "category": "project",
+            "tag": "Đề Án",
+            "completed": false
+          },
+          {
+            "tagColor": "emerald",
+            "period": "afternoon",
+            "title": "Tập yoga / Chạy bộ nhẹ nhàng",
+            "id": "s5",
+            "category": "health",
+            "tag": "Sinh Hoạt",
+            "completed": false,
+            "important": false,
+            "time": "17:30 - 18:15"
+          },
+          {
+            "completed": false,
+            "id": "s6",
+            "category": "routine",
+            "tagColor": "emerald",
+            "important": false,
+            "title": "Bữa tối cùng gia đình / bạn bè",
+            "tag": "Sinh Hoạt",
+            "period": "evening",
+            "time": "19:00 - 20:00"
+          },
+          {
+            "period": "evening",
+            "title": "Đọc 1 chương sách chuyên môn & tổng hợp ghi chú",
+            "tag": "Chuyên Môn",
+            "tagColor": "purple",
+            "time": "20:15 - 22:00",
+            "important": false,
+            "category": "study",
+            "id": "s7",
+            "completed": false
+          },
+          {
+            "title": "Viết nhật ký ngày & chuẩn bị ngủ sớm",
+            "time": "22:30 - 23:00",
+            "period": "evening",
+            "tag": "Sinh Hoạt",
+            "completed": false,
+            "category": "health",
+            "id": "s8",
+            "tagColor": "emerald",
+            "important": false
+          }
+        ]
+      },
+      "2026-10-28": {
+        "tasks": [
+          {
+            "period": "evening",
+            "important": false,
+            "category": "health",
+            "tagColor": "emerald",
+            "tag": "Sinh Hoạt",
+            "completed": true,
+            "time": "18:00 - 19:30",
+            "id": "task_1793197759799_wdeu",
+            "date": "2026-10-28",
+            "title": "exercise",
+            "createdBy": "bao"
+          },
+          {
+            "period": "evening",
+            "tag": "Sinh Hoạt",
+            "tagColor": "emerald",
+            "createdBy": "bao",
+            "category": "routine",
+            "id": "task_1793197794876_59g4",
+            "date": "2026-10-28",
+            "time": "19:30 - 21:00",
+            "completed": true,
+            "title": "ăn tối và chơi",
+            "important": false
+          },
+          {
+            "important": false,
+            "completed": true,
+            "period": "evening",
+            "title": "client_shopHoa",
+            "id": "task_1793197828258_tkk9",
+            "tagColor": "purple",
+            "tag": "Chuyên Môn",
+            "category": "study",
+            "createdBy": "bao",
+            "date": "2026-10-28",
+            "time": "21:00 - 23:00"
+          }
+        ],
+        "activePreset": "self-study",
+        "growthJournal": {
+          "bao": {
+            "lessonLearned": "",
+            "careerValue": "",
+            "updatedAt": 1793162588685,
+            "topWins": [
+              "code tay"
+            ]
+          },
+          "ngan": null
+        }
+      },
+      "2026-10-31": {
+        "tasks": [
+          {
+            "title": "Admin môn JAVA: Thiết kế giao diện quản trị viên & Đăng ký môn",
+            "period": "morning",
+            "tag": "Admin môn JAVA",
+            "time": "08:30",
+            "completed": false,
+            "id": "t_java_1",
+            "tagColor": "orange",
+            "important": true
+          },
+          {
+            "id": "s2",
+            "completed": false,
+            "period": "morning",
+            "tagColor": "blue",
+            "tag": "Đề Án",
+            "important": false,
+            "time": "10:00",
+            "title": "Nghiên cứu tài liệu chuyên sâu & viết đề án (Deep Work)"
+          },
+          {
+            "important": true,
+            "tagColor": "blue",
+            "period": "afternoon",
+            "id": "s4",
+            "time": "14:30",
+            "completed": false,
+            "title": "Thực hành bài tập đề án, sửa lỗi & hoàn thiện báo cáo",
+            "tag": "Đề Án"
+          },
+          {
+            "id": "s7",
+            "completed": false,
+            "title": "Đọc 1 chương sách chuyên môn & tổng hợp ghi chú",
+            "tagColor": "purple",
+            "time": "20:15",
+            "important": false,
+            "tag": "Chuyên Môn",
+            "period": "evening"
+          }
+        ],
+        "activePreset": "self-study"
+      },
+      "2026-11-02": {
+        "tasks": [
+          {
+            "completed": false,
+            "tag": "Đi làm",
+            "title": "Đi làm: Ca sáng công ty & Hoàn thành báo cáo",
+            "period": "morning",
+            "tagColor": "blue",
+            "time": "09:00 - 12:00",
+            "important": true,
+            "id": "t_work_1"
+          },
+          {
+            "id": "t_java_2",
+            "important": true,
+            "title": "Admin môn JAVA: Viết API phân quyền Spring Security",
+            "time": "14:00 - 16:30",
+            "period": "afternoon",
+            "tag": "Admin môn JAVA",
+            "tagColor": "orange",
+            "completed": false
+          }
+        ],
+        "activePreset": "self-study"
+      }
+    },
+    "tags": [
+      {
+        "color": "orange",
+        "name": "Admin môn JAVA"
+      },
+      {
+        "name": "Đi làm",
+        "color": "blue"
+      },
+      {
+        "color": "purple",
+        "name": "Chuyên Môn"
+      },
+      {
+        "color": "blue",
+        "name": "Đề Án"
+      },
+      {
+        "color": "emerald",
+        "name": "Sinh Hoạt"
+      },
+      {
+        "color": "amber",
+        "name": "Ôn Thi"
+      },
+      {
+        "color": "rose",
+        "name": "Deadline Gấp"
+      }
+    ],
+    "tasks": [
+      {
+        "period": "morning",
+        "time": "08:30",
+        "completed": false,
+        "tagColor": "orange",
+        "title": "Admin môn JAVA: Thiết kế giao diện quản trị viên & Đăng ký môn",
+        "id": "t_java_1",
+        "tag": "Admin môn JAVA",
+        "important": true
+      },
+      {
+        "id": "s2",
+        "title": "Nghiên cứu tài liệu chuyên sâu & viết đề án (Deep Work)",
+        "important": false,
+        "time": "10:00",
+        "period": "morning",
+        "tag": "Đề Án",
+        "completed": false,
+        "tagColor": "blue"
+      },
+      {
+        "completed": false,
+        "tag": "Đề Án",
+        "title": "Thực hành bài tập đề án, sửa lỗi & hoàn thiện báo cáo",
+        "tagColor": "blue",
+        "time": "14:30",
+        "important": true,
+        "period": "afternoon",
+        "id": "s4"
+      },
+      {
+        "period": "evening",
+        "important": false,
+        "tagColor": "purple",
+        "id": "s7",
+        "tag": "Chuyên Môn",
+        "time": "20:15",
+        "title": "Đọc 1 chương sách chuyên môn & tổng hợp ghi chú",
+        "completed": false
+      },
+      {
+        "category": "study",
+        "createdBy": "ngan",
+        "tagColor": "blue",
+        "tag": "Đi làm",
+        "time": "07:15 - 07:45",
+        "startTime": "07:15",
+        "important": false,
+        "title": "Đi làm ca sáng",
+        "completedAt": null,
+        "completed": false,
+        "endTime": "07:45",
+        "date": "2026-11-01",
+        "period": "morning",
+        "id": "task_1793506057003_4gnl"
+      }
+    ],
+    "activePreset": "self-study",
+    "viewMode": "month"
+  },
+  "version": 3,
   "chat": {
     "messages": [
       {
-        "id": "msg_initial_1",
-        "sender": "bao",
         "senderName": "Bảo",
-        "type": "text",
         "text": "Chào Ngân! Hôm nay học tập thật tốt nhé em bé, anh luôn ở đây tiếp năng lượng cho em!",
+        "type": "text",
         "time": "08:00",
-        "timestamp": 1793275801645
+        "timestamp": 1793502454541,
+        "sender": "bao",
+        "id": "msg_initial_1"
       }
     ]
   },
-  "updatedAt": 1793279404668
+  "updatedAt": 1793506060704
 }

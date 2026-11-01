@@ -23,6 +23,22 @@ window.ScheduleModule = {
   currentViewMode: 'day', // 'day' | 'four-weeks' | 'month'
   filterTag: null,
 
+  // Visual Time-Grid state
+  timegridInitialized: false,
+  isSelecting: false,
+  selectStartY: 0,
+  popoverStartMin: 540, // 09:00 default
+  popoverEndMin: 720,   // 12:00 default
+  popoverSelectedTag: '',
+  isResizing: false,
+  resizingTaskId: null,
+  resizingStartMin: 0,
+  isMoving: false,
+  movingTaskId: null,
+  movingDuration: 0,
+  movingOffsetY: 0,
+  liveClockInterval: null,
+
   init() {
     const today = new Date();
     this.viewYear = today.getFullYear();
@@ -37,6 +53,8 @@ window.ScheduleModule = {
     }
 
     this.bindEvents();
+    this.initTimeGridInteractions();
+    this.startLiveClock();
     this.render();
   },
 
@@ -262,16 +280,22 @@ window.ScheduleModule = {
     if (containerFourWeeks) containerFourWeeks.style.display = this.currentViewMode === 'four-weeks' ? 'block' : 'none';
     if (containerMonth) containerMonth.style.display = this.currentViewMode === 'month' ? 'block' : 'none';
 
+    // Khi ở Bảng 4 Tuần hoặc Bảng Tháng, ẩn toàn bộ calendar-nav-section (vì Bảng Tháng đã có cụm chuyển tháng riêng, 4 Tuần là roadmap riêng)
+    const calNavSection = document.querySelector('.calendar-nav-section');
+    if (calNavSection) calNavSection.style.display = this.currentViewMode === 'day' ? 'flex' : 'none';
+
     // 2. Render Top Nav Bar (Tháng / Tuần / Selected Day)
     this.renderCalendarNav();
 
     // 3. Render Dropdown Options cho Nhãn
     this.renderTagSelectOptions();
 
+    // 3.5 Render Thanh Lọc Nhãn Toàn Cục (Đồng bộ Ngày, 4 Tuần, Tháng)
+    this.renderGlobalFilterBar();
+
     // 4. Render nội dung tương ứng theo View
     if (this.currentViewMode === 'day') {
-      this.renderDailyTimeline();
-      this.renderTagFilterChips();
+      this.renderDayView();
     } else if (this.currentViewMode === 'four-weeks') {
       this.renderFourWeeksView();
     } else if (this.currentViewMode === 'month') {
@@ -285,14 +309,9 @@ window.ScheduleModule = {
       monthLabel.textContent = `Tháng ${this.viewMonth} / ${this.viewYear}`;
     }
 
-    const weekBadge = document.getElementById('schedule-week-of-year-badge');
-    if (weekBadge) {
-      const weekNum = this.getWeekOfYear(new Date(this.selectedDate));
-      weekBadge.textContent = `Tuần ${weekNum}`;
-    }
-
     const selectedDayTitle = document.getElementById('selected-day-title');
     const selectedDayStatusPill = document.getElementById('selected-day-status-pill');
+    const clockText = document.getElementById('timegrid-clock-text');
     const todayStr = StorageManager.getTodayDateStr();
 
     if (selectedDayTitle) {
@@ -308,7 +327,7 @@ window.ScheduleModule = {
 
     if (selectedDayStatusPill) {
       if (dayTotal === 0) {
-        selectedDayStatusPill.textContent = 'Chưa lên lịch';
+        selectedDayStatusPill.textContent = 'Chưa lên việc';
         selectedDayStatusPill.className = 'day-banner-status';
       } else {
         selectedDayStatusPill.textContent = `${dayCompleted}/${dayTotal} việc (${dayPercent}%)`;
@@ -320,6 +339,13 @@ window.ScheduleModule = {
           selectedDayStatusPill.className = 'day-banner-status';
         }
       }
+    }
+
+    if (clockText) {
+      const now = new Date();
+      const curH = String(now.getHours()).padStart(2, '0');
+      const curM = String(now.getMinutes()).padStart(2, '0');
+      clockText.textContent = `${curH}:${curM}`;
     }
 
     this.renderWeekStrip();
@@ -422,150 +448,275 @@ window.ScheduleModule = {
   },
 
   // --------------------------------------------------------------------------
-  // VIEW 1: CHI TIẾT NGÀY (CHRONOLOGICAL TIMELINE SÁNG -> TỐI)
+  // THANH LỌC NHÃN TOÀN CỤC (GLOBAL TAG FILTER BAR - ĐỒNG BỘ 3 KHUNG NHÌN)
   // --------------------------------------------------------------------------
-  renderTagFilterChips() {
-    const container = document.getElementById('day-tags-filter-chips');
+  renderGlobalFilterBar() {
+    const container = document.getElementById('global-filter-chips-container');
+    const statusBar = document.getElementById('filter-active-status-bar');
+    const statusText = document.getElementById('filter-active-status-text');
+    const btnClear = document.getElementById('btn-clear-global-filter');
     if (!container) return;
 
     const tags = StorageManager.getAllTags();
-    let html = `
-      <button type="button" class="tag-filter-chip ${!this.filterTag ? 'active' : ''}" data-tag="">
-        Tất cả
-      </button>
+    const totalAll = StorageManager.countAllTasks();
+    const totalImportant = StorageManager.countImportantTasks();
+
+    let chipsHtml = `
+      <span class="global-filter-pill tag-all ${!this.filterTag ? 'active' : ''}" data-tag="" title="Xem toàn bộ công việc">
+        Tất cả <span class="global-filter-count">${totalAll}</span>
+      </span>
     `;
 
-    tags.forEach(t => {
-      const isActive = this.filterTag === t.name;
-      html += `
-        <button type="button" class="tag-filter-chip ${isActive ? 'active' : ''} tag-pill-${t.color}" data-tag="${t.name}">
-          ${t.name}
-        </button>
+    tags.forEach(tag => {
+      const count = StorageManager.countTasksByTag(tag.name);
+      const isSelected = this.filterTag === tag.name;
+      chipsHtml += `
+        <span class="global-filter-pill tag-pill-${tag.color} ${isSelected ? 'active' : ''}" 
+              draggable="true" 
+              data-tag="${this.escapeHTML(tag.name)}" 
+              data-color="${tag.color}"
+              title="Bấm để lọc hoặc kéo thả vào khung giờ bên dưới">
+          ${this.escapeHTML(tag.name)} <span class="global-filter-count">${count}</span>
+        </span>
       `;
     });
 
-    container.innerHTML = html;
+    const isImportantSelected = this.filterTag === '__important__';
+    chipsHtml += `
+      <span class="global-filter-pill tag-pill-star ${isImportantSelected ? 'active' : ''}" data-tag="__important__" title="Lọc các việc ưu tiên quan trọng">
+        ⭐ Quan Trọng <span class="global-filter-count">${totalImportant}</span>
+      </span>
+    `;
 
-    container.querySelectorAll('.tag-filter-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        const tag = chip.getAttribute('data-tag') || null;
-        this.filterTag = tag;
-        this.renderDailyTimeline();
-        this.renderTagFilterChips();
+    container.innerHTML = chipsHtml;
+
+    // Gán sự kiện click và drag cho từng pill
+    container.querySelectorAll('.global-filter-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const targetTag = pill.getAttribute('data-tag') || null;
+        if (this.filterTag === targetTag) {
+          this.filterTag = null;
+        } else {
+          this.filterTag = targetTag;
+        }
+        this.render();
+        if (window.playChime) window.playChime(this.filterTag ? 660 : 520, 0.1);
       });
+
+      if (pill.getAttribute('data-color')) {
+        pill.addEventListener('dragstart', (e) => {
+          const tagName = pill.getAttribute('data-tag');
+          const tagColor = pill.getAttribute('data-color');
+          e.dataTransfer.setData('text/plain', tagName);
+          e.dataTransfer.setData('application/x-tag-color', tagColor);
+          pill.classList.add('is-dragging');
+        });
+        pill.addEventListener('dragend', () => {
+          pill.classList.remove('is-dragging');
+        });
+      }
     });
+
+    // Cập nhật thanh trạng thái khi đang lọc
+    if (this.filterTag) {
+      if (statusBar) statusBar.style.display = 'flex';
+      let countFound = 0;
+      let label = '';
+      if (this.filterTag === '__important__') {
+        countFound = totalImportant;
+        label = '⭐ Việc Quan Trọng';
+      } else {
+        countFound = StorageManager.countTasksByTag(this.filterTag);
+        label = this.filterTag;
+      }
+      if (statusText) {
+        statusText.innerHTML = `Đang lọc theo nhãn: <strong>${this.escapeHTML(label)}</strong> • Tìm thấy <strong>${countFound} việc</strong> (áp dụng trên cả Ngày, Tuần, Tháng)`;
+      }
+    } else {
+      if (statusBar) statusBar.style.display = 'none';
+    }
+
+    // Nút Bỏ lọc
+    if (btnClear && !btnClear._hasFilterBound) {
+      btnClear._hasFilterBound = true;
+      btnClear.addEventListener('click', () => {
+        this.filterTag = null;
+        this.render();
+        if (window.playChime) window.playChime(500, 0.1);
+      });
+    }
   },
 
-  renderDailyTimeline() {
-    const container = document.getElementById('daily-timeline-list');
-    const countBadge = document.getElementById('timeline-summary-count');
-    if (!container) return;
+  // --------------------------------------------------------------------------
+  // VIEW 1: CHI TIẾT NGÀY (VISUAL TIME-GRID & DRAG-AND-DROP PLANNER)
+  // --------------------------------------------------------------------------
+  timeToMinutes(timeStr) {
+    if (!timeStr) return null;
+    const parts = timeStr.trim().split(':');
+    if (parts.length < 2) return null;
+    const h = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+    if (isNaN(h) || isNaN(m)) return null;
+    return h * 60 + m;
+  },
 
+  minutesToTime(mins) {
+    mins = Math.max(0, Math.min(1440, mins));
+    const h = Math.floor(mins / 60) % 24;
+    const m = mins % 60;
+    return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+  },
+
+  formatDuration(startMin, endMin) {
+    const diff = Math.max(0, endMin - startMin);
+    const h = Math.floor(diff / 60);
+    const m = diff % 60;
+    if (h > 0 && m > 0) return `${h}h${m}p`;
+    if (h > 0) return `${h} tiếng`;
+    return `${m} phút`;
+  },
+
+  renderDayView() {
+    this.renderVisualTimeGrid();
+  },
+
+  renderVisualTimeGrid() {
+    const gutter = document.getElementById('timegrid-time-gutter');
+    const hourLines = document.getElementById('timegrid-hour-lines');
+    const tasksLayer = document.getElementById('timegrid-tasks-layer');
+    if (!gutter || !tasksLayer) return;
+
+    // 1. Gutter & Hour lines (06:00 to 23:00)
+    let gutterHTML = '';
+    let hourLinesHTML = '';
+    for (let h = 6; h <= 23; h++) {
+      const timeLabel = String(h).padStart(2, '0') + ':00';
+      gutterHTML += `<div class="timegrid-gutter-hour"><span>${timeLabel}</span></div>`;
+      hourLinesHTML += `
+        <div class="timegrid-hour-slot">
+          <div class="timegrid-half-hour-line"></div>
+        </div>
+      `;
+    }
+    gutter.innerHTML = gutterHTML;
+    if (hourLines) hourLines.innerHTML = hourLinesHTML;
+
+    // 2. Now Indicator
+    this.updateNowIndicator();
+
+    // 3. Tasks Layer (Hỗ trợ xếp cạnh nhau thông minh nếu cùng giờ)
     let tasks = StorageManager.getDayTasks(this.selectedDate);
-
-    // Lọc theo tag nếu có
-    if (this.filterTag) {
+    if (this.filterTag === '__important__') {
+      tasks = tasks.filter(t => !!t.important);
+    } else if (this.filterTag) {
       tasks = tasks.filter(t => (t.tag || '').trim().toLowerCase() === this.filterTag.trim().toLowerCase());
     }
 
-    if (countBadge) {
-      const completed = tasks.filter(t => t.completed).length;
-      countBadge.textContent = `${completed}/${tasks.length} việc`;
-    }
+    const processedTasks = tasks.map(task => {
+      let startMin = null;
+      let endMin = null;
 
-    // Sắp xếp tự động theo mốc thời gian từ Sáng đến Tối
-    const timeToMins = (t) => {
-      if (!t) return 9999;
-      const p = t.trim().split(':');
-      if (p.length < 2) return 9999;
-      return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
-    };
+      if (task.startTime && task.endTime) {
+        startMin = this.timeToMinutes(task.startTime);
+        endMin = this.timeToMinutes(task.endTime);
+      } else if (task.time && task.time.includes('-')) {
+        const parts = task.time.split('-');
+        startMin = this.timeToMinutes(parts[0]);
+        endMin = this.timeToMinutes(parts[1]);
+      } else if (task.time) {
+        startMin = this.timeToMinutes(task.time);
+        if (startMin !== null) endMin = startMin + 60;
+      }
 
-    tasks.sort((a, b) => {
-      const mA = timeToMins(a.time);
-      const mB = timeToMins(b.time);
-      if (mA !== mB) return mA - mB;
-      // Nếu cùng giờ, việc quan trọng xếp trước
-      if (a.important && !b.important) return -1;
-      if (!a.important && b.important) return 1;
-      return 0;
+      if (startMin === null) startMin = 540; // 09:00 default
+      if (endMin === null || endMin <= startMin) endMin = startMin + 60;
+
+      return {
+        ...task,
+        startMin,
+        endMin,
+        top: Math.max(0, startMin - 360),
+        height: Math.max(34, endMin - startMin)
+      };
     });
 
-    if (tasks.length === 0) {
-      container.innerHTML = `
-        <div style="padding: 28px 16px; text-align: center; color: var(--text-muted); font-size: 13.5px; background: var(--card-subtle); border-radius: var(--radius-md);">
-          <div style="font-size: 26px; margin-bottom: 6px;">🍃</div>
-          Chưa có công việc nào trong ngày này.<br>
-          <span style="font-size: 12px; opacity: 0.8;">Nhập công việc ở khung phía trên và nhấn Enter để lưu lại.</span>
-        </div>
-      `;
-      return;
-    }
+    // Sắp xếp và chia cột cho các công việc trùng khung giờ
+    processedTasks.sort((a, b) => a.startMin - b.startMin || (b.endMin - b.startMin) - (a.endMin - a.startMin));
 
-    container.innerHTML = tasks.map(task => {
-      const tagColor = task.tagColor || StorageManager.getTagColor(task.tag);
+    const columns = [];
+    processedTasks.forEach(task => {
+      let placed = false;
+      for (let c = 0; c < columns.length; c++) {
+        if (columns[c] <= task.startMin) {
+          columns[c] = task.endMin;
+          task.col = c;
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) {
+        task.col = columns.length;
+        columns.push(task.endMin);
+      }
+    });
+
+    processedTasks.forEach(task => {
+      const overlapping = processedTasks.filter(other => !(other.endMin <= task.startMin || other.startMin >= task.endMin));
+      task.totalCols = Math.max(...overlapping.map(o => o.col)) + 1;
+    });
+
+    tasksLayer.innerHTML = processedTasks.map(task => {
+      const tagColor = task.tagColor || StorageManager.getTagColor(task.tag) || 'blue';
       const isImportant = !!task.important;
       const isCompleted = !!task.completed;
-      const timeStr = task.time ? task.time : 'Linh hoạt';
+      const displayTime = `${this.minutesToTime(task.startMin)} - ${this.minutesToTime(task.endMin)}`;
+
+      const widthPercent = (100 / (task.totalCols || 1)).toFixed(2);
+      const leftPercent = ((task.col || 0) * (100 / (task.totalCols || 1))).toFixed(2);
+      const style = `top: ${task.top}px; height: ${task.height}px; left: calc(${leftPercent}% + 6px); width: calc(${widthPercent}% - 12px);`;
 
       return `
-        <div class="timeline-task-item ${isImportant ? 'is-important' : ''} ${isCompleted ? 'is-completed' : ''}" id="task-row-${task.id}">
-          <input type="checkbox" class="timeline-task-checkbox" data-id="${task.id}" ${isCompleted ? 'checked' : ''} title="Đánh dấu hoàn thành">
-          <span class="timeline-task-time-badge">${timeStr}</span>
-
-          <div class="timeline-task-body">
-            <span class="timeline-task-title">${this.escapeHTML(task.title)}</span>
-            
-            ${task.tag ? `
-              <span class="tag-pill tag-pill-${tagColor}" data-tag="${task.tag}" title="Bấm để xem chuỗi liên kết: ${task.tag}">
-                ${this.escapeHTML(task.tag)}
-              </span>
-            ` : ''}
-
-            ${isImportant ? `
-              <span class="timeline-task-important-badge" title="Công việc ưu tiên quan trọng">
-                ⭐ Quan Trọng
-              </span>
-            ` : ''}
+        <div class="timegrid-task-block tag-color-${tagColor} ${isImportant ? 'is-important' : ''} ${isCompleted ? 'is-completed' : ''}" 
+             id="timegrid-task-${task.id}" 
+             data-id="${task.id}"
+             data-start-min="${task.startMin}"
+             data-end-min="${task.endMin}"
+             style="${style}">
+          <div class="task-block-top-row">
+            <div class="task-block-meta-left">
+              <input type="checkbox" class="task-block-checkbox" data-id="${task.id}" ${isCompleted ? 'checked' : ''} title="Đánh dấu hoàn thành">
+              <span class="task-block-time-badge">${displayTime}</span>
+              ${task.tag ? `<span class="task-block-tag-badge tag-pill-${tagColor}" data-tag="${this.escapeHTML(task.tag)}" title="Xem chuỗi công việc ${this.escapeHTML(task.tag)}">${this.escapeHTML(task.tag)}</span>` : ''}
+              ${isImportant ? `<span class="task-block-important-star" title="Công việc quan trọng">⭐</span>` : ''}
+            </div>
+            <div class="task-block-actions">
+              <button type="button" class="btn-task-block-action btn-task-edit" data-id="${task.id}" title="Sửa chi tiết">✏️</button>
+              <button type="button" class="btn-task-block-action btn-task-del" data-id="${task.id}" title="Xóa">✕</button>
+            </div>
           </div>
-
-          <div class="timeline-task-actions">
-            <button type="button" class="task-btn-edit" data-id="${task.id}" title="Chỉnh sửa việc">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 20h9"></path>
-                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-              </svg>
-            </button>
-            <button type="button" class="task-btn-delete" data-id="${task.id}" title="Xóa">✕</button>
+          <div class="task-block-title" title="${this.escapeHTML(task.title)}">${this.escapeHTML(task.title)}</div>
+          <div class="task-resize-handle" data-id="${task.id}" title="Kéo lên/xuống để chỉnh thời lượng">
+            <div class="task-resize-handle-bar"></div>
           </div>
         </div>
       `;
     }).join('');
 
-    // Bắt sự kiện Checkbox
-    container.querySelectorAll('.timeline-task-checkbox').forEach(chk => {
-      chk.addEventListener('change', () => {
+    // Bind task events
+    tasksLayer.querySelectorAll('.task-block-checkbox').forEach(chk => {
+      chk.addEventListener('change', (e) => {
+        e.stopPropagation();
         const id = chk.getAttribute('data-id');
         StorageManager.toggleTask(id, this.selectedDate);
         this.render();
         if (window.playChime) window.playChime(chk.checked ? 660 : 440, 0.12);
         if (chk.checked && window.showToast) {
-          window.showToast('Tuyệt vời! Đã ghi nhận vào Done-Log thành tựu.', 'success');
+          window.showToast('Tuyệt vời! Đã hoàn thành công việc.', 'success');
         }
       });
     });
 
-    // Bắt sự kiện Click Nhãn để mở Tag Chain Modal
-    container.querySelectorAll('.tag-pill[data-tag]').forEach(pill => {
-      pill.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const tag = pill.getAttribute('data-tag');
-        if (tag) this.openTagChainModal(tag);
-      });
-    });
-
-    // Bắt sự kiện Sửa việc
-    container.querySelectorAll('.task-btn-edit').forEach(btn => {
+    tasksLayer.querySelectorAll('.btn-task-edit').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const id = btn.getAttribute('data-id');
@@ -574,8 +725,7 @@ window.ScheduleModule = {
       });
     });
 
-    // Bắt sự kiện Xóa việc
-    container.querySelectorAll('.task-btn-delete').forEach(btn => {
+    tasksLayer.querySelectorAll('.btn-task-del').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const id = btn.getAttribute('data-id');
@@ -585,59 +735,484 @@ window.ScheduleModule = {
       });
     });
 
-    // Cập nhật thanh tiến độ ngày
-    const total = tasks.length;
-    const done = tasks.filter(t => t.completed).length;
-    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    tasksLayer.querySelectorAll('.task-block-tag-badge').forEach(badge => {
+      badge.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const tag = badge.getAttribute('data-tag');
+        if (tag) this.openTagChainModal(tag);
+      });
+    });
 
-    const progressFraction = document.getElementById('progress-fraction');
-    const progressBar = document.getElementById('daily-progress-bar');
-    const progressDateLabel = document.getElementById('progress-date-label');
+    tasksLayer.querySelectorAll('.task-resize-handle').forEach(handle => {
+      handle.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const id = handle.getAttribute('data-id');
+        const taskBlock = document.getElementById(`timegrid-task-${id}`);
+        if (!taskBlock) return;
+        this.isResizing = true;
+        this.resizingTaskId = id;
+        this.resizingStartMin = parseInt(taskBlock.getAttribute('data-start-min'), 10);
+        document.body.style.cursor = 'ns-resize';
+      });
+    });
 
-    if (progressDateLabel) {
-      progressDateLabel.textContent = this.selectedDate === StorageManager.getTodayDateStr() ? 'Tiến độ hôm nay' : `Tiến độ ngày ${this.formatDisplayDate(this.selectedDate)}`;
-    }
-    if (progressFraction) {
-      progressFraction.textContent = `${done}/${total} việc (${pct}%)`;
-    }
-    if (progressBar) {
-      progressBar.style.width = `${pct}%`;
-    }
+    tasksLayer.querySelectorAll('.timegrid-task-block').forEach(block => {
+      block.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.btn-task-block-action, .task-block-checkbox, .task-resize-handle, .task-block-tag-badge')) return;
+        e.preventDefault();
+        const id = block.getAttribute('data-id');
+        const sMin = parseInt(block.getAttribute('data-start-min'), 10);
+        const eMin = parseInt(block.getAttribute('data-end-min'), 10);
+        this.isMoving = true;
+        this.movingTaskId = id;
+        this.movingDuration = eMin - sMin;
+        const canvas = document.getElementById('timegrid-canvas');
+        const rect = canvas.getBoundingClientRect();
+        this.movingOffsetY = (e.clientY - rect.top) - (sMin - 360);
+        block.classList.add('is-moving');
+        document.body.style.cursor = 'grabbing';
+      });
+    });
   },
 
-  handleDailyAddTask() {
-    const inputTitle = document.getElementById('day-input-title');
-    const inputTime = document.getElementById('day-input-time');
-    const selectTag = document.getElementById('day-select-tag');
-    const checkImportant = document.getElementById('day-checkbox-important');
+  updateNowIndicator() {
+    const indicator = document.getElementById('timegrid-now-indicator');
+    const clockText = document.getElementById('timegrid-clock-text');
+    const now = new Date();
+    const curH = String(now.getHours()).padStart(2, '0');
+    const curM = String(now.getMinutes()).padStart(2, '0');
+    if (clockText) clockText.textContent = `Giờ thực tế: ${curH}:${curM}`;
 
-    const title = (inputTitle?.value || '').trim();
-    if (!title) {
-      if (window.showToast) window.showToast('Vui lòng nhập tên công việc!', 'warning');
-      inputTitle?.focus();
+    if (!indicator) return;
+    const isToday = this.selectedDate === StorageManager.getTodayDateStr();
+    if (!isToday) {
+      indicator.style.display = 'none';
       return;
     }
 
-    const time = inputTime?.value || '';
-    const tag = selectTag?.value || 'Admin môn JAVA';
-    const tagColor = StorageManager.getTagColor(tag);
-    const important = checkImportant ? checkImportant.checked : false;
+    const curTotalMins = now.getHours() * 60 + now.getMinutes();
+    if (curTotalMins >= 360 && curTotalMins <= 1440) {
+      const topY = curTotalMins - 360;
+      indicator.style.display = 'flex';
+      indicator.style.top = `${topY}px`;
+    } else {
+      indicator.style.display = 'none';
+    }
+  },
 
-    StorageManager.addTask({
-      title,
-      time,
-      tag,
-      tagColor,
-      important,
-      date: this.selectedDate
+  startLiveClock() {
+    if (this.liveClockInterval) clearInterval(this.liveClockInterval);
+    this.liveClockInterval = setInterval(() => {
+      this.updateNowIndicator();
+    }, 30000);
+  },
+
+  renderPopoverTagChips(selectedTag) {
+    const container = document.getElementById('popover-tags-chips');
+    if (!container) return;
+
+    const tags = StorageManager.getAllTags();
+    const currentTag = selectedTag || this.popoverSelectedTag || (tags[0] ? tags[0].name : 'Admin môn JAVA');
+    this.popoverSelectedTag = currentTag;
+
+    container.innerHTML = tags.map(tag => {
+      const isSel = tag.name === currentTag;
+      return `
+        <span class="popover-chip-pill tag-pill-${tag.color} ${isSel ? 'selected' : ''}" data-tag="${this.escapeHTML(tag.name)}">
+          ${this.escapeHTML(tag.name)}
+        </span>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.popover-chip-pill').forEach(pill => {
+      pill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const tName = pill.getAttribute('data-tag');
+        this.popoverSelectedTag = tName;
+        this.renderPopoverTagChips(tName);
+      });
     });
+  },
 
-    if (inputTitle) inputTitle.value = '';
+  openCreatePopover({ startMin, endMin, preselectedTag, topY }) {
+    const popover = document.getElementById('timegrid-create-popover');
+    const backdrop = document.getElementById('timegrid-popover-backdrop');
+    const timeRangeText = document.getElementById('popover-time-range-text');
+    const durationText = document.getElementById('popover-duration-text');
+    const inputTitle = document.getElementById('popover-task-title');
+    const checkImportant = document.getElementById('popover-important-checkbox');
+    if (!popover) return;
+
+    this.popoverStartMin = startMin;
+    this.popoverEndMin = endMin;
+    if (preselectedTag) this.popoverSelectedTag = preselectedTag;
+
+    if (timeRangeText) {
+      timeRangeText.textContent = `${this.minutesToTime(startMin)} - ${this.minutesToTime(endMin)}`;
+    }
+    if (durationText) {
+      durationText.textContent = `(${this.formatDuration(startMin, endMin)})`;
+    }
+
+    this.renderPopoverTagChips(preselectedTag);
+
+    if (inputTitle) {
+      inputTitle.value = preselectedTag ? preselectedTag : '';
+      setTimeout(() => {
+        inputTitle.focus();
+        if (preselectedTag) inputTitle.select();
+      }, 50);
+    }
     if (checkImportant) checkImportant.checked = false;
 
-    this.render();
-    if (window.showToast) window.showToast(`Đã thêm việc (${time}): ${title}`, 'success');
-    if (window.playChime) window.playChime(760, 0.16);
+    // Position popover
+    if (window.innerWidth <= 640) {
+      // Mobile: bottom sheet via fixed bottom
+      popover.style.top = '';
+      popover.style.left = '';
+    } else {
+      // Desktop: position fixed relative to canvas selection
+      const canvas = document.getElementById('timegrid-canvas');
+      const rect = canvas ? canvas.getBoundingClientRect() : { top: 100, left: 100 };
+      const popTop = Math.max(70, Math.min(window.innerHeight - 300, rect.top + (startMin - 360)));
+      popover.style.top = `${popTop}px`;
+      popover.style.left = `${Math.min(window.innerWidth - 380, rect.left + 50)}px`;
+    }
+    popover.style.display = 'block';
+
+    if (backdrop) {
+      backdrop.style.display = 'block';
+    }
+  },
+
+  closeCreatePopover() {
+    const popover = document.getElementById('timegrid-create-popover');
+    const selBox = document.getElementById('timegrid-selection-box');
+    const backdrop = document.getElementById('timegrid-popover-backdrop');
+    if (popover) popover.style.display = 'none';
+    if (selBox) selBox.style.display = 'none';
+    if (backdrop) backdrop.style.display = 'none';
+  },
+
+  initTimeGridInteractions() {
+    if (this.timegridInitialized) return;
+    this.timegridInitialized = true;
+
+    // 1. Popover buttons & Backdrop
+    const btnPopoverClose = document.getElementById('btn-popover-close');
+    const btnPopoverCancel = document.getElementById('btn-popover-cancel');
+    const formPopover = document.getElementById('form-popover-create');
+    const backdrop = document.getElementById('timegrid-popover-backdrop');
+    const popoverEl = document.getElementById('timegrid-create-popover');
+
+    if (popoverEl) {
+      popoverEl.addEventListener('click', (e) => e.stopPropagation());
+      popoverEl.addEventListener('mousedown', (e) => e.stopPropagation());
+      popoverEl.addEventListener('touchstart', (e) => e.stopPropagation());
+      popoverEl.addEventListener('touchend', (e) => e.stopPropagation());
+    }
+
+    btnPopoverClose?.addEventListener('click', () => this.closeCreatePopover());
+    btnPopoverCancel?.addEventListener('click', () => this.closeCreatePopover());
+    backdrop?.addEventListener('click', () => this.closeCreatePopover());
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') this.closeCreatePopover();
+    });
+
+    formPopover?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const inputTitle = document.getElementById('popover-task-title');
+      const checkImportant = document.getElementById('popover-important-checkbox');
+      const title = (inputTitle?.value || '').trim();
+      if (!title) {
+        if (window.showToast) window.showToast('Vui lòng nhập tên công việc!', 'warning');
+        inputTitle?.focus();
+        return;
+      }
+
+      const tag = this.popoverSelectedTag || 'Admin môn JAVA';
+      const tagColor = StorageManager.getTagColor(tag);
+      const important = checkImportant ? checkImportant.checked : false;
+      const startTime = this.minutesToTime(this.popoverStartMin);
+      const endTime = this.minutesToTime(this.popoverEndMin);
+
+      StorageManager.addTask({
+        title,
+        startTime,
+        endTime,
+        time: `${startTime} - ${endTime}`,
+        tag,
+        tagColor,
+        important,
+        date: this.selectedDate
+      });
+
+      this.closeCreatePopover();
+      this.render();
+
+      if (window.showToast) window.showToast(`Đã lên lịch (${startTime} - ${endTime}): ${title}`, 'success');
+      if (window.playChime) window.playChime(760, 0.16);
+    });
+
+    // 3. Canvas Drag-to-Select & Drag-over / Drop
+    const canvas = document.getElementById('timegrid-canvas');
+    const selBox = document.getElementById('timegrid-selection-box');
+    const selLabel = document.getElementById('selection-time-label');
+    if (!canvas) return;
+
+    canvas.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.timegrid-task-block, .btn-task-block-action, .task-block-checkbox, .task-resize-handle, #timegrid-create-popover')) {
+        return;
+      }
+      this.closeCreatePopover();
+      this.isSelecting = true;
+      const rect = canvas.getBoundingClientRect();
+      this.selectStartY = e.clientY - rect.top;
+
+      let startMin = Math.round((360 + this.selectStartY) / 15) * 15;
+      startMin = Math.max(360, Math.min(1410, startMin));
+      let endMin = startMin + 30;
+
+      this.popoverStartMin = startMin;
+      this.popoverEndMin = endMin;
+
+      if (selBox && selLabel) {
+        selBox.style.display = 'flex';
+        selBox.style.top = `${startMin - 360}px`;
+        selBox.style.height = `${endMin - startMin}px`;
+        selLabel.textContent = `${this.minutesToTime(startMin)} - ${this.minutesToTime(endMin)} (${this.formatDuration(startMin, endMin)})`;
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      const cvs = document.getElementById('timegrid-canvas');
+      if (!cvs) return;
+      const rect = cvs.getBoundingClientRect();
+
+      // Selection drag
+      if (this.isSelecting) {
+        const curY = Math.max(0, Math.min(1080, e.clientY - rect.top));
+        const minY = Math.min(this.selectStartY, curY);
+        const maxY = Math.max(this.selectStartY, curY);
+
+        let sMin = Math.round((360 + minY) / 15) * 15;
+        let eMin = Math.round((360 + maxY) / 15) * 15;
+        if (eMin <= sMin) eMin = sMin + 30;
+
+        sMin = Math.max(360, Math.min(1410, sMin));
+        eMin = Math.max(sMin + 15, Math.min(1440, eMin));
+
+        this.popoverStartMin = sMin;
+        this.popoverEndMin = eMin;
+
+        if (selBox && selLabel) {
+          selBox.style.top = `${sMin - 360}px`;
+          selBox.style.height = `${eMin - sMin}px`;
+          selLabel.textContent = `${this.minutesToTime(sMin)} - ${this.minutesToTime(eMin)} (${this.formatDuration(sMin, eMin)})`;
+        }
+      }
+
+      // Resizing task
+      if (this.isResizing) {
+        const curY = Math.max(0, Math.min(1080, e.clientY - rect.top));
+        let eMin = Math.round((360 + curY) / 15) * 15;
+        eMin = Math.max(this.resizingStartMin + 15, Math.min(1440, eMin));
+
+        const block = document.getElementById(`timegrid-task-${this.resizingTaskId}`);
+        if (block) {
+          block.style.height = `${eMin - this.resizingStartMin}px`;
+          const badge = block.querySelector('.task-block-time-badge');
+          if (badge) {
+            badge.textContent = `${this.minutesToTime(this.resizingStartMin)} - ${this.minutesToTime(eMin)}`;
+          }
+        }
+      }
+
+      // Moving task
+      if (this.isMoving) {
+        const targetY = (e.clientY - rect.top) - this.movingOffsetY;
+        let sMin = Math.round((360 + targetY) / 15) * 15;
+        sMin = Math.max(360, Math.min(1440 - this.movingDuration, sMin));
+        let eMin = sMin + this.movingDuration;
+
+        const block = document.getElementById(`timegrid-task-${this.movingTaskId}`);
+        if (block) {
+          block.style.top = `${sMin - 360}px`;
+          const badge = block.querySelector('.task-block-time-badge');
+          if (badge) {
+            badge.textContent = `${this.minutesToTime(sMin)} - ${this.minutesToTime(eMin)}`;
+          }
+        }
+      }
+    });
+
+    window.addEventListener('mouseup', (e) => {
+      const cvs = document.getElementById('timegrid-canvas');
+      if (!cvs) return;
+      const rect = cvs.getBoundingClientRect();
+
+      // Finalize selection
+      if (this.isSelecting) {
+        this.isSelecting = false;
+        let duration = this.popoverEndMin - this.popoverStartMin;
+        if (duration < 15) {
+          // Bấm 1 nhấp chuột không kéo -> Tự động đặt khối 1 tiếng (60 phút)
+          let startMin = Math.round((360 + this.selectStartY) / 30) * 30;
+          startMin = Math.max(360, Math.min(1380, startMin));
+          let endMin = startMin + 60;
+          this.popoverStartMin = startMin;
+          this.popoverEndMin = endMin;
+          if (selBox && selLabel) {
+            selBox.style.display = 'flex';
+            selBox.style.top = `${startMin - 360}px`;
+            selBox.style.height = `${endMin - startMin}px`;
+            selLabel.textContent = `${this.minutesToTime(startMin)} - ${this.minutesToTime(endMin)} (1 tiếng)`;
+          }
+        }
+        this.openCreatePopover({
+          startMin: this.popoverStartMin,
+          endMin: this.popoverEndMin,
+          topY: this.popoverStartMin - 360
+        });
+      }
+
+      // Finalize resize
+      if (this.isResizing) {
+        this.isResizing = false;
+        document.body.style.cursor = '';
+        const curY = Math.max(0, Math.min(1080, e.clientY - rect.top));
+        let eMin = Math.round((360 + curY) / 15) * 15;
+        eMin = Math.max(this.resizingStartMin + 15, Math.min(1440, eMin));
+
+        const sTime = this.minutesToTime(this.resizingStartMin);
+        const eTime = this.minutesToTime(eMin);
+
+        StorageManager.updateTask(this.resizingTaskId, {
+          startTime: sTime,
+          endTime: eTime,
+          time: `${sTime} - ${eTime}`
+        }, this.selectedDate);
+
+        this.render();
+        if (window.showToast) window.showToast(`Đã đổi thời lượng: ${sTime} - ${eTime}`, 'success');
+      }
+
+      // Finalize move
+      if (this.isMoving) {
+        this.isMoving = false;
+        document.body.style.cursor = '';
+        const targetY = (e.clientY - rect.top) - this.movingOffsetY;
+        let sMin = Math.round((360 + targetY) / 15) * 15;
+        sMin = Math.max(360, Math.min(1440 - this.movingDuration, sMin));
+        let eMin = sMin + this.movingDuration;
+
+        const sTime = this.minutesToTime(sMin);
+        const eTime = this.minutesToTime(eMin);
+
+        StorageManager.updateTask(this.movingTaskId, {
+          startTime: sTime,
+          endTime: eTime,
+          time: `${sTime} - ${eTime}`
+        }, this.selectedDate);
+
+        this.render();
+        if (window.showToast) window.showToast(`Đã chuyển giờ: ${sTime} - ${eTime}`, 'success');
+      }
+    });
+
+    // Touch Tap-to-Create trên Mobile
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+
+    canvas.addEventListener('touchstart', (e) => {
+      if (e.target.closest('.timegrid-task-block, .btn-task-block-action, .task-block-checkbox, .task-resize-handle, #timegrid-create-popover')) {
+        return;
+      }
+      const t = e.touches[0];
+      touchStartX = t.clientX;
+      touchStartY = t.clientY;
+      touchStartTime = Date.now();
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', (e) => {
+      if (e.target.closest('.timegrid-task-block, .btn-task-block-action, .task-block-checkbox, .task-resize-handle, #timegrid-create-popover')) {
+        return;
+      }
+      const t = e.changedTouches[0];
+      const dx = Math.abs(t.clientX - touchStartX);
+      const dy = Math.abs(t.clientY - touchStartY);
+      const dt = Date.now() - touchStartTime;
+
+      // Nếu chạm nhẹ < 12px và < 350ms (không phải cuộn màn hình)
+      if (dx < 12 && dy < 12 && dt < 350) {
+        const rect = canvas.getBoundingClientRect();
+        const tapY = t.clientY - rect.top;
+        let startMin = Math.round((360 + tapY) / 30) * 30;
+        startMin = Math.max(360, Math.min(1380, startMin));
+        let endMin = startMin + 60;
+
+        this.popoverStartMin = startMin;
+        this.popoverEndMin = endMin;
+
+        if (selBox && selLabel) {
+          selBox.style.display = 'flex';
+          selBox.style.top = `${startMin - 360}px`;
+          selBox.style.height = `${endMin - startMin}px`;
+          selLabel.textContent = `${this.minutesToTime(startMin)} - ${this.minutesToTime(endMin)} (1 tiếng)`;
+        }
+
+        this.openCreatePopover({
+          startMin,
+          endMin,
+          topY: startMin - 360
+        });
+      }
+    }, { passive: true });
+
+    // Tag Tray Drop on Canvas
+    canvas.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      canvas.classList.add('drag-over-active');
+    });
+
+    canvas.addEventListener('dragleave', () => {
+      canvas.classList.remove('drag-over-active');
+    });
+
+    canvas.addEventListener('drop', (e) => {
+      e.preventDefault();
+      canvas.classList.remove('drag-over-active');
+      const tagName = e.dataTransfer.getData('text/plain');
+      if (!tagName) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const dropY = e.clientY - rect.top;
+      let startMin = Math.round((360 + dropY) / 15) * 15;
+      startMin = Math.max(360, Math.min(1380, startMin));
+      let endMin = Math.min(1440, startMin + 60);
+
+      this.popoverStartMin = startMin;
+      this.popoverEndMin = endMin;
+      this.popoverSelectedTag = tagName;
+
+      if (selBox && selLabel) {
+        selBox.style.display = 'flex';
+        selBox.style.top = `${startMin - 360}px`;
+        selBox.style.height = `${endMin - startMin}px`;
+        selLabel.textContent = `${this.minutesToTime(startMin)} - ${this.minutesToTime(endMin)} (${this.formatDuration(startMin, endMin)})`;
+      }
+
+      this.openCreatePopover({
+        startMin,
+        endMin,
+        preselectedTag: tagName,
+        topY: startMin - 360
+      });
+    });
   },
 
   // --------------------------------------------------------------------------
@@ -650,9 +1225,23 @@ window.ScheduleModule = {
     const weeks = StorageManager.getFourWeeksData(this.selectedDate);
 
     gridContainer.innerHTML = weeks.map(w => {
+      let weekTotal = 0;
+      let weekCompleted = 0;
+
       const daysHtml = w.days.map(d => {
         const isCurrentSelected = d.dateStr === this.selectedDate;
-        const taskPillsHtml = d.tasks.slice(0, 3).map(t => {
+
+        let dayTasks = d.tasks;
+        if (this.filterTag === '__important__') {
+          dayTasks = dayTasks.filter(t => !!t.important);
+        } else if (this.filterTag) {
+          dayTasks = dayTasks.filter(t => (t.tag || '').trim().toLowerCase() === this.filterTag.trim().toLowerCase());
+        }
+
+        weekTotal += dayTasks.length;
+        weekCompleted += dayTasks.filter(t => t.completed).length;
+
+        const taskPillsHtml = dayTasks.slice(0, 3).map(t => {
           const color = t.tagColor || StorageManager.getTagColor(t.tag);
           return `
             <div class="horizon-mini-task ${t.completed ? 'is-done' : ''} tag-pill-${color}" title="${this.escapeHTML(t.title)}">
@@ -661,7 +1250,7 @@ window.ScheduleModule = {
           `;
         }).join('');
 
-        const moreCount = d.tasks.length > 3 ? `<div style="font-size: 10px; color: var(--text-muted); font-weight: 600;">+${d.tasks.length - 3} việc nữa</div>` : '';
+        const moreCount = dayTasks.length > 3 ? `<div style="font-size: 10px; color: var(--text-muted); font-weight: 600;">+${dayTasks.length - 3} việc nữa</div>` : '';
 
         return `
           <div class="horizon-day-row ${d.isToday ? 'is-today' : ''} ${isCurrentSelected ? 'is-selected' : ''}" data-date="${d.dateStr}">
@@ -677,6 +1266,8 @@ window.ScheduleModule = {
         `;
       }).join('');
 
+      const percent = weekTotal > 0 ? Math.round((weekCompleted / weekTotal) * 100) : 0;
+
       return `
         <div class="week-horizon-card">
           <div class="week-horizon-header">
@@ -685,9 +1276,9 @@ window.ScheduleModule = {
               <div class="week-horizon-range">${w.rangeStr}</div>
             </div>
             <div class="week-horizon-meter">
-              <span class="week-horizon-fraction">${w.completedTasks}/${w.totalTasks} việc (${w.percent}%)</span>
+              <span class="week-horizon-fraction">${weekCompleted}/${weekTotal} việc (${percent}%)</span>
               <div class="week-meter-track">
-                <div class="week-meter-fill" style="width: ${w.percent}%;"></div>
+                <div class="week-meter-fill" style="width: ${percent}%;"></div>
               </div>
             </div>
           </div>
@@ -736,7 +1327,7 @@ window.ScheduleModule = {
     const month = this.viewMonth;
 
     if (titleText) {
-      titleText.textContent = `Bảng Tháng Toàn Cảnh: Tháng ${month} / ${year}`;
+      titleText.textContent = `Tháng ${month} / ${year}`;
     }
 
     const firstDayOfMonth = new Date(year, month - 1, 1);
@@ -766,7 +1357,12 @@ window.ScheduleModule = {
       const monthStr = String(month).padStart(2, '0');
       const dateStr = `${year}-${monthStr}-${dayStr}`;
 
-      const tasks = StorageManager.getDayTasks(dateStr);
+      let tasks = StorageManager.getDayTasks(dateStr);
+      if (this.filterTag === '__important__') {
+        tasks = tasks.filter(t => !!t.important);
+      } else if (this.filterTag) {
+        tasks = tasks.filter(t => (t.tag || '').trim().toLowerCase() === this.filterTag.trim().toLowerCase());
+      }
       const isToday = dateStr === todayStr;
       const isSelected = dateStr === this.selectedDate;
 

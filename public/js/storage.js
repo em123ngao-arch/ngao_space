@@ -17,6 +17,7 @@ const TAG_PALETTE = {
 
 const DEFAULT_TAGS = [
   { name: 'Admin môn JAVA', color: 'orange' },
+  { name: 'Đi làm', color: 'blue' },
   { name: 'Chuyên Môn', color: 'purple' },
   { name: 'Đề Án', color: 'blue' },
   { name: 'Sinh Hoạt', color: 'emerald' },
@@ -77,8 +78,8 @@ function getCleanInitialState() {
   ];
 
   const tomorrowTasks = [
-    { id: 't_java_2', time: '09:00', title: 'Admin môn JAVA: Viết API phân quyền Spring Security & Test Postman', tag: 'Admin môn JAVA', tagColor: 'orange', important: true, completed: false, period: 'morning' },
-    { id: 't_review', time: '15:00', title: 'Họp nhóm tổng kết tuần & Review tiến độ', tag: 'Chuyên Môn', tagColor: 'purple', important: false, completed: false, period: 'afternoon' }
+    { id: 't_work_1', time: '09:00 - 12:00', title: 'Đi làm: Ca sáng công ty & Hoàn thành báo cáo', tag: 'Đi làm', tagColor: 'blue', important: true, completed: false, period: 'morning' },
+    { id: 't_java_2', time: '14:00 - 16:30', title: 'Admin môn JAVA: Viết API phân quyền Spring Security', tag: 'Admin môn JAVA', tagColor: 'orange', important: true, completed: false, period: 'afternoon' }
   ];
 
   return {
@@ -556,6 +557,30 @@ const StorageManager = {
     return count;
   },
 
+  countAllTasks() {
+    const state = this.getState();
+    let count = 0;
+    if (state.schedule?.days) {
+      Object.values(state.schedule.days).forEach(day => {
+        count += (day.tasks || []).length;
+      });
+    }
+    return count;
+  },
+
+  countImportantTasks() {
+    const state = this.getState();
+    let count = 0;
+    if (state.schedule?.days) {
+      Object.values(state.schedule.days).forEach(day => {
+        (day.tasks || []).forEach(t => {
+          if (t.important) count++;
+        });
+      });
+    }
+    return count;
+  },
+
   getTasksByTag(tagName) {
     if (!tagName) return null;
     const state = this.getState();
@@ -677,6 +702,15 @@ const StorageManager = {
     return `${year}-${month}-${day}`;
   },
 
+  getTomorrowDateStr() {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  },
+
   ensureDaySchedule(state, dateStr) {
     if (!state.schedule) state.schedule = { activePreset: '', tasks: [], days: {} };
     if (!state.schedule.days) state.schedule.days = {};
@@ -726,7 +760,7 @@ const StorageManager = {
     return state;
   },
 
-  addTask({ period, time, title, category, date, tag, tagColor, important }) {
+  addTask({ period, time, title, category, date, tag, tagColor, important, startTime, endTime }) {
     const targetDate = date || this.getTodayDateStr();
     const state = this.getState();
     const currentUser = this.getCurrentUser();
@@ -756,10 +790,14 @@ const StorageManager = {
 
     this.registerTag(taskTag, taskColor);
 
+    const formattedTime = (time || (startTime && endTime ? `${startTime} - ${endTime}` : startTime || '')).trim();
+
     const newTask = {
       id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
       period: period || 'morning',
-      time: (time || '').trim(),
+      time: formattedTime,
+      startTime: startTime || (formattedTime.includes('-') ? formattedTime.split('-')[0].trim() : formattedTime),
+      endTime: endTime || (formattedTime.includes('-') ? formattedTime.split('-')[1].trim() : ''),
       title: title.trim(),
       category: category || 'study',
       tag: taskTag,
@@ -806,6 +844,8 @@ const StorageManager = {
     if (task && updates) {
       if (updates.title !== undefined) task.title = updates.title.trim();
       if (updates.time !== undefined) task.time = (updates.time || '').trim();
+      if (updates.startTime !== undefined) task.startTime = updates.startTime;
+      if (updates.endTime !== undefined) task.endTime = updates.endTime;
       if (updates.category !== undefined) task.category = updates.category;
       if (updates.period !== undefined) task.period = updates.period;
       if (updates.tag !== undefined) task.tag = (updates.tag || '').trim();
