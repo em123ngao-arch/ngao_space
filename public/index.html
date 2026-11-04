@@ -289,13 +289,28 @@
       <!-- VIEW 2: BẢNG 4 TUẦN (HORIZON ROADMAP 4 TUẦN TỚI) -->
       <section class="schedule-view-container" id="container-view-four-weeks" style="display: none;">
         <div class="four-weeks-header-info">
-          <div>
+          <div class="four-weeks-title-group">
             <h3 class="panel-section-title">Bảng 4 Tuần (Horizon Roadmap)</h3>
+            <span class="four-weeks-subtitle-mobile">Vuốt ngang để lướt nhanh giữa các tuần</span>
           </div>
+          <div class="four-weeks-mobile-nav-arrows">
+            <button type="button" class="btn-cal-nav" id="btn-four-weeks-prev" title="Tuần trước">◀</button>
+            <button type="button" class="btn-cal-nav" id="btn-four-weeks-next" title="Tuần sau">▶</button>
+          </div>
+        </div>
+
+        <!-- Thanh chuyển tuần nhanh dạng thẻ pill trên Mobile -->
+        <div class="four-weeks-mobile-pills" id="four-weeks-mobile-pills">
+          <!-- Rendered dynamically -->
         </div>
 
         <div class="four-weeks-grid" id="four-weeks-grid">
           <!-- 4 Week Cards rendered dynamically -->
+        </div>
+
+        <!-- Chỉ số chấm tròn theo dõi tuần trên Mobile -->
+        <div class="four-weeks-dots-indicator" id="four-weeks-dots-indicator">
+          <!-- Rendered dynamically -->
         </div>
       </section>
 

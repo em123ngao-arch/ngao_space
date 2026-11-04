@@ -21,6 +21,7 @@ window.ScheduleModule = {
   modalYear: 2026,
   modalMonth: 10,
   currentViewMode: 'day', // 'day' | 'four-weeks' | 'month'
+  currentFourWeeksIndex: 0,
   filterTag: null,
 
   // Visual Time-Grid state
@@ -1223,10 +1224,65 @@ window.ScheduleModule = {
     if (!gridContainer) return;
 
     const weeks = StorageManager.getFourWeeksData(this.selectedDate);
+    const pillsContainer = document.getElementById('four-weeks-mobile-pills');
+    const dotsContainer = document.getElementById('four-weeks-dots-indicator');
 
-    gridContainer.innerHTML = weeks.map(w => {
+    // 1. Render Mobile Quick Week Switcher Pills
+    if (pillsContainer) {
+      pillsContainer.innerHTML = weeks.map((w, idx) => {
+        const isActive = idx === this.currentFourWeeksIndex;
+        const countBadge = w.totalTasks > 0 ? `${w.completedTasks}/${w.totalTasks}` : '0';
+        return `
+          <button type="button" class="fw-pill-btn ${isActive ? 'active' : ''}" data-week-idx="${idx}">
+            <span class="fw-pill-label">${idx === 0 ? '📍 Tuần Này' : `Tuần +${idx}`}</span>
+            <span class="fw-pill-range">${w.rangeStr}</span>
+            <span class="fw-pill-badge ${w.totalTasks > 0 ? 'has-tasks' : ''}">${countBadge}</span>
+          </button>
+        `;
+      }).join('');
+
+      pillsContainer.querySelectorAll('.fw-pill-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.getAttribute('data-week-idx'), 10);
+          this.scrollToWeek(idx);
+        });
+      });
+    }
+
+    // 2. Render Carousel Dots
+    if (dotsContainer) {
+      dotsContainer.innerHTML = weeks.map((_, idx) => `
+        <span class="fw-dot ${idx === this.currentFourWeeksIndex ? 'active' : ''}" data-index="${idx}" title="Chuyển đến Tuần ${idx === 0 ? 'Này' : '+' + idx}"></span>
+      `).join('');
+
+      dotsContainer.querySelectorAll('.fw-dot').forEach(dot => {
+        dot.addEventListener('click', () => {
+          const idx = parseInt(dot.getAttribute('data-index'), 10);
+          this.scrollToWeek(idx);
+        });
+      });
+    }
+
+    // 3. Render 4 Week Cards
+    gridContainer.innerHTML = weeks.map((w, wIdx) => {
       let weekTotal = 0;
       let weekCompleted = 0;
+
+      // 7-day mini strip on top of each week card
+      const miniStripHtml = `
+        <div class="week-mini-strip">
+          ${w.days.map(d => {
+            const hasTasks = d.tasks && d.tasks.length > 0;
+            return `
+              <div class="mini-strip-item ${d.isToday ? 'is-today' : ''} ${hasTasks ? 'has-tasks' : ''}" data-date="${d.dateStr}" title="${d.dayName} (${d.dayNumber}/${d.monthNumber})${hasTasks ? ` • ${d.tasks.length} việc` : ''}">
+                <span class="mini-strip-day">${d.dayName}</span>
+                <span class="mini-strip-num">${d.dayNumber}</span>
+                ${hasTasks ? `<span class="mini-strip-indicator" title="${d.tasks.length} việc"></span>` : ''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
 
       const daysHtml = w.days.map(d => {
         const isCurrentSelected = d.dateStr === this.selectedDate;
@@ -1241,6 +1297,8 @@ window.ScheduleModule = {
         weekTotal += dayTasks.length;
         weekCompleted += dayTasks.filter(t => t.completed).length;
 
+        const hasTasks = dayTasks.length > 0;
+
         const taskPillsHtml = dayTasks.slice(0, 3).map(t => {
           const color = t.tagColor || StorageManager.getTagColor(t.tag);
           return `
@@ -1250,18 +1308,26 @@ window.ScheduleModule = {
           `;
         }).join('');
 
-        const moreCount = dayTasks.length > 3 ? `<div style="font-size: 10px; color: var(--text-muted); font-weight: 600;">+${dayTasks.length - 3} việc nữa</div>` : '';
+        const moreCount = dayTasks.length > 3 ? `<div class="horizon-more-count">+${dayTasks.length - 3} việc nữa</div>` : '';
 
         return `
-          <div class="horizon-day-row ${d.isToday ? 'is-today' : ''} ${isCurrentSelected ? 'is-selected' : ''}" data-date="${d.dateStr}">
+          <div class="horizon-day-row ${d.isToday ? 'is-today' : ''} ${isCurrentSelected ? 'is-selected' : ''} ${!hasTasks ? 'is-empty' : ''}" data-date="${d.dateStr}">
             <div class="horizon-day-top">
-              <span class="horizon-day-date">${d.dayName} (${d.dayNumber}/${d.monthNumber})</span>
-              <button type="button" class="btn-mini-add-task" data-date="${d.dateStr}" title="Thêm việc cho ngày này">+</button>
+              <div class="horizon-day-date-group">
+                <span class="horizon-day-date">${d.dayName} <span class="horizon-day-subdate">(${d.dayNumber}/${d.monthNumber})</span></span>
+                ${d.isToday ? '<span class="horizon-today-badge">Hôm nay</span>' : ''}
+              </div>
+              <div class="horizon-day-actions">
+                ${hasTasks ? `<span class="horizon-count-chip">${dayTasks.length} việc</span>` : '<span class="horizon-empty-hint">Trống</span>'}
+                <button type="button" class="btn-mini-add-task" data-date="${d.dateStr}" title="Thêm việc cho ngày này">+</button>
+              </div>
             </div>
-            <div class="horizon-day-tasks">
-              ${taskPillsHtml}
-              ${moreCount}
-            </div>
+            ${hasTasks ? `
+              <div class="horizon-day-tasks">
+                ${taskPillsHtml}
+                ${moreCount}
+              </div>
+            ` : ''}
           </div>
         `;
       }).join('');
@@ -1269,10 +1335,13 @@ window.ScheduleModule = {
       const percent = weekTotal > 0 ? Math.round((weekCompleted / weekTotal) * 100) : 0;
 
       return `
-        <div class="week-horizon-card">
+        <div class="week-horizon-card ${wIdx === this.currentFourWeeksIndex ? 'is-active-week' : ''}" data-week-index="${wIdx}" id="week-card-${wIdx}">
           <div class="week-horizon-header">
             <div>
-              <div class="week-horizon-title">${w.label}</div>
+              <div class="week-horizon-title-row">
+                <span class="week-horizon-title">${w.label}</span>
+                ${wIdx === 0 ? '<span class="week-current-pill">Hiện tại</span>' : ''}
+              </div>
               <div class="week-horizon-range">${w.rangeStr}</div>
             </div>
             <div class="week-horizon-meter">
@@ -1283,6 +1352,8 @@ window.ScheduleModule = {
             </div>
           </div>
 
+          ${miniStripHtml}
+
           <div class="week-days-stack">
             ${daysHtml}
           </div>
@@ -1291,10 +1362,10 @@ window.ScheduleModule = {
     }).join('');
 
     // Bắt sự kiện chọn ngày từ bảng 4 tuần -> Nhảy sang Chi tiết Ngày
-    gridContainer.querySelectorAll('.horizon-day-row[data-date]').forEach(row => {
-      row.addEventListener('click', (e) => {
+    gridContainer.querySelectorAll('.horizon-day-row[data-date], .mini-strip-item[data-date]').forEach(el => {
+      el.addEventListener('click', (e) => {
         if (e.target.closest('.btn-mini-add-task')) return;
-        const date = row.getAttribute('data-date');
+        const date = el.getAttribute('data-date');
         if (date) {
           this.selectedDate = date;
           this.setViewMode('day');
@@ -1313,6 +1384,92 @@ window.ScheduleModule = {
         if (date) this.openQuickAddModal(date);
       });
     });
+
+    // Kích hoạt bộ điều hướng tuần & theo dõi vuốt Snap Scroll trên mobile
+    this.initFourWeeksScrollTracker();
+  },
+
+  scrollToWeek(index) {
+    if (index < 0 || index > 3) return;
+    this.currentFourWeeksIndex = index;
+    const gridContainer = document.getElementById('four-weeks-grid');
+    const targetCard = document.getElementById(`week-card-${index}`);
+    if (gridContainer && targetCard) {
+      const scrollLeft = targetCard.offsetLeft - gridContainer.offsetLeft;
+      gridContainer.scrollTo({ left: Math.max(0, scrollLeft), behavior: 'smooth' });
+    }
+    this.updateFourWeeksActiveUI(index);
+  },
+
+  updateFourWeeksActiveUI(index) {
+    this.currentFourWeeksIndex = index;
+    document.querySelectorAll('.fw-pill-btn').forEach((btn, idx) => {
+      btn.classList.toggle('active', idx === index);
+      if (idx === index) {
+        btn.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+      }
+    });
+    document.querySelectorAll('.fw-dot').forEach((dot, idx) => {
+      dot.classList.toggle('active', idx === index);
+    });
+    document.querySelectorAll('.week-horizon-card').forEach((card, idx) => {
+      card.classList.toggle('is-active-week', idx === index);
+    });
+  },
+
+  initFourWeeksScrollTracker() {
+    const gridContainer = document.getElementById('four-weeks-grid');
+    if (!gridContainer) return;
+
+    // Previous / Next Buttons
+    const btnPrev = document.getElementById('btn-four-weeks-prev');
+    const btnNext = document.getElementById('btn-four-weeks-next');
+
+    if (btnPrev && !btnPrev._boundFw) {
+      btnPrev._boundFw = true;
+      btnPrev.addEventListener('click', () => {
+        if (this.currentFourWeeksIndex > 0) {
+          this.scrollToWeek(this.currentFourWeeksIndex - 1);
+        }
+      });
+    }
+
+    if (btnNext && !btnNext._boundFw) {
+      btnNext._boundFw = true;
+      btnNext.addEventListener('click', () => {
+        if (this.currentFourWeeksIndex < 3) {
+          this.scrollToWeek(this.currentFourWeeksIndex + 1);
+        }
+      });
+    }
+
+    // Theo dõi thao tác vuốt trượt ngang
+    let scrollTimer = null;
+    gridContainer.addEventListener('scroll', () => {
+      if (scrollTimer) clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        const cards = Array.from(gridContainer.querySelectorAll('.week-horizon-card'));
+        if (!cards.length) return;
+        const scrollLeft = gridContainer.scrollLeft;
+        const containerWidth = gridContainer.offsetWidth;
+        const center = scrollLeft + containerWidth / 2;
+
+        let closestIdx = 0;
+        let minDiff = Infinity;
+        cards.forEach((card, idx) => {
+          const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+          const diff = Math.abs(center - cardCenter);
+          if (diff < minDiff) {
+            minDiff = diff;
+            closestIdx = idx;
+          }
+        });
+
+        if (closestIdx !== this.currentFourWeeksIndex) {
+          this.updateFourWeeksActiveUI(closestIdx);
+        }
+      }, 70);
+    }, { passive: true });
   },
 
   // --------------------------------------------------------------------------
