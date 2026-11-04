@@ -4,6 +4,8 @@ const path = require('path');
 const ROOT_DIR = __dirname;
 const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
 
+const IGNORED_ITEMS = ['backups', '.git', '.DS_Store', 'Thumbs.db'];
+
 function copyRecursiveSync(src, dest) {
   const exists = fs.existsSync(src);
   const stats = exists && fs.statSync(src);
@@ -14,6 +16,7 @@ function copyRecursiveSync(src, dest) {
       fs.mkdirSync(dest, { recursive: true });
     }
     fs.readdirSync(src).forEach((childItemName) => {
+      if (IGNORED_ITEMS.includes(childItemName)) return;
       copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName));
     });
   } else {
@@ -23,10 +26,11 @@ function copyRecursiveSync(src, dest) {
 
 console.log('[Build] Preparing public/ directory for Vercel deployment...');
 
-// Ensure public directory exists
-if (!fs.existsSync(PUBLIC_DIR)) {
-  fs.mkdirSync(PUBLIC_DIR, { recursive: true });
+// Clean existing public directory to remove stale/unnecessary files
+if (fs.existsSync(PUBLIC_DIR)) {
+  fs.rmSync(PUBLIC_DIR, { recursive: true, force: true });
 }
+fs.mkdirSync(PUBLIC_DIR, { recursive: true });
 
 // Items to copy to public
 const itemsToCopy = ['index.html', 'favicon.ico', 'css', 'js', 'assets', 'data'];

@@ -32,6 +32,25 @@
       const btnExportBackup = document.getElementById('btn-export-backup-now');
       const btnImportBackup = document.getElementById('btn-import-backup-now');
       const inputImportFile = document.getElementById('input-import-backup-file');
+      const btnResetClean = document.getElementById('btn-reset-clean-all-data');
+
+      // Reset / Clean all data
+      btnResetClean?.addEventListener('click', () => {
+        if (confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch trình, tài chính và tin nhắn để đưa về trạng thái trống ban đầu không?')) {
+          if (window.StorageManager && typeof window.StorageManager.resetToClean === 'function') {
+            window.StorageManager.resetToClean();
+            this.pushCurrentState();
+            if (window.FinanceModule) window.FinanceModule.render();
+            if (window.ScheduleModule) window.ScheduleModule.render();
+            if (window.ChatModule) {
+              window.ChatModule.renderMonitor();
+              window.ChatModule.renderMessages();
+            }
+            modalCloud?.classList.remove('active');
+            if (window.showToast) window.showToast('Đã xóa sạch toàn bộ dữ liệu thành công!', 'success');
+          }
+        }
+      });
 
       btnCloud?.addEventListener('click', () => {
         this.openCloudModal();
@@ -253,7 +272,7 @@
         };
 
         const docRef = firestoreDb.collection('ngaos_spaces').doc('shared_data');
-        docRef.set(payload, { merge: true })
+        docRef.set(payload)
           .then(() => {
             this.status = 'connected';
             this.renderStatusBadge();

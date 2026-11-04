@@ -62,72 +62,24 @@ const PRESET_TEMPLATES = {
 };
 
 function getCleanInitialState() {
-  const d = new Date();
-  const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  
-  // Ngày mai để demo tính năng liên kết công việc
-  const tomorrowObj = new Date(d);
-  tomorrowObj.setDate(d.getDate() + 1);
-  const tomorrow = `${tomorrowObj.getFullYear()}-${String(tomorrowObj.getMonth() + 1).padStart(2, '0')}-${String(tomorrowObj.getDate()).padStart(2, '0')}`;
-
-  const defaultTasks = [
-    { id: 't_java_1', time: '08:30', title: 'Admin môn JAVA: Thiết kế giao diện quản trị viên & Đăng ký môn', tag: 'Admin môn JAVA', tagColor: 'orange', important: true, completed: false, period: 'morning' },
-    { id: 's2', time: '10:00', title: 'Nghiên cứu tài liệu chuyên sâu & viết đề án (Deep Work)', tag: 'Đề Án', tagColor: 'blue', important: false, completed: false, period: 'morning' },
-    { id: 's4', time: '14:30', title: 'Thực hành bài tập đề án, sửa lỗi & hoàn thiện báo cáo', tag: 'Đề Án', tagColor: 'blue', important: true, completed: false, period: 'afternoon' },
-    { id: 's7', time: '20:15', title: 'Đọc 1 chương sách chuyên môn & tổng hợp ghi chú', tag: 'Chuyên Môn', tagColor: 'purple', important: false, completed: false, period: 'evening' }
-  ];
-
-  const tomorrowTasks = [
-    { id: 't_work_1', time: '09:00 - 12:00', title: 'Đi làm: Ca sáng công ty & Hoàn thành báo cáo', tag: 'Đi làm', tagColor: 'blue', important: true, completed: false, period: 'morning' },
-    { id: 't_java_2', time: '14:00 - 16:30', title: 'Admin môn JAVA: Viết API phân quyền Spring Security', tag: 'Admin môn JAVA', tagColor: 'orange', important: true, completed: false, period: 'afternoon' }
-  ];
-
   return {
     version: 3,
     schedule: {
-      viewMode: 'day',
-      activePreset: 'self-study',
+      viewMode: 'month',
+      activePreset: '',
       tags: JSON.parse(JSON.stringify(DEFAULT_TAGS)),
-      tasks: defaultTasks,
-      days: {
-        [today]: {
-          activePreset: 'self-study',
-          tasks: defaultTasks
-        },
-        [tomorrow]: {
-          activePreset: 'self-study',
-          tasks: tomorrowTasks
-        }
-      }
+      tasks: [],
+      days: {}
     },
     finance: {
       weeklyBudget: 1500000,
-      goals: [
-        {
-          id: 'goal_laptop',
-          title: 'Quỹ Mua Laptop Mới',
-          targetAmount: 25000000,
-          currentAmount: 0,
-          deadline: '2026-12-31',
-          creator: 'ngan',
-          category: 'tech'
-        }
-      ],
+      goals: [],
       transactions: []
     },
     chat: {
-      messages: [
-        {
-          id: 'msg_initial_1',
-          sender: 'bao',
-          senderName: 'Bảo',
-          type: 'text',
-          text: 'Chào Ngân! Hôm nay học tập thật tốt nhé em bé, anh luôn ở đây tiếp năng lượng cho em!',
-          time: '08:00',
-          timestamp: Date.now() - 3600000
-        }
-      ]
-    }
+      messages: []
+    },
+    updatedAt: Date.now()
   };
 }
 
